@@ -430,7 +430,7 @@
     var ys = []; for (var k = -2; k <= 3; k++) ys.push((B.courseOf(today()) || B.nextFullCourse(today()) - 1) + k);
     box.innerHTML = '<div class="ghead"><h2>Ocupación</h2><div class="gtools"><select id="oy">' + ys.map(function (c) { return '<option value="' + c + '"' + (c === y ? ' selected' : '') + '>Curso ' + B.courseLabel(c) + '</option>'; }).join('') + '</select></div></div>' +
       '<p class="hint">Libres hoy: <b>' + (libresHoy.length ? libresHoy.join(', ') : 'ninguna') + '</b></p>' +
-      '<section class="card"><div class="tscroll"><div class="occ"><div class="orow ohead"><span class="olab"></span><div class="otrack">' +
+      '<section class="card"><div class="tscroll"><div class="occgrid"><div class="orow ohead"><span class="olab"></span><div class="otrack">' +
       months.map(function (m) { return '<span>' + B.MESES[m] + '</span>'; }).join('') + '</div></div>' + rows + '</div></div>' +
       '<p class="legend2"><span><i class="bar-s"></i>Contrato (nombre de la inquilina)</span><span><i class="bar-s man"></i>Ocupada a mano</span><span><i class="now-s"></i>Hoy</span></p></section>';
     $('oy').onchange = function () { box.dataset.oy = this.value; viewOcupacion(); };
