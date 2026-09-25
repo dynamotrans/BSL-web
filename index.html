@@ -1093,6 +1093,12 @@ if (window.BSL) {
     if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
   }, { passive: true });
   window.addEventListener('resize', onScroll);
+  // Al recargar, iOS restauraba la posición a mitad de la portada y la dejaba sin pintar
+  // hasta hacer scroll: se empieza siempre arriba (salvo enlace a una sección) y se recalcula.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  if (!location.hash) window.scrollTo(0, 0);
+  window.addEventListener('pageshow', function () { requestAnimationFrame(onScroll); });
+  window.addEventListener('load', function () { if (!location.hash) window.scrollTo(0, 0); requestAnimationFrame(onScroll); });
   onScroll();
 
   if (WA_NUMBER) {
