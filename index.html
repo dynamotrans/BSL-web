@@ -179,7 +179,9 @@ section.block{padding-block:88px}
 
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
 .duo figure{margin:0}
-.duo figure:nth-child(2){margin-top:56px}
+.duo figure:nth-child(even){margin-top:56px}
+.duo figure:nth-child(n+3){margin-top:-24px}
+.duo figure:nth-child(4){margin-top:32px}
 .duo .ph-wrap,.duo img{border-radius:12px}
 .duo img{width:100%;aspect-ratio:3/4;object-fit:cover;box-shadow:0 24px 40px -28px rgba(16,41,42,.6);transition:transform .8s var(--ease)}
 .duo figure:hover img{transform:translateY(-4px)}
@@ -422,7 +424,9 @@ footer img{height:56px;width:auto}
   .amen{grid-template-columns:1fr 1fr}
   .fam{grid-template-columns:1fr 1fr}
   .families{padding-block:56px 8px}
-  .duo figure:nth-child(2){margin-top:32px}
+  .duo figure:nth-child(even){margin-top:32px}
+  .duo figure:nth-child(3){margin-top:-12px}
+  .duo figure:nth-child(4){margin-top:20px}
 }
 @media (max-width:900px) and (max-height:720px){
   .copy .logo{width:112px;margin-bottom:8px}
@@ -553,9 +557,9 @@ footer img{height:56px;width:auto}
           <p>La casa conserva el azulejo y las molduras originales. Todo lo demás es nuevo: suelos, baños, cocinas y mobiliario.</p>
         </div>
         <ul class="spec rv">
-          <li><b>2</b><span>cocinas equipadas con electrodomésticos y menaje a estrenar</span></li>
-          <li><b>4</b><span>baños completos</span></li>
-          <li><b>1</b><span>salón comedor con Smart TV de 50″</span></li>
+          <li><b>2</b><span>cocinas equipadas, una en cada planta, con electrodomésticos y menaje a estrenar</span></li>
+          <li><b>4</b><span>baños completos, dos en cada planta</span></li>
+          <li><b>1</b><span>salón comedor con Smart TV de 50″ y salida al patio</span></li>
           <li><b>1</b><span>patio interior amueblado con mesa de comedor exterior</span></li>
           <li><b>2</b><span>azoteas, de 70 m² y 80 m²</span></li>
           <li><b>A/C</b><span>aire acondicionado y bomba de calor en zonas comunes</span></li>
@@ -564,11 +568,19 @@ footer img{height:56px;width:auto}
       <div class="duo rv">
         <figure>
           <img src="images/bano.jpg" alt="Baño reformado con mueble de madera, mampara de cristal y pared de mármol" width="900" height="1598" loading="lazy">
-          <figcaption><b>4 baños</b> reformados, a estrenar</figcaption>
+          <figcaption><b>4 baños</b> dos en cada planta, a estrenar</figcaption>
         </figure>
         <figure>
           <img src="images/habitacion-completa.jpg" alt="Habitación con armario, escritorio junto a la ventana y televisor" width="900" height="1598" loading="lazy">
           <figcaption><b>Habitaciones</b> amuebladas y listas</figcaption>
+        </figure>
+        <figure>
+          <img src="images/cocina-planta-baja.jpg" alt="Cocina de la planta baja con horno, microondas, lavavajillas, lavadora y frigorífico" width="900" height="1600" loading="lazy">
+          <figcaption><b>2 cocinas</b> equipadas, una en cada planta</figcaption>
+        </figure>
+        <figure>
+          <img src="images/salon-patio.jpg" alt="Salón comedor con mesa, sofá y televisor, con puerta corredera al patio" width="900" height="1600" loading="lazy">
+          <figcaption><b>Salón comedor</b> con salida al patio</figcaption>
         </figure>
       </div>
     </div>
@@ -591,7 +603,11 @@ footer img{height:56px;width:auto}
       <figure><button type="button"><img src="images/habitacion-escritorio.jpg" alt="Habitación con estantería, escritorio y silla ergonómica" width="900" height="1598" loading="lazy"></button><figcaption><b>Zona de estudio</b>Escritorio, silla ergonómica y TV</figcaption></figure>
       <figure><button type="button"><img src="images/habitacion-cama-140.jpg" alt="Habitación con cama de 140 cm y armario con espejo" width="900" height="1598" loading="lazy"></button><figcaption><b>Cama de 140 cm</b>Colchón nuevo y ropa de cama incluida</figcaption></figure>
       <figure><button type="button"><img src="images/habitacion-completa.jpg" alt="Habitación con armario, escritorio junto a la ventana y televisor" width="900" height="1598" loading="lazy"></button><figcaption><b>Habitación completa</b>Armario de tres puertas y luz natural</figcaption></figure>
-      <figure><button type="button"><img src="images/bano.jpg" alt="Baño reformado con ducha y mueble de madera" width="900" height="1598" loading="lazy"></button><figcaption><b>Baños</b>4 baños completos reformados</figcaption></figure>
+      <figure><button type="button"><img src="images/salon-patio.jpg" alt="Salón comedor con salida al patio" width="900" height="1600" loading="lazy"></button><figcaption><b>Salón comedor</b>Con Smart TV de 50″ y salida al patio</figcaption></figure>
+      <figure><button type="button"><img src="images/cocina-planta-baja.jpg" alt="Cocina de la planta baja" width="900" height="1600" loading="lazy"></button><figcaption><b>Cocina planta baja</b>Horno, microondas, lavavajillas y lavadora</figcaption></figure>
+      <figure><button type="button"><img src="images/cocina-planta-baja-2.jpg" alt="Cocina de la planta baja con frigorífico, horno y placa de inducción" width="900" height="1600" loading="lazy"></button><figcaption><b>Cocina planta baja</b>Frigorífico y placa de inducción</figcaption></figure>
+      <figure><button type="button"><img src="images/cocina-planta-alta.jpg" alt="Cocina de la primera planta con placa, fregadero y lavadora" width="1400" height="788" loading="lazy"></button><figcaption><b>Cocina primera planta</b>Placa de inducción, fregadero y lavadora</figcaption></figure>
+      <figure><button type="button"><img src="images/bano.jpg" alt="Baño reformado con ducha y mueble de madera" width="900" height="1598" loading="lazy"></button><figcaption><b>Baños</b>4 baños completos, dos en cada planta</figcaption></figure>
     </div>
   </section>
 
@@ -613,7 +629,7 @@ footer img{height:56px;width:auto}
         <li class="rv"><b>Limpieza semanal</b><span>De baños, cocinas, salón y pasillos, incluida</span></li>
       </ul>
       <div class="kitchen rv">
-        <h3>Cocinas <em>compartidas</em></h3>
+        <h3>2 cocinas, <em>una en cada planta</em></h3>
         <p>2 microondas, 3 neveras, 2 placas de inducción, lavadora y secadora, 2 freidoras de aire, cafetera de cápsulas, menaje, vajilla y cubertería.</p>
       </div>
     </div>
