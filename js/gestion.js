@@ -37,6 +37,28 @@
     return G.cobros.filter(function (x) { var te = tenantOfCobro(x); return te && te.id === tid && cobroState(x) === 'vencido'; })
       .reduce(function (s, x) { return s + num(x.importe); }, 0);
   }
+  // Paginación: 10 elementos por página, recordando la página de cada listado
+  var PAGES = {}, PER = 10;
+  function pageOf(list, key, per) {
+    per = per || PER;
+    var pages = Math.max(1, Math.ceil(list.length / per)), p = Math.min(PAGES[key] || 0, pages - 1);
+    PAGES[key] = p;
+    return list.slice(p * per, p * per + per);
+  }
+  function pager(key, total, per) {
+    per = per || PER;
+    var pages = Math.ceil(total / per), p = PAGES[key] || 0;
+    if (pages <= 1) return '';
+    var from = p * per + 1, to = Math.min(total, from + per - 1), btns = '', gap = false;
+    for (var i = 0; i < pages; i++) {
+      if (pages > 7 && i > 0 && i < pages - 1 && Math.abs(i - p) > 1) { if (!gap) { btns += '<span class="pg-gap">…</span>'; gap = true; } continue; }
+      gap = false;
+      btns += '<button type="button" data-pgk="' + key + '" data-pg="' + i + '"' + (i === p ? ' aria-current="true"' : '') + '>' + (i + 1) + '</button>';
+    }
+    return '<nav class="pager" aria-label="Páginas"><span class="hint">Mostrando ' + from + '–' + to + ' de ' + total + '</span><div>' +
+      '<button type="button" data-pgk="' + key + '" data-pg="' + Math.max(0, p - 1) + '"' + (p === 0 ? ' disabled' : '') + ' aria-label="Anterior">←</button>' + btns +
+      '<button type="button" data-pgk="' + key + '" data-pg="' + Math.min(pages - 1, p + 1) + '"' + (p === pages - 1 ? ' disabled' : '') + ' aria-label="Siguiente">→</button></div></nav>';
+  }
   function chip(kind, text) { return '<span class="chip2 k-' + kind + '">' + esc(text) + '</span>'; }
 
   /* ---------- Guardado ---------- */
@@ -154,33 +176,36 @@
     var list = G.inquilinas.filter(function (t) { return !q || (fullName(t) + ' ' + (t.telefono || '') + ' ' + (t.doc || '')).toLowerCase().indexOf(q) >= 0; })
       .sort(function (a, b) { return fullName(a).localeCompare(fullName(b)); });
     box.innerHTML = '<div class="ghead"><h2>Inquilinas</h2><div class="gtools"><input type="search" id="q" placeholder="Buscar por nombre, teléfono o DNI" value="' + esc(box.dataset.q || '') + '"><button class="btn" type="button" id="new-t">+ Nueva inquilina</button></div></div>' +
-      (list.length ? '<div class="tlist">' + list.map(function (t) {
+      (list.length ? '<div class="tlist">' + pageOf(list, 'inq', 12).map(function (t) {
         var c = activeContract(t.id), d = debt(t.id);
         return '<button type="button" class="tcard" data-id="' + t.id + '"><b>' + esc(fullName(t)) + '</b>' +
           '<small>' + (c ? esc(roomName(c.habitacionId)) + ' · ' + fmt(c.desde) + ' → ' + fmt(c.hasta) : 'Sin contrato en curso') + '</small>' +
           (t.universidad ? '<small>' + esc(t.universidad) + '</small>' : '') +
           (d ? chip('vencido', 'Debe ' + money(d)) : chip('pagado', 'Al día')) + '</button>';
-      }).join('') + '</div>' : '<p class="empty">Todavía no hay inquilinas. Pulsa <b>+ Nueva inquilina</b> para dar de alta la primera.</p>');
-    $('q').oninput = function () { box.dataset.q = this.value; var pos = this.selectionStart; viewTenants(); $('q').focus(); $('q').setSelectionRange(pos, pos); };
+      }).join('') + '</div>' + pager('inq', list.length, 12) : '<p class="empty">Todavía no hay inquilinas. Pulsa <b>+ Nueva inquilina</b> para dar de alta la primera.</p>');
+    $('q').oninput = function () { box.dataset.q = this.value; PAGES.inq = 0; var pos = this.selectionStart; viewTenants(); $('q').focus(); $('q').setSelectionRange(pos, pos); };
     $('new-t').onclick = function () {
       openForm({ title: 'Nueva inquilina', fields: TENANT_FIELDS, values: {}, ok: 'Crear', onSave: function (v) {
         if (!v.nombre) return 'Pon al menos el nombre.';
         v.id = uid(); v.creada = today(); G.inquilinas.push(v); save(); detail = v.id; show('inq');
       } });
     };
-    box.querySelectorAll('.tcard').forEach(function (b) { b.onclick = function () { detail = b.getAttribute('data-id'); show('inq'); }; });
+    box.querySelectorAll('.tcard').forEach(function (b) { b.onclick = function () { detail = b.getAttribute('data-id'); PAGES.cobT = 0; PAGES.incT = 0; show('inq'); }; });
   }
 
-  function cobroRows(list, showWho) {
+  function cobroRows(list, showWho, key) {
     if (!list.length) return '<p class="empty">No hay cobros.</p>';
-    return '<div class="tscroll"><table class="gt"><thead><tr><th>Vence</th>' + (showWho ? '<th>Inquilina</th><th>Habitación</th>' : '') + '<th>Concepto</th><th class="r">Importe</th><th>Estado</th><th></th></tr></thead><tbody>' +
-      list.sort(function (a, b) { return a.vence < b.vence ? -1 : 1; }).map(function (x) {
+    list.sort(function (a, b) { return a.vence < b.vence ? -1 : 1; });
+    var total = list.length, shown = pageOf(list, key);
+    return '<table class="gt"><thead><tr><th>Vence</th>' + (showWho ? '<th>Inquilina</th><th>Habitación</th>' : '') + '<th>Concepto</th><th class="r">Importe</th><th>Estado</th><th></th></tr></thead><tbody>' +
+      shown.map(function (x) {
         var st = cobroState(x), c = contract(x.contratoId), t = tenantOfCobro(x);
-        return '<tr><td>' + fmt(x.vence) + '</td>' + (showWho ? '<td>' + esc(fullName(t)) + '</td><td>' + esc(c ? roomName(c.habitacionId) : '—') + '</td>' : '') +
-          '<td>' + esc(x.concepto) + '</td><td class="r">' + money(x.importe) + '</td>' +
-          '<td>' + chip(st, st === 'pagado' ? 'Pagado ' + fmt(x.fechaPago) + (x.metodo ? ' · ' + x.metodo : '') : st === 'vencido' ? 'Vencido' : 'Pendiente') + '</td>' +
-          '<td class="r"><button type="button" class="mini" data-cobro="' + x.id + '">' + (x.pagado ? 'Editar' : 'Cobrado') + '</button></td></tr>';
-      }).join('') + '</tbody></table></div>';
+        var meta = 'Vence ' + fmt(x.vence) + (showWho ? ' · ' + fullName(t) + ' · ' + (c ? roomName(c.habitacionId) : '—') : '');
+        return '<tr><td class="c-v">' + fmt(x.vence) + '</td>' + (showWho ? '<td class="c-q">' + esc(fullName(t)) + '</td><td class="c-h">' + esc(c ? roomName(c.habitacionId) : '—') + '</td>' : '') +
+          '<td class="c-c">' + esc(x.concepto) + '</td><td class="c-m">' + esc(meta) + '</td><td class="r c-i">' + money(x.importe) + '</td>' +
+          '<td class="c-e">' + chip(st, st === 'pagado' ? 'Pagado ' + fmt(x.fechaPago) + (x.metodo ? ' · ' + x.metodo : '') : st === 'vencido' ? 'Vencido' : 'Pendiente') + '</td>' +
+          '<td class="r c-a"><button type="button" class="mini" data-cobro="' + x.id + '">' + (x.pagado ? 'Editar' : 'Cobrado') + '</button></td></tr>';
+      }).join('') + '</tbody></table>' + pager(key, total);
   }
   function bindCobros(root) {
     root.querySelectorAll('[data-cobro]').forEach(function (b) {
@@ -281,8 +306,8 @@
         return '<button type="button" class="crow" data-c="' + c.id + '"><span><b>' + esc(roomName(c.habitacionId)) + '</b><small>' + fmt(c.desde) + ' → ' + fmt(c.hasta) + ' · ' + money(c.precio) + ' + ' + money(c.gastos) + ' gastos · día ' + (c.diaPago || 5) + '</small>' +
           '<small>Fianza ' + money(c.fianza) + ' · ' + esc({ pendiente: 'pendiente', cobrada: 'cobrada', devuelta: 'devuelta' }[c.fianzaEstado || 'pendiente']) + '</small></span>' + chip(st[0], st[1]) + '</button>';
       }).join('') : '<p class="empty">Sin contratos. Crea uno para asignarle habitación: la web la marcará ocupada y se generarán los cobros.</p>') + '</section>' +
-      '<section class="card"><div class="ch"><h3>Cobros</h3><span class="hint">Pendiente: <b>' + money(pend) + '</b></span></div>' + cobroRows(cob, false) + '</section>' +
-      '<section class="card"><div class="ch"><h3>Incidencias</h3><button class="btn plain" type="button" id="new-i">+ Incidencia</button></div>' + incList(inc) + '</section>' +
+      '<section class="card"><div class="ch"><h3>Cobros</h3><span class="hint">Pendiente: <b>' + money(pend) + '</b></span></div>' + cobroRows(cob, false, 'cobT') + '</section>' +
+      '<section class="card"><div class="ch"><h3>Incidencias</h3><button class="btn plain" type="button" id="new-i">+ Incidencia</button></div>' + incList(inc, 'incT') + '</section>' +
       '<div class="foot"><span class="hint">Alta: ' + fmt(t.creada) + '</span><button class="btn plain danger" type="button" id="del-t">Borrar inquilina</button></div>';
     $('back').onclick = function () { detail = null; show('inq'); };
     $('edit-t').onclick = function () {
@@ -330,9 +355,9 @@
       '<div class="seg2" id="cf">' + [['abiertos', 'Pendientes'], ['vencido', 'Vencidos'], ['pagado', 'Pagados'], ['todos', 'Todos']].map(function (o) {
         return '<button type="button" data-f="' + o[0] + '" aria-current="' + (o[0] === f) + '">' + o[1] + '</button>';
       }).join('') + '</div>' +
-      '<section class="card">' + cobroRows(list, true) + '</section>';
-    $('cm').onchange = function () { box.dataset.cm = this.value; viewCobros(); };
-    $('cf').onclick = function (e) { var b = e.target.closest('[data-f]'); if (b) { box.dataset.cf = b.getAttribute('data-f'); viewCobros(); } };
+      '<section class="card">' + cobroRows(list, true, 'cob') + '</section>';
+    $('cm').onchange = function () { box.dataset.cm = this.value; PAGES.cob = 0; viewCobros(); };
+    $('cf').onclick = function (e) { var b = e.target.closest('[data-f]'); if (b) { box.dataset.cf = b.getAttribute('data-f'); PAGES.cob = 0; viewCobros(); } };
     $('new-x').onclick = function () {
       var opts = G.contratos.map(function (c) { return [c.id, fullName(tenant(c.inquilinaId)) + ' · ' + roomName(c.habitacionId)]; });
       if (!opts.length) { A.alert('Primero crea una inquilina con su contrato.'); return; }
@@ -352,14 +377,16 @@
 
   /* ---------- Incidencias ---------- */
   var INC_ST = { abierta: ['vencido', 'Abierta'], curso: ['pendiente', 'En curso'], resuelta: ['pagado', 'Resuelta'] };
-  function incList(list) {
+  function incList(list, key) {
     if (!list.length) return '<p class="empty">Sin incidencias.</p>';
-    return list.sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; }).map(function (x) {
+    list.sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; });
+    var total = list.length;
+    return pageOf(list, key).map(function (x) {
       var s = INC_ST[x.estado] || INC_ST.abierta;
       return '<button type="button" class="crow" data-i="' + x.id + '"><span><b>' + esc(x.titulo) + '</b><small>' + fmt(x.fecha) + ' · ' + esc(roomName(x.habitacionId)) +
         (x.inquilinaId ? ' · ' + esc(fullName(tenant(x.inquilinaId))) : '') + (num(x.coste) ? ' · ' + money(x.coste) : '') + '</small>' +
         (x.detalle ? '<small>' + esc(x.detalle.slice(0, 140)) + '</small>' : '') + '</span>' + chip(s[0], s[1]) + '</button>';
-    }).join('');
+    }).join('') + pager(key, total);
   }
   function bindInc(root) {
     root.querySelectorAll('[data-i]').forEach(function (b) {
@@ -395,8 +422,8 @@
     box.innerHTML = '<div class="ghead"><h2>Incidencias</h2><div class="gtools"><span class="hint">Coste este año: <b>' + money(coste) + '</b></span><button class="btn" type="button" id="new-i">+ Nueva incidencia</button></div></div>' +
       '<div class="seg2" id="inf">' + [['abiertas', 'Abiertas'], ['resueltas', 'Resueltas'], ['todas', 'Todas']].map(function (o) {
         return '<button type="button" data-f="' + o[0] + '" aria-current="' + (o[0] === f) + '">' + o[1] + '</button>';
-      }).join('') + '</div><section class="card">' + incList(list) + '</section>';
-    $('inf').onclick = function (e) { var b = e.target.closest('[data-f]'); if (b) { box.dataset.inf = b.getAttribute('data-f'); viewIncidencias(); } };
+      }).join('') + '</div><section class="card">' + incList(list, 'inc') + '</section>';
+    $('inf').onclick = function (e) { var b = e.target.closest('[data-f]'); if (b) { box.dataset.inf = b.getAttribute('data-f'); PAGES.inc = 0; viewIncidencias(); } };
     $('new-i').onclick = function () { incForm(null); };
     bindInc(box);
   }
@@ -466,6 +493,12 @@
   window.BSLGestion = {
     start: function (admin) {
       A = admin; box = $('tab-g'); dlg = $('gdlg');
+      box.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-pg]'); if (!b || b.disabled) return;
+        var holder = b.closest('.card'), top = holder ? holder.getBoundingClientRect().top + window.scrollY - 130 : 0;
+        PAGES[b.getAttribute('data-pgk')] = +b.getAttribute('data-pg');
+        show(tab); window.scrollTo(0, Math.max(0, top));
+      });
       dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
       $('tabs').onclick = function (e) { var b = e.target.closest('[data-t]'); if (b) { detail = null; show(b.getAttribute('data-t')); } };
       return B.store.loadGestion().then(function (g) { G = g; renderTabs(); show(tab); }, function (err) {
