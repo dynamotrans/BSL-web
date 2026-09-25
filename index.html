@@ -841,7 +841,7 @@ footer img{height:56px;width:auto}
         (r.fotos && r.fotos.length ? '<img src="' + esc(r.fotos[0]) + '" alt="' + esc(r.nombre) + '" loading="lazy">' : '<div class="rc-ph"><span>Fotos próximamente</span></div>') +
         '<span class="badge"><i class="dot"></i>' + esc(st.text) + '</span></button>' +
         '<div class="rc-body"><p class="rc-num">Nº ' + r.num + '</p><h3>' + esc(r.nombre) + '</h3>' +
-        '<p class="rc-meta">' + esc(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
+        '<p class="rc-meta">' + B.m2(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
         '<p class="rc-price"><b>' + esc(r.precio) + ' €</b>/mes + ' + esc(r.gastos) + ' € de gastos</p>' +
         '<p class="rc-inc">Agua, luz, fibra + wifi, limpieza y mantenimiento incluidos</p>' +
         '<div class="rc-actions"><button type="button" class="btn sm" data-reserve="' + r.id + '">' + (st.kind === 'ocupada' ? 'Consultar' : 'Reservar') + '</button>' +
@@ -912,7 +912,7 @@ footer img{height:56px;width:auto}
     }).join('');
     document.getElementById('rd-body').innerHTML =
       (fotos ? '<div class="rd-photos">' + fotos + '</div>' : '') +
-      '<p class="rc-price" style="margin:0"><b>' + esc(r.precio) + ' €</b>/mes + ' + esc(r.gastos) + ' € de gastos · ' + esc(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
+      '<p class="rc-price" style="margin:0"><b>' + esc(r.precio) + ' €</b>/mes + ' + esc(r.gastos) + ' € de gastos · ' + B.m2(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
       gastosBox(r) +
       (r.descripcion ? '<p style="margin:0">' + esc(r.descripcion) + '</p>' : '') +
       (r.equipamiento && r.equipamiento.length ? '<ul class="chips">' + r.equipamiento.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +

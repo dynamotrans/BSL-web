@@ -60,7 +60,7 @@ export function cleanData(data) {
     precio: num(r.precio),
     gastos: num(r.gastos),
     m2: num(r.m2),
-    cama: r.cama === '105' ? '105' : '140',
+    cama: ['90', '105', '110', '120', '135', '140', '150'].includes(String(r.cama)) ? String(r.cama) : '140',
     descripcion: str(r.descripcion, 1200),
     equipamiento: (Array.isArray(r.equipamiento) ? r.equipamiento : []).slice(0, 30).map((x) => str(x, 120)),
     fotos: (Array.isArray(r.fotos) ? r.fotos : []).filter(okUrl).slice(0, 20),

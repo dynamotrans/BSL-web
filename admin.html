@@ -367,8 +367,8 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
       '<label class="wide">Nombre<input type="text" id="f-nombre" value="' + esc(r.nombre) + '"></label>' +
       '<label>Precio (€/mes)<input type="number" min="0" step="5" id="f-precio" value="' + esc(r.precio) + '"></label>' +
       '<label>Gastos (€/mes)<input type="number" min="0" step="5" id="f-gastos" value="' + esc(r.gastos) + '"></label>' +
-      '<label>Metros cuadrados<input type="number" min="0" step="0.5" id="f-m2" value="' + esc(r.m2) + '"></label>' +
-      '<label>Cama<select id="f-cama"><option value="105"' + (r.cama === '105' ? ' selected' : '') + '>105 cm</option><option value="140"' + (r.cama === '140' ? ' selected' : '') + '>140 cm</option></select></label>' +
+      '<label>Metros cuadrados<input type="number" min="0" step="0.01" inputmode="decimal" id="f-m2" value="' + esc(r.m2) + '"></label>' +
+      '<label>Cama<select id="f-cama">' + ['90', '105', '110', '120', '135', '140', '150'].map(function (c) { return '<option value="' + c + '"' + (r.cama === c ? ' selected' : '') + '>' + c + ' cm</option>'; }).join('') + '</select></label>' +
       '<label class="wide">Descripción<textarea id="f-desc">' + esc(r.descripcion) + '</textarea></label>' +
       '<label class="wide">Equipamiento (uno por línea)<textarea id="f-equip">' + esc((r.equipamiento || []).join('\n')) + '</textarea></label>' +
       '</div></section>' +

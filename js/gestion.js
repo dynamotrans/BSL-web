@@ -472,6 +472,9 @@
       '<section class="card"><h3>Cursos que se ven en la web</h3><p class="hint">Marca los cursos completos que las chicas pueden reservar. El primero sale como "Principal".</p>' +
       '<div class="checks">' + cands.map(function (y) { return '<label class="switch"><input type="checkbox" data-y="' + y + '"' + (vis.indexOf(y) >= 0 ? ' checked' : '') + '> Curso ' + B.courseLabel(y) + ' <small>(1 sep ' + y + ' – 31 jul ' + (y + 1) + ')</small></label>'; }).join('') + '</div>' +
       '<label class="switch"><input type="checkbox" id="aj-ya"' + (aj.entrarYa !== false ? ' checked' : '') + '> Mostrar "Libres este curso" (habitaciones que ya están libres o que quedan libres en una fecha del curso en marcha, hasta el 31 de julio)</label></section>' +
+      (d.rooms.some(function (r) { return /^Habitación \d+$/.test(r.nombre); }) ?
+        '<section class="card"><h3>Fichas de las 8 habitaciones</h3><p class="hint">Rellena nombre (Azahar, Jazmín, Dalia, Azucena, Tulipán, Malva, Girasol, Margarita), precio, metros, cama y descripción con los datos de tu tabla. <b>No toca</b> fotos, equipamiento, gastos ni fechas. Girasol no tiene precio en la tabla: quedará <b>oculta</b> en la web hasta que le pongas precio y la publiques.</p>' +
+        '<div><button class="btn" type="button" id="fichas">Cargar las 8 fichas</button></div></section>' : '') +
       '<section class="card"><h3>Copia de seguridad</h3><p class="hint">Descarga en un archivo todas las habitaciones, inquilinas, contratos, cobros e incidencias. Guárdalo en un sitio seguro: contiene datos personales.</p>' +
       '<div><button class="btn plain" type="button" id="backup">Descargar copia</button></div></section>';
     box.querySelectorAll('[data-y]').forEach(function (c) {
@@ -482,6 +485,11 @@
       };
     });
     $('aj-ya').onchange = function () { aj.entrarYa = this.checked; A.saveRooms(); };
+    if ($('fichas')) $('fichas').onclick = function () {
+      if (this.dataset.sure !== '1') { this.dataset.sure = '1'; this.textContent = 'Pulsa otra vez para cargar las 8 fichas'; return; }
+      B.applyFichas(d.rooms); A.saveRooms(); A.refresh(); viewAjustes();
+      A.alert('Fichas cargadas. Revisa cada habitación en la pestaña Habitaciones.');
+    };
     $('backup').onclick = function () {
       var blob = new Blob([JSON.stringify({ fecha: new Date().toISOString(), habitaciones: A.data(), gestion: G }, null, 2)], { type: 'application/json' });
       var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'bsl-copia-' + today() + '.json';

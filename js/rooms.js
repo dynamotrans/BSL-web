@@ -113,6 +113,26 @@
     return out;
   }
 
+  /* ---------- Fichas reales de las 8 habitaciones (tabla de la propietaria) ---------- */
+  var FICHAS = [
+    { num: 1, nombre: 'Azahar', precio: 330, m2: 10.74, cama: '140', descripcion: 'Planta baja, primera a la derecha al entrar. Ventana grande a la calle. Medidas: 3,74 × 2,87 m.' },
+    { num: 2, nombre: 'Jazmín', precio: 330, m2: 11.37, cama: '140', descripcion: 'Planta baja, primera a la izquierda al entrar. Ventana grande a la calle. Medidas: 3,74 × 3,04 m.' },
+    { num: 3, nombre: 'Dalia', precio: 320, m2: 8.61, cama: '140', descripcion: 'Planta baja, segunda a la derecha al entrar. Ventana grande al patio. Medidas: 3 × 2,87 m.' },
+    { num: 4, nombre: 'Azucena', precio: 320, m2: 9.94, cama: '140', descripcion: 'Planta baja, al fondo, junto al baño, la cocina y el patio. Ventana grande al patio y armario empotrado. Medidas: 3,39 × 2,93 m.' },
+    { num: 5, nombre: 'Tulipán', precio: 330, m2: 9.21, cama: '140', descripcion: 'Primera planta, primera a la derecha. Ventana grande a la calle. Medidas: 3,13 × 2,94 m.' },
+    { num: 6, nombre: 'Malva', precio: 300, m2: 6.87, cama: '110', descripcion: 'Primera planta, primera a la izquierda. Ventana grande a la azotea de la primera planta. Medidas: 3,38 × 2,03 m.' },
+    { num: 7, nombre: 'Girasol', precio: null, m2: 6.02, cama: '105', descripcion: 'Primera planta, segunda a la derecha. Balcón grande a la calle. Medidas: 2,95 × 2,04 m.' },
+    { num: 8, nombre: 'Margarita', precio: 330, m2: 6.02, cama: '105', descripcion: 'Primera planta, tercera a la derecha. Ventana grande a la calle. Medidas: 2,95 × 2,04 m.' }
+  ];
+  function applyFichas(rooms) {
+    FICHAS.forEach(function (f) {
+      var r = rooms.filter(function (x) { return x.num === f.num; })[0]; if (!r) return;
+      r.nombre = f.nombre; r.m2 = f.m2; r.cama = f.cama; r.descripcion = f.descripcion;
+      if (f.precio == null) r.activa = false; else r.precio = f.precio; // sin precio: se oculta hasta que se ponga
+    });
+  }
+  function m2(v) { return (+v || 0).toLocaleString('es-ES', { maximumFractionDigits: 2 }); }
+
   /* ---------- Datos de ejemplo ---------- */
   var EQUIP = ['Cerradura propia', 'Armario', 'Escritorio y silla ergonómica', 'Smart TV 32″ con wifi',
     'Radiador De’Longhi', 'Ventilador de techo', 'Ropa de cama y toallas'];
@@ -142,6 +162,7 @@
         intervalos: []
       });
     }
+    applyFichas(rooms);
     return { demo: true, rooms: rooms, ajustes: { cursos: [nextFullCourse(today())], entrarYa: true } };
   }
 
@@ -240,6 +261,6 @@
   window.BSL = {
     config: CONFIG, store: BSLStore, waLink: waLink,
     PERIODS: PERIODS, periodRange: periodRange, defaultCourse: defaultCourse, courseLabel: courseLabel,
-    dayState: dayState, status: status, options: options, visibleCourses: visibleCourses, periodRange: periodRange, courseOf: courseOf, nextFullCourse: nextFullCourse, addDays: addDays, toDate: toDate, today: today, fmt: fmt, MESES: MESES
+    dayState: dayState, status: status, options: options, visibleCourses: visibleCourses, FICHAS: FICHAS, applyFichas: applyFichas, m2: m2, periodRange: periodRange, courseOf: courseOf, nextFullCourse: nextFullCourse, addDays: addDays, toDate: toDate, today: today, fmt: fmt, MESES: MESES
   };
 })();
