@@ -939,7 +939,8 @@ footer img{height:56px;width:auto}
       return o ? { kind: o.from === now ? 'libre' : 'parcial', text: o.short } : { kind: 'ocupada', text: 'Ocupada este curso' };
     }
     var c = opt(r, view) || opts(r).filter(function (o) { return o.main; })[0];
-    return { kind: c.st.kind, text: c.st.kind === 'libre' ? 'Libre todo el curso' : c.short };
+    var yl = c.y + '/' + (c.y + 1);
+    return { kind: c.st.kind, text: c.st.kind === 'libre' ? 'Libre ' + yl : c.st.kind === 'ocupada' ? 'Ocupada ' + yl : c.short };
   }
   function render() {
     buildSegs();
