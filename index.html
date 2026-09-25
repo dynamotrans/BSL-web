@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<meta name="format-detection" content="telephone=no,address=no,email=no">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>BSL · Boutique Student Living</title>
 <meta name="description" content="Habitaciones para chicas estudiantes en Dos Hermanas (Sevilla). Casa de 205 m² reformada, limpieza semanal, a 6 min en bus de la Universidad Loyola y en la misma calle que el tren Cercanías. Desde 330 €/mes.">
@@ -289,7 +290,10 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
 
 
 /* ---------- Habitaciones ---------- */
-.rooms{background:var(--tint)}
+.rooms{background:linear-gradient(var(--tint),var(--tint) 72%,var(--ground));padding-bottom:40px}
+.head .addr{margin:2px 0 0;font:600 .9rem/1.3 var(--sans);color:var(--ink);display:flex;align-items:center;gap:8px}
+.head .addr svg{flex:0 0 16px;color:var(--accent)}
+.head .addr a{color:inherit;text-decoration:none}
 .rooms-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:24px;margin-bottom:28px}
 .rooms-top .head{margin-bottom:0}
 .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
@@ -720,12 +724,13 @@ footer img{height:56px;width:auto}
     </div>
   </section>
 
-  <section class="block" id="ubicacion" style="padding-top:0">
+  <section class="block" id="ubicacion" style="padding-top:48px">
     <div class="wrap">
       <div class="head rv">
-        <p class="eyebrow">Ubicación · Calle Canónigo, 41701</p>
+        <p class="eyebrow">Ubicación</p>
         <h2>Junto al Ayuntamiento, <em>en la misma calle que el tren</em></h2>
         <p>Zona muy segura del centro de Dos Hermanas. Estación de Cercanías, parada de taxis y parada central de autobuses a pie de casa.</p>
+        <p class="addr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Calle Canónigo · Dos Hermanas</span></p>
       </div>
       <div class="board rv" role="region" aria-label="Tiempos de viaje desde casa">
         <div class="board-h"><span>Salidas desde casa</span><span class="clock" id="clock">--:--</span></div>
