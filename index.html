@@ -710,16 +710,10 @@ footer img{height:56px;width:auto}
           <option>Máster</option>
           <option>Otra</option>
         </select></label>
-        <label>Duración<select id="f-curso" name="curso">
-          <option>Curso completo 2026/27</option>
-          <option>Primer cuatrimestre</option>
-          <option>Segundo cuatrimestre</option>
+        <label class="full">¿Para cuándo?<select id="f-curso" name="curso">
+          <option>Próximo curso completo</option>
+          <option>Este curso, lo antes posible</option>
           <option>Otra duración</option>
-        </select></label>
-        <label>Cama<select id="f-cama" name="cama">
-          <option>Me da igual</option>
-          <option>105 cm</option>
-          <option>140 cm</option>
         </select></label>
         <label class="full">Mensaje (opcional)<textarea id="f-msg" name="msg" placeholder="Fecha de entrada, dudas, cuándo te viene bien visitarla…"></textarea></label>
         <div class="full actions">
@@ -971,6 +965,10 @@ footer img{height:56px;width:auto}
 <script>
 // Número de WhatsApp de BSL en formato internacional sin "+" (ej. 34600111222). Vacío = pendiente.
 var WA_NUMBER = (window.BSL_CONFIG && window.BSL_CONFIG.whatsapp) || '';
+if (window.BSL) {
+  var yNext = window.BSL.nextFullCourse(window.BSL.today());
+  document.querySelector('#f-curso option').textContent = 'Curso completo ' + window.BSL.courseLabel(yNext);
+}
 
 (function () {
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1149,8 +1147,7 @@ var WA_NUMBER = (window.BSL_CONFIG && window.BSL_CONFIG.whatsapp) || '';
       '',
       'Nombre: ' + (v('f-nombre') || '—'),
       'Universidad: ' + v('f-uni'),
-      'Duración: ' + v('f-curso'),
-      'Cama: ' + v('f-cama')
+      'Para cuándo: ' + v('f-curso')
     ];
     if (v('f-msg')) lines.push('', v('f-msg'));
     var text = lines.join('\n');
