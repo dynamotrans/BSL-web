@@ -1,5 +1,5 @@
 import { get, put } from '@vercel/blob';
-import { DATA_PATH, isAuthed, blobReady, readStream, send, cleanData } from './_lib.js';
+import { DATA_PATH, isAuthed, canWrite, READONLY_MSG, blobReady, readStream, send, cleanData } from './_lib.js';
 
 export default async function handler(req, res) {
   if (!blobReady()) return send(res, 503, { error: 'Almacén no conectado' });
@@ -20,6 +20,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     if (!isAuthed(req)) return send(res, 401, { error: 'Sesión caducada. Vuelve a entrar.' });
+    if (!canWrite(req)) return send(res, 403, { error: READONLY_MSG });
     const data = cleanData(req.body && req.body.data);
     if (!data) return send(res, 400, { error: 'Datos no válidos' });
     await put(DATA_PATH, JSON.stringify(data), {

@@ -3,6 +3,8 @@ import crypto from 'node:crypto';
 
 // SHA-256 de "usuario:clave" del panel. La clave en claro no está en ningún archivo.
 const ADMIN_HASH = process.env.BSL_ADMIN_HASH || '10e13f83f1e159976fd32f265d70210c0e6baff1a783ce3c497236cfdc9aed27';
+// Usuario de solo lectura (comercial): ve todo el panel pero no puede cambiar nada.
+const READER_HASH = process.env.BSL_READER_HASH || 'e1cafaf62ccfc07055968f6922daf7805853468cd2bf539e7a485a65ff751ede';
 // Secreto para firmar la sesión del panel. Se puede sobrescribir con la variable BSL_SESSION_SECRET en Vercel.
 const SECRET = process.env.BSL_SESSION_SECRET || 'VYpIzBHwkBcdYIC0eofkEYkTY2ByxN8PA5iCZfei';
 const SESSION_HOURS = 12;
@@ -14,21 +16,29 @@ const sha256 = (t) => crypto.createHash('sha256').update(t).digest('hex');
 const hmac = (t) => crypto.createHmac('sha256', SECRET).update(t).digest('hex');
 const same = (a, b) => a.length === b.length && crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
 
+// Devuelve el rol ('admin' o 'lectura') o false si usuario/clave no son correctos
 export function checkLogin(user, key) {
   if (typeof user !== 'string' || typeof key !== 'string') return false;
-  return same(sha256(user.trim().toLowerCase() + ':' + key.trim()), ADMIN_HASH);
+  const h = sha256(user.trim().toLowerCase() + ':' + key.trim());
+  if (same(h, ADMIN_HASH)) return 'admin';
+  if (same(h, READER_HASH)) return 'lectura';
+  return false;
 }
 
-export function makeToken() {
-  const exp = Date.now() + SESSION_HOURS * 3600e3;
-  return exp + '.' + hmac(String(exp));
+// Sesión: caducidad.rol.firma (a = admin, r = solo lectura)
+export function makeToken(role) {
+  const exp = Date.now() + SESSION_HOURS * 3600e3, r = role === 'admin' ? 'a' : 'r';
+  return exp + '.' + r + '.' + hmac(exp + '.' + r);
 }
 
+// Rol de la sesión ('admin' | 'lectura') o false si no hay sesión válida
 export function isAuthed(req) {
-  const m = /^Bearer (\d+)\.([0-9a-f]{64})$/.exec(req.headers.authorization || '');
-  if (!m || +m[1] < Date.now()) return false;
-  return same(hmac(m[1]), m[2]);
+  const m = /^Bearer (\d+)\.([ar])\.([0-9a-f]{64})$/.exec(req.headers.authorization || '');
+  if (!m || +m[1] < Date.now() || !same(hmac(m[1] + '.' + m[2]), m[3])) return false;
+  return m[2] === 'a' ? 'admin' : 'lectura';
 }
+export const canWrite = (req) => isAuthed(req) === 'admin';
+export const READONLY_MSG = 'Tu usuario es de solo lectura: no puede cambiar nada.';
 
 export function blobReady() {
   return Boolean(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN);

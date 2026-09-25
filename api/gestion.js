@@ -1,5 +1,5 @@
 import { get, put } from '@vercel/blob';
-import { GESTION_PATH, isAuthed, blobReady, readStream, send, cleanGestion } from './_lib.js';
+import { GESTION_PATH, isAuthed, canWrite, READONLY_MSG, blobReady, readStream, send, cleanGestion } from './_lib.js';
 
 // Datos privados (inquilinas, contratos, cobros, incidencias). Solo con sesión del panel.
 export default async function handler(req, res) {
@@ -21,6 +21,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
+    if (!canWrite(req)) return send(res, 403, { error: READONLY_MSG });
     const g = cleanGestion(req.body && req.body.gestion);
     if (!g) return send(res, 400, { error: 'Datos no válidos' });
     await put(GESTION_PATH, JSON.stringify(g), {

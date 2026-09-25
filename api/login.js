@@ -8,9 +8,10 @@ export default async function handler(req, res) {
   const f = fails.get(ip) || { n: 0, t: 0 };
   if (f.n >= 8 && Date.now() - f.t < 15 * 60e3) return send(res, 429, { error: 'Demasiados intentos. Espera 15 minutos.' });
   const { user, key } = req.body || {};
-  if (checkLogin(user, key)) {
+  const role = checkLogin(user, key);
+  if (role) {
     fails.delete(ip);
-    return send(res, 200, { token: makeToken() });
+    return send(res, 200, { token: makeToken(role), role });
   }
   fails.set(ip, { n: f.n + 1, t: Date.now() });
   await new Promise((r) => setTimeout(r, 700));

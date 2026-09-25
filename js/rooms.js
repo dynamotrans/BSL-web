@@ -259,6 +259,8 @@
       return post('/api/gestion', { gestion: g }, true);
     },
     hasSession: function () { return +(getToken().split('.')[0] || 0) > Date.now(); },
+    // Usuario de solo lectura (comercial): el servidor rechaza cualquier cambio
+    readOnly: function () { return getToken().split('.')[1] === 'r'; },
     reset: function () {
       if (!BSLStore.remote) { try { localStorage.removeItem(KEY); } catch (e) { /* nada */ } }
       return Promise.resolve(seed());
