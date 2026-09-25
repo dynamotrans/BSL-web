@@ -152,6 +152,39 @@ a,button,select,summary,[role=button]{cursor:var(--cursor),pointer}
 .fam b{font:400 1.35rem/1.15 var(--serif)}
 .fam span{font-size:.92rem;line-height:1.45;color:rgba(243,239,230,.8)}
 
+/* ---------- BSL o residencia ---------- */
+.vs{padding-block:64px 24px}
+.vs .head{margin-bottom:28px}
+.vs-table{display:grid;gap:0;border-radius:16px;overflow:hidden;background:var(--surface);box-shadow:0 1px 0 var(--line),0 24px 48px -36px rgba(16,41,42,.5)}
+.vs-row{display:grid;grid-template-columns:150px minmax(0,1.2fr) minmax(0,1fr);align-items:stretch}
+.vs-row + .vs-row{border-top:1px solid var(--line)}
+.vs-row > span{padding:16px 18px;font-size:.95rem;line-height:1.45}
+.vs-k{font:400 1.25rem/1.2 var(--serif);color:var(--ink);display:flex;align-items:center}
+.vs-bsl{background:color-mix(in srgb,var(--teal) 7%,var(--surface));color:var(--ink);position:relative;padding-left:44px!important}
+.vs-bsl i{position:absolute;left:16px;top:18px;width:18px;height:18px;background:var(--grad);-webkit-mask:var(--star) center/contain no-repeat;mask:var(--star) center/contain no-repeat}
+.vs-bsl b{color:var(--teal)}
+.vs-res{color:var(--muted)}
+.vs-res b{color:var(--muted)}
+.vs-headrow > span{padding-block:14px;font-weight:700;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center}
+.vs-headrow .vs-bsl{background:var(--teal);padding-left:18px!important}
+.vs-headrow .vs-bsl img{height:34px;width:auto}
+.vs-note{margin:12px 0 22px;font-size:.8rem;color:var(--muted)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .vs-bsl b{color:var(--cream)}}
+:root[data-theme="dark"] .vs-bsl b{color:var(--cream)}
+@media (max-width:760px){
+  .vs-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"k k" "a b"}
+  .vs-k{grid-area:k;padding-bottom:0!important;font-size:1.15rem}
+  .vs-row > .vs-bsl{grid-area:a}
+  .vs-row > .vs-res{grid-area:b}
+  .vs-row > span{padding:12px 14px;font-size:.88rem}
+  .vs-bsl{padding-left:14px!important;padding-top:34px!important}
+  .vs-bsl i{left:14px;top:12px}
+  .vs-headrow{grid-template-areas:"a b"}
+  .vs-headrow > span:first-child{display:none}
+  .vs-headrow .vs-bsl{padding-top:12px!important}
+  .vs-headrow .vs-res{font-size:.72rem}
+}
+
 /* ---------- Datos clave ---------- */
 .facts{padding-block:64px}
 .facts ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr)}
@@ -534,6 +567,29 @@ footer img{height:56px;width:auto}
         <li class="rv"><b>Cerradura en cada habitación</b><span>Habitación individual y privada. No se admiten parejas.</span></li>
         <li class="rv"><b>Casa cuidada cada semana</b><span>Limpieza semanal, mantenimiento y atención inmediata.</span></li>
       </ul>
+    </div>
+  </section>
+
+  <section class="vs" aria-labelledby="vs-t">
+    <div class="wrap">
+      <div class="head rv">
+        <p class="eyebrow">BSL o residencia</p>
+        <h2 id="vs-t">Vivir como en casa <em>por menos de la mitad</em></h2>
+        <p>Lo que tienes aquí frente a una residencia de estudiantes típica.</p>
+      </div>
+      <div class="vs-table rv" role="table" aria-label="Comparativa BSL y residencia">
+        <div class="vs-row vs-headrow" role="row"><span role="columnheader"></span><span role="columnheader" class="vs-bsl"><img src="images/logo-mark.png" alt="BSL" width="360" height="240"></span><span role="columnheader" class="vs-res">Residencia típica</span></div>
+        <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Precio</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i><b>330 €/mes</b> + 60 € de gastos, todo incluido</span><span class="vs-res" role="cell">Desde <b>800 €/mes</b></span></div>
+        <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Ubicación</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i>Junto al <b>Ayuntamiento</b>, zona muy segura, con <b>tren y bus en la misma calle</b></span><span class="vs-res" role="cell">A menudo en zonas <b>periurbanas</b>, lejos del centro</span></div>
+        <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Convivencia</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i><b>Solo chicas</b> estudiantes, casa de 8 compañeras</span><span class="vs-res" role="cell">Residencias <b>mixtas</b> con cientos de residentes</span></div>
+        <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Día a día</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i>Céntrico: supermercados, farmacia, bancos y centro de salud <b>andando</b></span><span class="vs-res" role="cell">Hace falta coche o transporte para casi todo</span></div>
+        <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Estudio</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i><b>Biblioteca pública 24 h</b> a 50 m y escritorio en cada habitación</span><span class="vs-res" role="cell">Salas de estudio compartidas con horarios</span></div>
+        <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Comidas</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i><b>2 cocinas</b> equipadas: cocinas lo que quieres, cuando quieres</span><span class="vs-res" role="cell">Comedor con menú y horarios fijos</span></div>
+        <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Espacio</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i>Casa de <b>205 m²</b> con patio y <b>dos azoteas</b></span><span class="vs-res" role="cell">Zonas comunes compartidas con todo el edificio</span></div>
+        <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Trato</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i>Casa pequeña y trato cercano, <b>atención inmediata</b></span><span class="vs-res" role="cell">Gestión de gran empresa, más impersonal</span></div>
+      </div>
+      <p class="vs-note">Precios de residencias orientativos en Sevilla y su área metropolitana; varían según el centro.</p>
+      <p><a class="btn" href="#habitaciones">Ver habitaciones libres</a></p>
     </div>
   </section>
 
