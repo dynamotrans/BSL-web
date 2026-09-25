@@ -203,6 +203,11 @@ section.block{padding-block:88px}
 .head p{margin:0;color:var(--muted)}
 .split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
 
+.kfacts{list-style:none;margin:0 0 26px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kfacts li{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.kfacts strong{display:block;font:400 1.9rem/1 var(--serif);font-variant-numeric:tabular-nums}
+.kfacts strong span{display:inline;margin:0;color:inherit;font:inherit}
+.kfacts li > span{display:block;margin-top:6px;color:var(--muted);font-size:.84rem;line-height:1.4}
 .spec{list-style:none;margin:0;padding:0}
 .spec li{display:grid;grid-template-columns:3rem minmax(0,1fr);gap:14px;padding:15px 0;border-bottom:1px solid var(--line);align-items:center;transition:padding-left .3s var(--ease)}
 .spec li:hover{padding-left:8px}
@@ -584,6 +589,12 @@ footer img{height:56px;width:auto}
           <h2>Reformada, equipada y <em>lista para entrar</em></h2>
           <p>La casa conserva el azulejo y las molduras originales. Todo lo demás es nuevo: suelos, baños, cocinas y mobiliario.</p>
         </div>
+        <ul class="kfacts rv">
+          <li><strong class="grad-text"><span data-count="6">6</span> min</strong><span>a la Universidad Loyola en bus directo (línea 5)</span></li>
+          <li><strong class="grad-text"><span data-count="205">205</span> m²</strong><span>con patio y dos azoteas de 70 y 80 m²</span></li>
+          <li><strong class="grad-text">Limpieza</strong><span>semanal de baños, cocinas, salón y pasillos incluida</span></li>
+          <li><strong class="grad-text"><span data-count="340">340</span> €</strong><span>al mes, según habitación</span></li>
+        </ul>
         <ul class="spec rv">
           <li><b>2</b><span>cocinas equipadas, una en cada planta, con electrodomésticos y menaje a estrenar</span></li>
           <li><b>4</b><span>baños, dos en cada planta</span></li>
@@ -637,16 +648,6 @@ footer img{height:56px;width:auto}
     </div>
   </section>
 
-  <section class="facts">
-    <div class="wrap">
-      <ul>
-        <li class="rv"><strong class="grad-text"><span data-count="6">6</span> min</strong><span>a la Universidad Loyola en bus directo (línea 5)</span></li>
-        <li class="rv"><strong class="grad-text"><span data-count="205">205</span> m²</strong><span>con patio y dos azoteas de 70 y 80 m²</span></li>
-        <li class="rv"><strong class="grad-text">Limpieza</strong><span>semanal de baños, cocinas, salón y pasillos incluida</span></li>
-        <li class="rv"><strong class="grad-text"><span data-count="340">340</span> €</strong><span>al mes, según habitación</span></li>
-      </ul>
-    </div>
-  </section>
 
 
   <section class="gallery" id="fotos">
