@@ -368,7 +368,7 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
       '<div class="legend"><span><i style="background:var(--occ)"></i>Ocupada</span><span><i style="background:var(--free)"></i>Libre (marcado)</span><span><i style="background:var(--none);box-shadow:inset 0 0 0 1px var(--line)"></i>Sin marcar (libre)</span></div>' +
       '<div class="cal-wrap"><div class="cal" id="cal"></div></div>' +
       '</section>' +
-      '<div class="foot"><span class="hint">Los cambios se guardan solos.</span><button class="btn plain" type="button" id="reset">Vaciar ocupaciones marcadas a mano (todas las habitaciones)</button></div>';
+      '<p class="hint">Los cambios se guardan solos.</p>';
 
     renderPhotos(); renderIntervals(); renderCal(courses);
 
@@ -393,11 +393,6 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
       r.intervalos = r.intervalos || [];
       r.intervalos.push({ desde: d, hasta: h, estado: document.querySelector('input[name="i-estado"]:checked').value });
       dirty(); renderIntervals(); renderCal(courses); renderList();
-    });
-    $('reset').addEventListener('click', function () {
-      if (this.dataset.sure !== '1') { this.dataset.sure = '1'; this.textContent = 'Se quitarán las ocupadas/libres marcadas a mano en las 8 habitaciones (no las de contratos). Pulsa otra vez'; return; }
-      data.rooms.forEach(function (x) { x.intervalos = (x.intervalos || []).filter(function (i) { return i.origen; }); });
-      dirty(); renderList(); renderEditor();
     });
   }
 
