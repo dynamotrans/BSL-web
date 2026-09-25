@@ -364,7 +364,10 @@
         { k: 'fianza', label: 'Fianza (€)', type: 'number', step: '1' },
         { k: 'fianzaEstado', label: 'Fianza', type: 'select', opts: [['pendiente', 'Pendiente de cobrar'], ['cobrada', 'Cobrada'], ['devuelta', 'Devuelta']] },
         { k: 'diaPago', label: 'Día de pago de cada mes', type: 'number', step: '1' },
-        { k: 'notas', label: 'Notas del contrato', type: 'textarea' }
+        { k: 'notas', label: 'Notas del contrato', type: 'textarea' },
+        { k: 'docs', type: 'html', html: '<div class="docs"><h4 class="subh">Documentos del contrato</h4><div id="c-docs"></div>' +
+          '<label class="btn plain sm doc-add edit-only">+ Adjuntar PDF o fotos<input type="file" id="c-doc-in" accept="application/pdf,image/*" multiple hidden></label>' +
+          '<p class="hint edit-only" id="c-doc-st">PDF o fotos, hasta 3 MB cada uno. Puedes adjuntar varios.</p></div>' }
       ],
       values: {
         habitacionId: c.habitacionId || (r0 && r0.id), desde: c.desde || '', hasta: c.hasta || '',
@@ -379,8 +382,9 @@
         if (!v.desde || !v.hasta || v.desde > v.hasta) return 'Pon la fecha de entrada y la de salida (la salida después de la entrada).';
         var clash = G.contratos.filter(function (o) { return o.id !== c.id && o.habitacionId === v.habitacionId && o.desde <= v.hasta && o.hasta >= v.desde; })[0];
         if (clash) return 'Esa habitación ya tiene un contrato en esas fechas (' + fullName(tenant(clash.inquilinaId)) + ', ' + fmt(clash.desde) + ' → ' + fmt(clash.hasta) + ').';
-        delete v.q;
+        delete v.q; delete v.docs;
         Object.keys(v).forEach(function (k) { c[k] = v[k]; });
+        c.docs = docs.slice();
         c.diaPago = Math.min(28, Math.max(1, num(v.diaPago) || 5));
         if (isNew) { c.id = uid(); c.inquilinaId = tid; G.contratos.push(c); }
         if (c.fianzaEstado === 'cobrada') G.cobros.forEach(function (x) { if (x.contratoId === c.id && x.tipo === 'fianza' && !x.pagado) { x.pagado = true; x.fechaPago = today(); } });
@@ -393,6 +397,71 @@
         syncRooms(); save(); refresh();
       }
     });
+    // Documentos adjuntos (contrato firmado, DNI…): se guardan en privado
+    var docs = (c.docs || []).slice();
+    function keepDocs() { if (!isNew) { c.docs = docs.slice(); save(); } }
+    function drawDocs() {
+      $('c-docs').innerHTML = docs.length ? docs.map(function (d, i) {
+        return '<div class="doc"><span class="doc-ic">' + (d.tipo === 'pdf' ? 'PDF' : 'FOTO') + '</span>' +
+          '<button type="button" class="doc-open" data-dopen="' + i + '">' + esc(d.nombre) + '<small>' + fmt(d.fecha) + '</small></button>' +
+          '<button type="button" class="doc-del edit-only" data-ddel="' + i + '" aria-label="Quitar documento">✕</button></div>';
+      }).join('') : '<p class="hint">Sin documentos adjuntos.</p>';
+    }
+    drawDocs();
+    $('c-docs').onclick = function (e) {
+      var o = e.target.closest('[data-dopen]'), d = e.target.closest('[data-ddel]');
+      if (o) {
+        var doc = docs[+o.getAttribute('data-dopen')], w = window.open('', '_blank');
+        B.store.fetchDoc(doc.path).then(function (blob) {
+          var u = URL.createObjectURL(blob);
+          if (w) w.location.href = u; else window.location.href = u;
+        }, function (err) { if (w) w.close(); if (err.status === 401) return A.expired(); A.alert(err.message); });
+      }
+      if (d && window.confirm('¿Quitar este documento del contrato?')) { docs.splice(+d.getAttribute('data-ddel'), 1); drawDocs(); keepDocs(); }
+    };
+    function readFile(file) {
+      return new Promise(function (res, rej) {
+        var isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+        if (!isPdf && !/^image\//.test(file.type)) return rej(new Error(file.name + ': solo PDF o fotos.'));
+        var fr = new FileReader();
+        fr.onerror = function () { rej(new Error('No se ha podido leer ' + file.name)); };
+        fr.onload = function () {
+          if (isPdf) {
+            if (file.size > 3 * 1024 * 1024) return rej(new Error(file.name + ' pesa más de 3 MB.'));
+            return res({ data: fr.result.replace(/^data:[^;]*;/, 'data:application/pdf;'), tipo: 'pdf' });
+          }
+          var img = new Image();
+          img.onload = function () { // fotos: se reducen a 2000 px para que ocupen poco
+            var k = Math.min(1, 2000 / Math.max(img.width, img.height)), cv = document.createElement('canvas');
+            cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+            cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+            res({ data: cv.toDataURL('image/jpeg', 0.82), tipo: 'img' });
+          };
+          img.onerror = function () { rej(new Error(file.name + ': formato de foto no admitido (usa JPG o PNG).')); };
+          img.src = fr.result;
+        };
+        fr.readAsDataURL(file);
+      });
+    }
+    $('c-doc-in').onchange = function () {
+      var files = Array.prototype.slice.call(this.files || []), st = $('c-doc-st'), errs = [];
+      this.value = '';
+      if (!files.length) return;
+      st.textContent = 'Subiendo ' + files.length + ' archivo' + (files.length > 1 ? 's' : '') + '…';
+      files.reduce(function (p, file) {
+        return p.then(function () {
+          return readFile(file).then(function (f) {
+            return B.store.uploadDoc(f.data).then(function (path) {
+              docs.push({ id: uid(), nombre: file.name.slice(0, 120), tipo: f.tipo, path: path, fecha: today() });
+              drawDocs();
+            });
+          }).catch(function (err) { if (err.status === 401) A.expired(); errs.push(err.message); });
+        });
+      }, Promise.resolve()).then(function () {
+        keepDocs();
+        st.textContent = errs.length ? errs.join(' ') : 'Listo. PDF o fotos, hasta 3 MB cada uno.';
+      });
+    };
     dlg.querySelector('.quick').onclick = function (e) {
       var b = e.target.closest('[data-q]'); if (!b) return;
       var q = b.getAttribute('data-q');
@@ -421,7 +490,7 @@
       '<section class="card"><div class="ch"><h3>Contratos</h3><button class="btn" type="button" id="new-c">+ Nuevo contrato</button></div>' +
       (cs.length ? cs.map(function (c) {
         var now = today(), st = c.hasta < now ? ['fin', 'Terminado'] : c.desde > now ? ['pendiente', 'Próximo'] : ['pagado', 'En curso'];
-        return '<button type="button" class="crow" data-c="' + c.id + '"><span><b>' + esc(roomName(c.habitacionId)) + '</b><small>' + fmt(c.desde) + ' → ' + fmt(c.hasta) + ' · ' + money(c.precio) + ' + ' + money(c.gastos) + ' gastos · día ' + (c.diaPago || 5) + '</small>' +
+        return '<button type="button" class="crow" data-c="' + c.id + '"><span><b>' + esc(roomName(c.habitacionId)) + '</b><small>' + fmt(c.desde) + ' → ' + fmt(c.hasta) + ' · ' + money(c.precio) + ' + ' + money(c.gastos) + ' gastos · día ' + (c.diaPago || 5) + ((c.docs || []).length ? ' · 📎 ' + c.docs.length + ' doc.' : '') + '</small>' +
           '<small>Fianza ' + money(c.fianza) + ' · ' + esc({ pendiente: 'pendiente', cobrada: 'cobrada', devuelta: 'devuelta' }[c.fianzaEstado || 'pendiente']) + '</small></span>' + chip(st[0], st[1]) + '</button>';
       }).join('') : '<p class="empty">Sin contratos. Crea uno para asignarle habitación: la web la marcará ocupada y se generarán los cobros.</p>') + '</section>' +
       '<section class="card"><div class="ch"><h3>Cobros</h3><span class="hint">Pendiente: <b>' + money(pend) + '</b></span></div>' + cobroRows(cob, false, 'cobT') + '</section>' +

@@ -222,6 +222,18 @@
       if (!BSLStore.remote) return Promise.resolve(dataUrl);
       return post('/api/subir', { foto: dataUrl }, true).then(function (j) { return j.url; });
     },
+    // Documentos privados de los contratos (PDF o fotos)
+    uploadDoc: function (dataUrl) {
+      if (!BSLStore.remote) return Promise.resolve(dataUrl);
+      return post('/api/doc', { data: dataUrl }, true).then(function (j) { return j.path; });
+    },
+    fetchDoc: function (path) {
+      if (/^data:/.test(path)) return fetch(path).then(function (r) { return r.blob(); });
+      return fetch('/api/doc?p=' + encodeURIComponent(path), { headers: { Authorization: 'Bearer ' + getToken() }, cache: 'no-store' }).then(function (r) {
+        if (!r.ok) { var e = new Error(r.status === 401 ? 'Sesión caducada. Vuelve a entrar.' : 'No se ha podido abrir el documento.'); e.status = r.status; throw e; }
+        return r.blob();
+      });
+    },
     login: function (user, key) {
       return fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: user, key: key }) })
         .then(function (r) {

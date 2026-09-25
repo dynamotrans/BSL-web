@@ -249,6 +249,15 @@ textarea{min-height:90px;resize:vertical}
 body.ro #new-t,body.ro #new-c,body.ro #new-i,body.ro #new-x,body.ro #del-t,body.ro #edit-t,body.ro #fx-del,body.ro .dfoot [type=submit],
 body.ro [data-cobro],body.ro [data-del],body.ro [data-mv],body.ro [data-rm],body.ro .add,body.ro #wiz,body.ro .edit-only,body.ro #pend,body.ro #backup,body.ro #backup-card,body.ro #ed-demo{display:none!important}
 body.ro #cal{pointer-events:none}
+/* Documentos del contrato */
+.docs{display:grid;gap:8px}
+.docs .subh{margin:6px 0 0}
+.doc{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--ground)}
+.doc-ic{flex:0 0 auto;font:800 .66rem/1 var(--sans);letter-spacing:.06em;padding:6px 7px;border-radius:6px;background:var(--teal);color:#fff}
+.doc-open{flex:1;min-width:0;text-align:left;border:0;background:none;padding:0;cursor:pointer;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.doc-open small{display:block;font-weight:500;color:var(--muted);font-size:.75rem}
+.doc-del{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:0;background:var(--tint);cursor:pointer}
+.doc-add{justify-self:start;cursor:pointer}
 dialog.gdlg.keydlg{width:min(420px,calc(100% - 24px))}
 .keydlg .dbody{grid-template-columns:minmax(0,1fr)}
 .keymsg{margin:0;color:var(--muted);font-size:.92rem}
