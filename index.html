@@ -304,7 +304,7 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
 
 
 /* ---------- Habitaciones ---------- */
-.rooms{background:linear-gradient(var(--tint),var(--tint) 72%,var(--ground));padding-bottom:40px}
+.rooms{background:linear-gradient(var(--ground),var(--tint) 14%);padding-bottom:40px}
 .head .addr{margin:2px 0 0;font:600 .9rem/1.3 var(--sans);color:var(--ink);display:flex;align-items:center;gap:8px}
 .head .addr svg{flex:0 0 16px;color:var(--accent)}
 .head .addr a{color:inherit;text-decoration:none}
@@ -705,34 +705,7 @@ footer img{height:56px;width:auto}
   </section>
 
 
-  <section class="block rooms" id="habitaciones">
-    <div class="wrap">
-      <div class="rooms-top">
-        <div class="head rv">
-          <p class="eyebrow">Disponibilidad</p>
-          <h2>Elige tu <em>habitación</em></h2>
-          <p>Mira qué habitaciones quedan libres para el próximo curso o durante este curso. Pulsa en reservar y te preparamos el mensaje de WhatsApp.</p>
-        </div>
-        <div class="filters">
-          <div class="seg" role="radiogroup" aria-label="Periodo" id="r-seg"></div>
-        </div>
-      </div>
-      <p class="legend"><span class="st-libre"><i class="dot"></i>Libre</span><span class="st-parcial"><i class="dot"></i>Libre parte del curso</span><span class="st-ocupada"><i class="dot"></i>Ocupada</span></p>
-    </div>
-    <div class="rooms-grid" id="rooms-grid" aria-live="polite" aria-label="Habitaciones"></div>
-    <div class="wrap">
-      <div class="r-foot">
-        <div class="dots" id="r-dots" aria-label="Elegir habitación"></div>
-        <div class="g-nav r-nav">
-          <button type="button" id="r-prev" aria-label="Habitaciones anteriores">←</button>
-          <button type="button" id="r-next" aria-label="Habitaciones siguientes">→</button>
-        </div>
-      </div>
-      <p class="demo-note" id="r-demo" hidden>Precios, fotos y disponibilidad de ejemplo.</p>
-    </div>
-  </section>
-
-  <section class="block" id="ubicacion" style="padding-top:48px">
+  <section class="block" id="ubicacion">
     <div class="wrap">
       <div class="head rv">
         <p class="eyebrow">Ubicación</p>
@@ -795,6 +768,33 @@ footer img{height:56px;width:auto}
           <li>Gestión profesional del alquiler de habitaciones.</li>
         </ul>
       </div>
+    </div>
+  </section>
+
+  <section class="block rooms" id="habitaciones">
+    <div class="wrap">
+      <div class="rooms-top">
+        <div class="head rv">
+          <p class="eyebrow">Disponibilidad</p>
+          <h2>Elige tu <em>habitación</em></h2>
+          <p>Mira qué habitaciones quedan libres para el próximo curso o durante este curso. Pulsa en reservar y te preparamos el mensaje de WhatsApp.</p>
+        </div>
+        <div class="filters">
+          <div class="seg" role="radiogroup" aria-label="Periodo" id="r-seg"></div>
+        </div>
+      </div>
+      <p class="legend"><span class="st-libre"><i class="dot"></i>Libre</span><span class="st-parcial"><i class="dot"></i>Libre parte del curso</span><span class="st-ocupada"><i class="dot"></i>Ocupada</span></p>
+    </div>
+    <div class="rooms-grid" id="rooms-grid" aria-live="polite" aria-label="Habitaciones"></div>
+    <div class="wrap">
+      <div class="r-foot">
+        <div class="dots" id="r-dots" aria-label="Elegir habitación"></div>
+        <div class="g-nav r-nav">
+          <button type="button" id="r-prev" aria-label="Habitaciones anteriores">←</button>
+          <button type="button" id="r-next" aria-label="Habitaciones siguientes">→</button>
+        </div>
+      </div>
+      <p class="demo-note" id="r-demo" hidden>Precios, fotos y disponibilidad de ejemplo.</p>
     </div>
   </section>
 
