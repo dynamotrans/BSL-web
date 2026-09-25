@@ -287,6 +287,12 @@ dialog.lb::backdrop{background:rgba(9,28,30,.92);backdrop-filter:blur(6px)}
 .rc-price b{font:400 1.5rem/1 var(--serif);color:var(--ink)}
 .rc-actions{display:flex;gap:8px;margin-top:auto;padding-top:12px}
 .btn.sm{padding:10px 16px;font-size:.86rem}
+.rc-inc{margin:2px 0 0;font-size:.8rem;line-height:1.4;color:var(--muted)}
+.gastos{background:var(--tint);border-radius:var(--r);padding:12px 14px;font-size:.88rem;color:var(--ink)}
+.gastos p{margin:0 0 6px}
+.gastos ul{margin:0;padding:0;list-style:none;display:grid;gap:4px}
+.gastos li{position:relative;padding-left:20px;color:var(--muted)}
+.gastos li::before{content:"";position:absolute;left:0;top:.3em;width:12px;height:12px;background:var(--grad);-webkit-mask:var(--star) center/contain no-repeat;mask:var(--star) center/contain no-repeat}
 .demo-note{margin:22px 0 0;font-size:.85rem;color:var(--muted)}
 .demo-note a{color:var(--accent);font-weight:600}
 
@@ -637,7 +643,7 @@ footer img{height:56px;width:auto}
         <small>Alquiler mensual</small>
         <strong>Desde <span data-count="330">330</span> €</strong>
         <span>según habitación, más gastos fijos</span>
-        <p>Los gastos fijos cubren luz, agua, wifi, limpieza semanal y mantenimiento durante el curso. Precio final sin sorpresas.</p>
+        <p>Los gastos fijos incluyen agua, luz, internet fibra + wifi de alta velocidad, limpieza semanal de zonas comunes (baños, cocinas, salón, pasillos…), mantenimiento y reparaciones. Precio final sin sorpresas.</p>
       </div>
       <div>
         <div class="head rv">
@@ -717,6 +723,7 @@ footer img{height:56px;width:auto}
     <div class="sh-head"><div><h3 id="res-title">Reservar habitación</h3><p class="sh-sub"><i></i>Solo chicas estudiantes</p></div><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
     <div class="sh-body">
       <label>Habitación<select id="res-room"></select></label>
+      <div id="res-gastos"></div>
       <fieldset>
         <legend>¿Para cuándo?</legend>
         <div id="res-opts" class="opts"></div>
@@ -748,6 +755,11 @@ footer img{height:56px;width:auto}
   var B = window.BSL; if (!B) return;
   var data = { rooms: [] }, now = B.today(), inCourse = B.courseOf(now), yn = B.nextFullCourse(now);
   var view = 'curso';
+  var INCLUYE = ['Agua', 'Luz', 'Internet fibra + wifi de alta velocidad', 'Limpieza semanal de zonas comunes: baños, cocinas, salón, pasillos…', 'Mantenimiento y reparaciones'];
+  function gastosBox(r) {
+    return '<div class="gastos"><p><b>Gastos: ' + esc(r.gastos) + ' €/mes</b> · incluyen:</p><ul>' +
+      INCLUYE.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>';
+  }
   var grid = document.getElementById('rooms-grid'), seg = document.getElementById('r-seg');
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   function active() { return data.rooms.filter(function (r) { return r.activa; }).sort(function (a, b) { return a.num - b.num; }); }
@@ -784,6 +796,7 @@ footer img{height:56px;width:auto}
         '<div class="rc-body"><p class="rc-num">Nº ' + r.num + '</p><h3>' + esc(r.nombre) + '</h3>' +
         '<p class="rc-meta">' + esc(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
         '<p class="rc-price"><b>' + esc(r.precio) + ' €</b>/mes + ' + esc(r.gastos) + ' € de gastos</p>' +
+        '<p class="rc-inc">Agua, luz, fibra + wifi, limpieza y mantenimiento incluidos</p>' +
         '<div class="rc-actions"><button type="button" class="btn sm" data-reserve="' + r.id + '">' + (st.kind === 'ocupada' ? 'Consultar' : 'Reservar') + '</button>' +
         '<button type="button" class="btn line dark sm" data-view="' + r.id + '">Ver</button></div></div></article>';
     }).join('') || '<p>No hay habitaciones publicadas ahora mismo.</p>';
@@ -853,6 +866,7 @@ footer img{height:56px;width:auto}
     document.getElementById('rd-body').innerHTML =
       (fotos ? '<div class="rd-photos">' + fotos + '</div>' : '') +
       '<p class="rc-price" style="margin:0"><b>' + esc(r.precio) + ' €</b>/mes + ' + esc(r.gastos) + ' € de gastos · ' + esc(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
+      gastosBox(r) +
       (r.descripcion ? '<p style="margin:0">' + esc(r.descripcion) + '</p>' : '') +
       (r.equipamiento && r.equipamiento.length ? '<ul class="chips">' + r.equipamiento.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
       '<ul class="rd-avail">' + rows + '</ul>';
@@ -869,6 +883,7 @@ footer img{height:56px;width:auto}
   }
   function drawOpts(pref) {
     var room = byId(resRoom.value); if (!room) return;
+    document.getElementById('res-gastos').innerHTML = gastosBox(room);
     var list = B.options(room, now);
     var pick = list.some(function (o) { return o.key === pref; }) ? pref : 'curso';
     optsBox.innerHTML = list.map(function (o) {
@@ -900,7 +915,7 @@ footer img{height:56px;width:auto}
     var c = chosen(); if (!c) return;
     var text = 'Hola, quiero reservar la habitación nº ' + c.room.num + ' (' + c.room.nombre + ') de BSL · Boutique Student Living.\n' +
       'Periodo: ' + c.o.title + ', del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + '.\n' +
-      'Precio: ' + c.room.precio + ' €/mes + ' + c.room.gastos + ' € de gastos.\nSoy estudiante.' +
+      'Precio: ' + c.room.precio + ' €/mes + ' + c.room.gastos + ' € de gastos (agua, luz, internet fibra + wifi, limpieza semanal de zonas comunes, mantenimiento y reparaciones).\nSoy estudiante.' +
       (c.o.st.kind !== 'libre' ? '\nHe visto que figura: ' + c.o.long.toLowerCase() + '. ¿Me avisáis si queda libre?' : '');
     var link = B.waLink(text);
     if (link) { window.location.href = link; return; }
