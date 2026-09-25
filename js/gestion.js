@@ -489,6 +489,133 @@
     };
   }
 
+  /* ---------- Cambios preparados por Claude ---------- */
+  var PEND = [];
+  function norm(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim(); }
+  function roomByNum(n) {
+    var r = A.data().rooms.filter(function (x) { return x.num === +n; })[0];
+    if (!r) throw new Error('No existe la habitación nº ' + n + '.');
+    return r;
+  }
+  function tenantByName(name) {
+    var q = norm(name), list = G.inquilinas.filter(function (t) { return norm(fullName(t)) === q; });
+    if (!list.length) list = G.inquilinas.filter(function (t) { return norm(fullName(t)).indexOf(q) === 0; });
+    if (list.length !== 1) throw new Error(list.length ? 'Hay varias inquilinas llamadas "' + name + '".' : 'No encuentro a la inquilina "' + name + '".');
+    return list[0];
+  }
+  function describe(op) {
+    var r = op.num && op.num !== 'comun' ? (A.data().rooms.filter(function (x) { return x.num === +op.num; })[0] || {}) : null;
+    var rn = op.num === 'comun' ? 'zonas comunes' : r ? 'Nº ' + op.num + ' ' + (r.nombre || '') : '';
+    var sets = function (o) { return Object.keys(o || {}).map(function (k) { return k + ': ' + (Array.isArray(o[k]) ? o[k].join(', ') : o[k]); }).join(' · '); };
+    switch (op.tipo) {
+      case 'habitacion': return 'Habitación ' + rn + ' → ' + sets(op.set);
+      case 'intervalo': return (op.accion === 'quitar' ? 'Quitar' : 'Marcar') + ' ' + (op.estado || 'ocupada') + ' en ' + rn + ': ' + fmt(op.desde) + ' → ' + fmt(op.hasta);
+      case 'inquilina': return 'Inquilina ' + ((op.nombre || '') + ' ' + (op.apellidos || '')).trim() + (op.telefono ? ' · ' + op.telefono : '') + (op.universidad ? ' · ' + op.universidad : '');
+      case 'contrato': return 'Contrato de ' + op.inquilina + ' en ' + rn + ': ' + fmt(op.desde) + ' → ' + fmt(op.hasta) + (op.precio != null ? ' · ' + money(op.precio) : '');
+      case 'fin-contrato': return 'Salida de ' + op.inquilina + (rn ? ' (' + rn + ')' : '') + ' el ' + fmt(op.hasta);
+      case 'cobro-pagado': return 'Cobro pagado: ' + op.inquilina + ' · ' + op.concepto + (op.metodo ? ' · ' + op.metodo : '') + (op.fecha ? ' · ' + fmt(op.fecha) : '');
+      case 'incidencia': return 'Incidencia en ' + (rn || 'zonas comunes') + ': ' + op.titulo;
+      case 'ajustes': return 'Ajustes → ' + sets(op.set);
+      default: return 'Operación desconocida: ' + op.tipo;
+    }
+  }
+  var ROOM_KEYS = ['nombre', 'precio', 'gastos', 'm2', 'cama', 'descripcion', 'activa', 'equipamiento'];
+  function runOp(op) {
+    var t, r, c;
+    switch (op.tipo) {
+      case 'habitacion':
+        r = roomByNum(op.num);
+        Object.keys(op.set || {}).forEach(function (k) { if (ROOM_KEYS.indexOf(k) >= 0) r[k] = op.set[k]; });
+        return;
+      case 'intervalo':
+        r = roomByNum(op.num); r.intervalos = r.intervalos || [];
+        if (op.accion === 'quitar') {
+          var before = r.intervalos.length;
+          r.intervalos = r.intervalos.filter(function (i) { return i.origen || !(i.desde === op.desde && i.hasta === op.hasta && i.estado === (op.estado || i.estado)); });
+          if (r.intervalos.length === before) throw new Error('No encuentro ese intervalo en la habitación nº ' + op.num + '.');
+        } else r.intervalos.push({ desde: op.desde, hasta: op.hasta, estado: op.estado === 'libre' ? 'libre' : 'ocupada' });
+        return;
+      case 'inquilina':
+        var fields = {}; TENANT_FIELDS.forEach(function (f) { if (op[f.k] != null) fields[f.k] = op[f.k]; });
+        if (!fields.nombre) throw new Error('Falta el nombre de la inquilina.');
+        var q = norm(fields.nombre + ' ' + (fields.apellidos || ''));
+        t = G.inquilinas.filter(function (x) { return norm(fullName(x)) === q; })[0];
+        if (t) Object.keys(fields).forEach(function (k) { t[k] = fields[k]; });
+        else { fields.id = uid(); fields.creada = today(); G.inquilinas.push(fields); }
+        return;
+      case 'contrato':
+        t = tenantByName(op.inquilina); r = roomByNum(op.num);
+        if (!op.desde || !op.hasta || op.desde > op.hasta) throw new Error('Fechas de contrato no válidas.');
+        var clash = G.contratos.filter(function (o) { return o.habitacionId === r.id && o.desde <= op.hasta && o.hasta >= op.desde; })[0];
+        if (clash) throw new Error('La habitación nº ' + op.num + ' ya tiene contrato en esas fechas (' + fullName(tenant(clash.inquilinaId)) + ').');
+        c = { id: uid(), inquilinaId: t.id, habitacionId: r.id, desde: op.desde, hasta: op.hasta,
+          precio: op.precio != null ? op.precio : r.precio, gastos: op.gastos != null ? op.gastos : r.gastos,
+          fianza: op.fianza != null ? op.fianza : r.precio, fianzaEstado: op.fianzaEstado || 'pendiente',
+          diaPago: op.diaPago || 5, notas: op.notas || '' };
+        G.contratos.push(c); genCobros(c);
+        return;
+      case 'fin-contrato':
+        t = tenantByName(op.inquilina);
+        var cs = G.contratos.filter(function (x) { return x.inquilinaId === t.id && (!op.num || x.habitacionId === roomByNum(op.num).id); })
+          .sort(function (a, b) { return a.desde < b.desde ? 1 : -1; });
+        if (!cs.length) throw new Error('No encuentro el contrato de ' + op.inquilina + '.');
+        c = cs[0]; if (op.hasta < c.desde) throw new Error('La salida es anterior a la entrada.');
+        c.hasta = op.hasta; genCobros(c);
+        return;
+      case 'cobro-pagado':
+        t = tenantByName(op.inquilina);
+        var ids = G.contratos.filter(function (x) { return x.inquilinaId === t.id; }).map(function (x) { return x.id; });
+        var x = G.cobros.filter(function (k) { return !k.pagado && ids.indexOf(k.contratoId) >= 0 && norm(k.concepto).indexOf(norm(op.concepto)) === 0; })[0];
+        if (!x) throw new Error('No encuentro el cobro pendiente "' + op.concepto + '" de ' + op.inquilina + '.');
+        x.pagado = true; x.fechaPago = op.fecha || today(); x.metodo = op.metodo || 'Transferencia';
+        return;
+      case 'incidencia':
+        if (!op.titulo) throw new Error('Falta el título de la incidencia.');
+        G.incidencias.push({ id: uid(), fecha: op.fecha || today(), habitacionId: op.num === 'comun' || !op.num ? 'comun' : roomByNum(op.num).id,
+          inquilinaId: op.inquilina ? tenantByName(op.inquilina).id : '', titulo: op.titulo, detalle: op.detalle || '', estado: op.estado || 'abierta', coste: num(op.coste) });
+        return;
+      case 'ajustes':
+        var aj = A.data().ajustes = A.data().ajustes || {};
+        Object.keys(op.set || {}).forEach(function (k) { aj[k] = op.set[k]; });
+        return;
+      default: throw new Error('Operación desconocida: ' + op.tipo);
+    }
+  }
+  function applyChange(ch) {
+    var backupG = JSON.stringify(G), backupR = JSON.stringify(A.data().rooms), backupA = JSON.stringify(A.data().ajustes || {});
+    try { (ch.ops || []).forEach(runOp); }
+    catch (e) {
+      G = JSON.parse(backupG); A.data().rooms = JSON.parse(backupR); A.data().ajustes = JSON.parse(backupA);
+      return e.message;
+    }
+    G.cambios = G.cambios || []; G.cambios.push({ id: ch.id, estado: 'aplicado', fecha: today() });
+    syncRooms(); save(); return null;
+  }
+  function renderPend() {
+    var el = $('pend'), done = (G.cambios || []).map(function (x) { return x.id; });
+    var list = PEND.filter(function (ch) { return ch && ch.id && done.indexOf(ch.id) < 0; });
+    el.hidden = !list.length;
+    if (!list.length) { el.innerHTML = ''; return; }
+    el.innerHTML = '<h2>Cambios preparados por Claude (' + list.length + ')</h2><p class="hint">Revisa cada uno. No se aplica nada hasta que pulses <b>Aplicar</b>.</p>' +
+      list.map(function (ch) {
+        var lines; try { lines = (ch.ops || []).map(function (op) { return '<li>' + esc(describe(op)) + '</li>'; }).join(''); } catch (e) { lines = '<li>' + esc(e.message) + '</li>'; }
+        return '<div class="pc" data-ch="' + esc(ch.id) + '"><b>' + esc(ch.resumen || ch.id) + '</b>' + (ch.fecha ? '<small class="hint">Preparado el ' + fmt(ch.fecha) + '</small>' : '') +
+          '<ul>' + lines + '</ul><p class="perr" hidden></p><div class="row"><button type="button" class="btn" data-ok>Aplicar</button><button type="button" class="btn plain" data-no>Descartar</button></div></div>';
+      }).join('');
+    el.querySelectorAll('.pc').forEach(function (card) {
+      var ch = list.filter(function (x) { return x.id === card.getAttribute('data-ch'); })[0];
+      card.querySelector('[data-ok]').onclick = function () {
+        var err = applyChange(ch);
+        if (err) { var p = card.querySelector('.perr'); p.textContent = 'No se ha aplicado: ' + err; p.hidden = false; return; }
+        A.alert('Cambio aplicado: ' + (ch.resumen || ch.id)); renderPend(); A.refresh(); refresh();
+      };
+      card.querySelector('[data-no]').onclick = function () {
+        if (this.dataset.sure !== '1') { this.dataset.sure = '1'; this.textContent = 'Pulsa otra vez para descartar'; return; }
+        G.cambios = G.cambios || []; G.cambios.push({ id: ch.id, estado: 'descartado', fecha: today() }); save(); renderPend();
+      };
+    });
+  }
+
   /* ---------- Arranque ---------- */
   window.BSLGestion = {
     start: function (admin) {
@@ -501,7 +628,10 @@
       });
       dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
       $('tabs').onclick = function (e) { var b = e.target.closest('[data-t]'); if (b) { detail = null; show(b.getAttribute('data-t')); } };
-      return B.store.loadGestion().then(function (g) { G = g; renderTabs(); show(tab); }, function (err) {
+      return B.store.loadGestion().then(function (g) {
+        G = g; G.cambios = G.cambios || []; renderTabs(); show(tab);
+        B.store.loadCambios().then(function (list) { PEND = list; renderPend(); });
+      }, function (err) {
         if (err.status === 401) return A.expired();
         G = { inquilinas: [], contratos: [], cobros: [], incidencias: [] }; renderTabs();
         A.alert('No se han podido cargar los datos de gestión: ' + err.message);

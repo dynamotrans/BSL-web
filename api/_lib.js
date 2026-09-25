@@ -99,7 +99,7 @@ export function cleanGestion(g) {
     return null;
   };
   const out = {};
-  ['inquilinas', 'contratos', 'cobros', 'incidencias'].forEach((k) => { out[k] = Array.isArray(g[k]) ? walk(g[k], 0) : []; });
+  ['inquilinas', 'contratos', 'cobros', 'incidencias', 'cambios'].forEach((k) => { out[k] = Array.isArray(g[k]) ? walk(g[k], 0) : []; });
   out.updatedAt = new Date().toISOString();
   return JSON.stringify(out).length > 3 * 1024 * 1024 ? null : out;
 }

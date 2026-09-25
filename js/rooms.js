@@ -240,10 +240,16 @@
       return fetch('/api/gestion', { headers: { Authorization: 'Bearer ' + getToken() }, cache: 'no-store' }).then(function (r) {
         return r.json().catch(function () { return {}; }).then(function (j) {
           if (!r.ok) { var e = new Error(j.error || ('Error ' + r.status)); e.status = r.status; throw e; }
-          ['inquilinas', 'contratos', 'cobros', 'incidencias'].forEach(function (k) { if (!Array.isArray(j[k])) j[k] = []; });
+          ['inquilinas', 'contratos', 'cobros', 'incidencias', 'cambios'].forEach(function (k) { if (!Array.isArray(j[k])) j[k] = []; });
           return j;
         });
       });
+    },
+    loadCambios: function () {
+      if (!BSLStore.remote) return Promise.resolve([]);
+      return fetch('/api/cambios', { headers: { Authorization: 'Bearer ' + getToken() }, cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : { cambios: [] }; })
+        .then(function (j) { return Array.isArray(j.cambios) ? j.cambios : []; }, function () { return []; });
     },
     saveGestion: function (g) {
       if (!BSLStore.remote) {
