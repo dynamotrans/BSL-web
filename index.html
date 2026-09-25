@@ -163,10 +163,14 @@ section.block{padding-block:88px}
 .check li::before{content:"";position:absolute;left:0;top:.3em;width:16px;height:16px;background:var(--grad);-webkit-mask:var(--star) center/contain no-repeat;mask:var(--star) center/contain no-repeat;transition:transform .5s var(--ease)}
 .check li:hover::before{transform:rotate(90deg)}
 
-.feature{margin:0;position:relative;border-radius:var(--r);overflow:hidden}
-.feature img{width:100%;aspect-ratio:4/5;max-height:600px;object-fit:cover;transition:transform 1.2s var(--ease)}
-.feature:hover img{transform:scale(1.04)}
-.feature figcaption{position:absolute;left:14px;bottom:14px;background:rgba(15,48,51,.85);color:var(--cream);font-size:.82rem;padding:7px 12px;border-radius:999px;backdrop-filter:blur(6px)}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.duo figure{margin:0}
+.duo figure:nth-child(2){margin-top:56px}
+.duo .ph-wrap,.duo img{border-radius:12px}
+.duo img{width:100%;aspect-ratio:3/4;object-fit:cover;box-shadow:0 24px 40px -28px rgba(16,41,42,.6);transition:transform .8s var(--ease)}
+.duo figure:hover img{transform:translateY(-4px)}
+.duo figcaption{margin-top:10px;font-size:.88rem;color:var(--muted)}
+.duo figcaption b{display:block;font:400 1.35rem/1.1 var(--serif);color:var(--ink)}
 
 /* ---------- Galería ---------- */
 .gallery{background:var(--teal);color:var(--cream);padding-block:88px;overflow:hidden}
@@ -362,6 +366,8 @@ footer img{height:56px;width:auto}
   .near{grid-template-columns:1fr 1fr}
   section.block,.gallery{padding-block:64px}
   .kitchen{grid-template-columns:1fr;gap:10px}
+  .duo{gap:12px}
+  .duo figure:nth-child(2){margin-top:32px}
 }
 @media (max-width:900px) and (max-height:720px){
   .copy .logo{width:112px;margin-bottom:8px}
@@ -468,10 +474,16 @@ footer img{height:56px;width:auto}
           <li><b>A/C</b><span>aire acondicionado y bomba de calor en zonas comunes</span></li>
         </ul>
       </div>
-      <figure class="feature rv">
-        <img src="images/bano.jpg" alt="Baño reformado con mueble de madera, mampara de cristal y pared de mármol" width="900" height="1598" loading="lazy">
-        <figcaption>Uno de los 4 baños, a estrenar</figcaption>
-      </figure>
+      <div class="duo rv">
+        <figure>
+          <img src="images/bano.jpg" alt="Baño reformado con mueble de madera, mampara de cristal y pared de mármol" width="900" height="1598" loading="lazy">
+          <figcaption><b>4 baños</b> reformados, a estrenar</figcaption>
+        </figure>
+        <figure>
+          <img src="images/habitacion-completa.jpg" alt="Habitación con armario, escritorio junto a la ventana y televisor" width="900" height="1598" loading="lazy">
+          <figcaption><b>Habitaciones</b> amuebladas y listas</figcaption>
+        </figure>
+      </div>
     </div>
   </section>
 
