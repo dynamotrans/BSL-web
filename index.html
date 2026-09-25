@@ -891,7 +891,7 @@ footer img{height:56px;width:auto}
   // Filtro: cursos visibles (Ajustes del panel) y, si hay curso en marcha, "Para entrar ya"
   function buildSegs() {
     var segs = B.visibleCourses(data.ajustes, now).map(function (y) { return ['curso-' + y, 'Curso ' + B.courseLabel(y)]; });
-    if (inCourse !== null && !(data.ajustes && data.ajustes.entrarYa === false)) segs.push(['resto', 'Libres este curso']);
+    if (inCourse !== null && !(data.ajustes && data.ajustes.entrarYa === false)) segs.unshift(['resto', 'Libres este curso']);
     if (!segs.some(function (x) { return x[0] === view; })) view = segs[0][0];
     seg.innerHTML = segs.map(function (x) { return '<button type="button" role="radio" aria-checked="' + (x[0] === view) + '" data-p="' + x[0] + '">' + x[1] + '</button>'; }).join('');
   }
