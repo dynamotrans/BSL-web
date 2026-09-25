@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Panel BSL</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --teal:#164346;--teal-deep:#0f3033;--magenta:#d4507f;--coral:#f08a6c;--sun:#f7c95c;--cream:#f3efe6;
+  --grad:linear-gradient(90deg,var(--magenta),var(--coral) 50%,var(--sun));
+  --ground:#f1f4f3;--surface:#ffffff;--ink:#10292a;--muted:#5a6d6c;--line:#dbe3e1;--tint:#e8efed;
+  --occ:#c0456f;--free:#2c9a6a;--none:#e3e9e7;
+  --serif:"Instrument Serif",Georgia,serif;--sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:8px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){color-scheme:dark;--ground:#0d2224;--surface:#132d30;--ink:#eef2f0;--muted:#9fb4b2;--line:#23413f;--tint:#18373a;--none:#1d3a3c}
+}
+:root[data-theme="dark"]{color-scheme:dark;--ground:#0d2224;--surface:#132d30;--ink:#eef2f0;--muted:#9fb4b2;--line:#23413f;--tint:#18373a;--none:#1d3a3c}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font:400 15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;line-height:1.1}
+img{max-width:100%;display:block}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:999px;border:0;background:var(--grad);color:#1a1414;font-weight:700;font-size:.9rem;cursor:pointer;text-decoration:none}
+.btn.plain{background:var(--tint);color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--cream);box-shadow:inset 0 0 0 1px rgba(243,239,230,.35)}
+.muted{color:var(--muted)}
+
+/* Acceso */
+.login{min-height:100%;display:grid;place-items:center;background:var(--teal);padding:24px 16px}
+.login form{width:min(380px,100%);display:grid;gap:14px;color:var(--cream);text-align:center}
+.login img{width:180px;margin:0 auto 6px}
+.login h1{font-size:2.2rem}
+.login input{width:100%;padding:14px 16px;border-radius:12px;border:1px solid rgba(243,239,230,.25);background:rgba(0,0,0,.18);color:var(--cream);font-size:1rem;text-align:center;letter-spacing:.08em}
+.login .err{color:var(--sun);min-height:1.4em;margin:0;font-size:.9rem}
+.login small{opacity:.7}
+
+/* Panel */
+.bar{position:sticky;top:0;z-index:5;background:var(--teal);color:var(--cream);padding-top:env(safe-area-inset-top,0px)}
+.bar .in{max-width:1280px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
+.bar img{height:34px;width:auto}
+.bar h1{font-size:1.35rem;flex:1}
+.save-state{font-size:.82rem;opacity:.8}
+.layout{max-width:1280px;margin:0 auto;padding:20px 16px 60px;display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
+.list{display:grid;gap:8px;position:sticky;top:78px}
+.item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--line);cursor:pointer;text-align:left;width:100%}
+.item[aria-current="true"]{border-color:var(--coral);box-shadow:0 0 0 3px color-mix(in srgb,var(--coral) 22%,transparent)}
+.item .n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--teal);color:var(--cream);font-weight:700;font-size:.85rem}
+.item b{display:block;font-size:.95rem}
+.item small{color:var(--muted);font-size:.78rem}
+.item.off{opacity:.55}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--st,#999)}
+.st-libre{--st:var(--free)}.st-ocupada{--st:var(--occ)}.st-parcial{--st:#c98a12}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;gap:16px}
+.editor{display:grid;gap:18px}
+.ed-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px}
+.ed-head h2{font-size:2rem}
+.switch{display:inline-flex;align-items:center;gap:10px;font-weight:600;cursor:pointer}
+.switch input{appearance:none;width:46px;height:26px;border-radius:999px;background:var(--none);position:relative;cursor:pointer;transition:background .2s ease;margin:0}
+.switch input::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s ease}
+.switch input:checked{background:var(--free)}
+.switch input:checked::after{transform:translateX(20px)}
+.card h3{font-size:1.4rem}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.grid .wide{grid-column:1/-1}
+label{display:grid;gap:5px;font-size:.8rem;font-weight:600;color:var(--muted)}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:var(--r);background:var(--ground);font-size:.95rem;color:var(--ink)}
+textarea{min-height:90px;resize:vertical}
+.hint{font-size:.82rem;color:var(--muted);margin:0}
+
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.ph{position:relative;border-radius:10px;overflow:hidden;background:var(--tint);aspect-ratio:4/3}
+.ph img{width:100%;height:100%;object-fit:cover}
+.ph .tools{position:absolute;inset:auto 6px 6px 6px;display:flex;justify-content:space-between;gap:4px}
+.ph button{width:30px;height:30px;border-radius:50%;border:0;background:rgba(15,48,51,.85);color:#fff;cursor:pointer;font-size:.8rem}
+.ph .main{position:absolute;left:6px;top:6px;background:var(--sun);color:#1a1414;font-size:.7rem;font-weight:700;padding:3px 7px;border-radius:999px}
+.add{display:grid;place-items:center;border:2px dashed var(--line);border-radius:10px;aspect-ratio:4/3;color:var(--muted);font-weight:600;cursor:pointer;text-align:center;padding:8px}
+.add input{display:none}
+
+.seg{display:inline-flex;background:var(--tint);border-radius:999px;padding:4px;gap:2px}
+.seg label{display:block;padding:8px 14px;border-radius:999px;cursor:pointer;color:var(--muted);font-size:.85rem}
+.seg input{display:none}
+.seg label:has(input:checked){background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg label.occ:has(input:checked){background:var(--occ);color:#fff}
+.seg label.free:has(input:checked){background:var(--free);color:#fff}
+.add-int{display:grid;grid-template-columns:auto 1fr 1fr auto;gap:10px;align-items:end}
+.quick{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.quick select{width:auto}
+.quick button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font-size:.82rem;cursor:pointer}
+
+.ints{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:.9rem}
+.ints td{padding:9px 6px;border-top:1px solid var(--line)}
+.ints td:last-child{text-align:right}
+.chip{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.x{border:0;background:var(--tint);border-radius:999px;padding:5px 10px;cursor:pointer;font-size:.8rem}
+
+.cal-wrap{overflow-x:auto}
+.cal{display:grid;grid-template-columns:78px repeat(12,minmax(44px,1fr));gap:3px;min-width:640px;font-size:.75rem}
+.cal .h{color:var(--muted);text-align:center;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding-bottom:4px}
+.cal .y{color:var(--ink);font-weight:600;display:flex;align-items:center}
+.cal .y.now{color:var(--magenta)}
+.m{display:flex;height:26px;border-radius:4px;overflow:hidden;background:var(--none);cursor:pointer}
+.m i{flex:1;background:var(--none)}
+.m i.o{background:var(--occ)}
+.m i.f{background:var(--free)}
+.m i.t{box-shadow:inset 0 0 0 1px var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.82rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:10px;border-radius:2px;display:inline-block}
+.demo{background:color-mix(in srgb,var(--sun) 22%,var(--surface));border:1px solid color-mix(in srgb,var(--sun) 60%,transparent);border-radius:12px;padding:12px 14px;font-size:.88rem}
+.foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
+
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .list{position:static;display:flex;overflow-x:auto;gap:8px;padding-bottom:4px;scrollbar-width:none}
+  .item{flex:0 0 auto;width:auto;grid-template-columns:auto auto}
+  .item .dot{display:none}
+  .grid{grid-template-columns:1fr 1fr}
+  .add-int{grid-template-columns:1fr 1fr}
+  .add-int .seg,.add-int .btn{grid-column:1/-1}
+  .bar h1{font-size:1.1rem}
+  .save-state{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="login" id="login">
+  <form id="login-form" autocomplete="off">
+    <img src="images/logo-bsl.png" alt="BSL · Boutique Student Living" width="560" height="488">
+    <h1>Panel de habitaciones</h1>
+    <input type="password" id="key" placeholder="Clave" aria-label="Clave" autofocus>
+    <button class="btn" type="submit">Entrar</button>
+    <p class="err" id="err" role="alert"></p>
+    <small>Versión de prueba · clave: bsl2026</small>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <header class="bar">
+    <div class="in">
+      <img src="images/logo-mark.png" alt="BSL" width="360" height="240">
+      <h1>Panel de habitaciones</h1>
+      <span class="save-state" id="save-state">Todo guardado</span>
+      <a class="btn ghost" href="index.html#habitaciones">Ver web</a>
+      <button class="btn ghost" type="button" id="logout">Salir</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="list" id="list" aria-label="Habitaciones"></nav>
+    <main class="editor" id="editor"></main>
+  </div>
+</div>
+
+<script src="js/rooms.js"></script>
+<script>
+(function () {
+  var B = window.BSL, data = null, sel = 'h1', saveTimer = null;
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+  /* ---------- Acceso ---------- */
+  function unlocked() { try { return sessionStorage.getItem('bsl-admin') === '1'; } catch (e) { return false; } }
+  function enter() {
+    $('login').hidden = true; $('app').hidden = false;
+    B.store.load().then(function (d) { data = d; renderList(); renderEditor(); });
+  }
+  $('login-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    B.sha256($('key').value.trim()).then(function (h) {
+      if (h && h === B.config.adminKeyHash) {
+        try { sessionStorage.setItem('bsl-admin', '1'); } catch (x) { /* nada */ }
+        enter();
+      } else { $('err').textContent = 'Clave incorrecta. Prueba otra vez.'; $('key').select(); }
+    });
+  });
+  $('logout').addEventListener('click', function () {
+    try { sessionStorage.removeItem('bsl-admin'); } catch (e) { /* nada */ }
+    location.reload();
+  });
+  if (unlocked()) enter();
+
+  /* ---------- Guardado automático ---------- */
+  function dirty() {
+    $('save-state').textContent = 'Guardando…';
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      B.store.save(data).then(function () { $('save-state').textContent = 'Todo guardado'; },
+        function (err) { $('save-state').textContent = err.message; alertBox(err.message); });
+    }, 400);
+  }
+  function alertBox(msg) { var el = $('ed-alert'); if (el) { el.textContent = msg; el.hidden = false; } }
+  function room() { return data.rooms.filter(function (r) { return r.id === sel; })[0]; }
+
+  /* ---------- Lista ---------- */
+  function renderList() {
+    var y = B.defaultCourse(), rg = B.periodRange('curso', y);
+    $('list').innerHTML = data.rooms.slice().sort(function (a, b) { return a.num - b.num; }).map(function (r) {
+      var st = B.status(r, rg.from, rg.to);
+      return '<button type="button" class="item' + (r.activa ? '' : ' off') + '" data-id="' + r.id + '" aria-current="' + (r.id === sel) + '">' +
+        '<span class="n">' + r.num + '</span><span><b>' + esc(r.nombre) + '</b><small>' + (r.activa ? esc(st.text) + ' · ' + B.courseLabel(y) : 'Oculta en la web') + '</small></span>' +
+        '<span class="dot st-' + st.kind + '"></span></button>';
+    }).join('');
+  }
+  $('list').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-id]'); if (!b) return;
+    sel = b.getAttribute('data-id'); renderList(); renderEditor();
+  });
+
+  /* ---------- Editor ---------- */
+  function renderEditor() {
+    var r = room(), y = B.defaultCourse();
+    var courses = []; for (var c = y - 2; c <= y + 3; c++) courses.push(c);
+    $('editor').innerHTML =
+      (data.demo ? '<p class="demo"><b>Versión de prueba.</b> Los cambios se guardan solo en este navegador y los ves en la web desde este mismo dispositivo. Cuando conectemos la base de datos, se verán en todos.</p>' : '') +
+      '<p class="demo" id="ed-alert" hidden></p>' +
+      '<div class="ed-head"><h2>Nº ' + r.num + ' · ' + esc(r.nombre) + '</h2>' +
+      '<label class="switch"><input type="checkbox" id="f-activa"' + (r.activa ? ' checked' : '') + '> Publicada en la web</label></div>' +
+
+      '<section class="card"><h3>Datos</h3><div class="grid">' +
+      '<label class="wide">Nombre<input type="text" id="f-nombre" value="' + esc(r.nombre) + '"></label>' +
+      '<label>Precio (€/mes)<input type="number" min="0" step="5" id="f-precio" value="' + esc(r.precio) + '"></label>' +
+      '<label>Gastos (€/mes)<input type="number" min="0" step="5" id="f-gastos" value="' + esc(r.gastos) + '"></label>' +
+      '<label>Metros cuadrados<input type="number" min="0" step="0.5" id="f-m2" value="' + esc(r.m2) + '"></label>' +
+      '<label>Cama<select id="f-cama"><option value="105"' + (r.cama === '105' ? ' selected' : '') + '>105 cm</option><option value="140"' + (r.cama === '140' ? ' selected' : '') + '>140 cm</option></select></label>' +
+      '<label class="wide">Descripción<textarea id="f-desc">' + esc(r.descripcion) + '</textarea></label>' +
+      '<label class="wide">Equipamiento (uno por línea)<textarea id="f-equip">' + esc((r.equipamiento || []).join('\n')) + '</textarea></label>' +
+      '</div></section>' +
+
+      '<section class="card"><h3>Fotos</h3><p class="hint">La primera es la que sale en la tarjeta. Usa las flechas para cambiar el orden.</p><div class="photos" id="photos"></div></section>' +
+
+      '<section class="card"><h3>Calendario</h3>' +
+      '<p class="hint">Añade intervalos de ocupada o libre. Si dos intervalos se pisan, manda el último añadido: si una chica se va antes, añade un intervalo <b>libre</b> desde ese día. Los días sin marcar cuentan como libres.</p>' +
+      '<div class="quick"><span class="hint">Rellenar fechas:</span><select id="q-curso" aria-label="Curso">' +
+      courses.map(function (c) { return '<option value="' + c + '"' + (c === y ? ' selected' : '') + '>Curso ' + B.courseLabel(c) + '</option>'; }).join('') +
+      '</select><button type="button" data-q="curso">Curso completo</button><button type="button" data-q="c1">1er cuatrimestre</button><button type="button" data-q="c2">2º cuatrimestre</button></div>' +
+      '<div class="add-int">' +
+      '<div class="seg" role="radiogroup" aria-label="Estado"><label class="occ"><input type="radio" name="i-estado" value="ocupada" checked>Ocupada</label><label class="free"><input type="radio" name="i-estado" value="libre">Libre</label></div>' +
+      '<label>Desde<input type="date" id="i-desde"></label><label>Hasta<input type="date" id="i-hasta"></label>' +
+      '<button class="btn" type="button" id="i-add">Añadir</button></div>' +
+      '<div id="i-list"></div>' +
+      '<div class="legend"><span><i style="background:var(--occ)"></i>Ocupada</span><span><i style="background:var(--free)"></i>Libre (marcado)</span><span><i style="background:var(--none);box-shadow:inset 0 0 0 1px var(--line)"></i>Sin marcar (libre)</span></div>' +
+      '<div class="cal-wrap"><div class="cal" id="cal"></div></div>' +
+      '</section>' +
+      '<div class="foot"><span class="hint">Los cambios se guardan solos.</span><button class="btn plain" type="button" id="reset">Volver a los datos de ejemplo</button></div>';
+
+    renderPhotos(); renderIntervals(); renderCal(courses);
+
+    function bind(id, key, fn) {
+      $(id).addEventListener('input', function () { r[key] = fn ? fn(this.value) : this.value; dirty(); if (key === 'nombre') renderList(); });
+    }
+    bind('f-nombre', 'nombre'); bind('f-precio', 'precio', Number); bind('f-gastos', 'gastos', Number);
+    bind('f-m2', 'm2', Number); bind('f-desc', 'descripcion');
+    bind('f-equip', 'equipamiento', function (v) { return v.split('\n').map(function (s) { return s.trim(); }).filter(Boolean); });
+    $('f-cama').addEventListener('change', function () { r.cama = this.value; dirty(); });
+    $('f-activa').addEventListener('change', function () { r.activa = this.checked; dirty(); renderList(); });
+
+    $('editor').querySelector('.quick').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-q]'); if (!b) return;
+      var rg = B.periodRange(b.getAttribute('data-q'), +$('q-curso').value);
+      $('i-desde').value = rg.from; $('i-hasta').value = rg.to;
+    });
+    $('i-add').addEventListener('click', function () {
+      var d = $('i-desde').value, h = $('i-hasta').value;
+      if (!d || !h || d > h) { alertBox('Pon la fecha "desde" y la fecha "hasta" (la segunda igual o posterior).'); return; }
+      $('ed-alert').hidden = true;
+      r.intervalos = r.intervalos || [];
+      r.intervalos.push({ desde: d, hasta: h, estado: document.querySelector('input[name="i-estado"]:checked').value });
+      dirty(); renderIntervals(); renderCal(courses); renderList();
+    });
+    $('reset').addEventListener('click', function () {
+      if (this.dataset.sure !== '1') { this.dataset.sure = '1'; this.textContent = 'Pulsa otra vez para confirmar'; return; }
+      B.store.reset().then(function (d) { data = d; sel = 'h1'; renderList(); renderEditor(); $('save-state').textContent = 'Datos de ejemplo'; });
+    });
+  }
+
+  /* ---------- Fotos ---------- */
+  function renderPhotos() {
+    var r = room(), box = $('photos');
+    box.innerHTML = (r.fotos || []).map(function (f, i) {
+      return '<div class="ph">' + (i === 0 ? '<span class="main">Portada</span>' : '') + '<img src="' + esc(f) + '" alt="">' +
+        '<div class="tools"><button type="button" data-mv="-1" data-i="' + i + '" aria-label="Mover a la izquierda">←</button>' +
+        '<button type="button" data-del="' + i + '" aria-label="Quitar foto">✕</button>' +
+        '<button type="button" data-mv="1" data-i="' + i + '" aria-label="Mover a la derecha">→</button></div></div>';
+    }).join('') + '<label class="add">+ Añadir fotos<input type="file" id="ph-in" accept="image/*" multiple></label>';
+    box.onclick = function (e) {
+      var d = e.target.closest('[data-del]'), m = e.target.closest('[data-mv]');
+      if (d) { r.fotos.splice(+d.getAttribute('data-del'), 1); dirty(); renderPhotos(); }
+      if (m) {
+        var i = +m.getAttribute('data-i'), j = i + (+m.getAttribute('data-mv'));
+        if (j < 0 || j >= r.fotos.length) return;
+        var t = r.fotos[i]; r.fotos[i] = r.fotos[j]; r.fotos[j] = t; dirty(); renderPhotos();
+      }
+    };
+    $('ph-in').addEventListener('change', function () {
+      var files = Array.prototype.slice.call(this.files);
+      Promise.all(files.map(shrink)).then(function (urls) {
+        r.fotos = (r.fotos || []).concat(urls.filter(Boolean)); dirty(); renderPhotos();
+      });
+    });
+  }
+  // Reduce la foto a 1000 px de lado mayor en JPG para que ocupe poco
+  function shrink(file) {
+    return new Promise(function (res) {
+      var fr = new FileReader();
+      fr.onload = function () {
+        var img = new Image();
+        img.onload = function () {
+          var k = Math.min(1, 1000 / Math.max(img.width, img.height));
+          var c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          res(c.toDataURL('image/jpeg', 0.72));
+        };
+        img.onerror = function () { res(null); };
+        img.src = fr.result;
+      };
+      fr.onerror = function () { res(null); };
+      fr.readAsDataURL(file);
+    });
+  }
+
+  /* ---------- Intervalos ---------- */
+  function renderIntervals() {
+    var r = room(), list = r.intervalos || [];
+    $('i-list').innerHTML = list.length
+      ? '<table class="ints"><tbody>' + list.map(function (it, i) {
+          var dias = Math.round((B.toDate(it.hasta) - B.toDate(it.desde)) / 864e5) + 1;
+          return '<tr><td><span class="chip st-' + it.estado + '"><i class="dot"></i>' + (it.estado === 'ocupada' ? 'Ocupada' : 'Libre') + '</span></td>' +
+            '<td>' + B.fmt(it.desde, true) + ' → ' + B.fmt(it.hasta, true) + '</td><td class="muted">' + dias + ' días</td>' +
+            '<td><button type="button" class="x" data-rm="' + i + '">Quitar</button></td></tr>';
+        }).join('') + '</tbody></table>'
+      : '<p class="hint">Sin intervalos: la habitación sale libre todo el tiempo.</p>';
+    $('i-list').onclick = function (e) {
+      var b = e.target.closest('[data-rm]'); if (!b) return;
+      r.intervalos.splice(+b.getAttribute('data-rm'), 1);
+      dirty(); renderIntervals(); renderCal(); renderList();
+    };
+  }
+
+  /* ---------- Calendario visual: un curso por fila, de septiembre a agosto ---------- */
+  var lastCourses = null;
+  function renderCal(courses) {
+    courses = courses || lastCourses; lastCourses = courses;
+    var r = room(), now = B.today(), cur = B.defaultCourse();
+    var months = [8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7];
+    var html = '<span></span>' + months.map(function (m) { return '<span class="h">' + B.MESES[m] + '</span>'; }).join('');
+    courses.forEach(function (y) {
+      html += '<span class="y' + (y === cur ? ' now' : '') + '">' + B.courseLabel(y) + '</span>';
+      months.forEach(function (m) {
+        var yr = m >= 8 ? y : y + 1, days = new Date(Date.UTC(yr, m + 1, 0)).getUTCDate(), cells = '';
+        for (var d = 1; d <= days; d++) {
+          var iso = yr + '-' + ('0' + (m + 1)).slice(-2) + '-' + ('0' + d).slice(-2), st = B.dayState(r, iso);
+          cells += '<i class="' + (st === 'ocupada' ? 'o' : st === 'libre' ? 'f' : '') + (iso === now ? ' t' : '') + '"></i>';
+        }
+        html += '<div class="m" title="' + B.MESES[m] + ' ' + yr + '" data-y="' + yr + '" data-m="' + m + '">' + cells + '</div>';
+      });
+    });
+    $('cal').innerHTML = html;
+    // Pulsar un mes rellena las fechas con ese mes completo
+    $('cal').onclick = function (e) {
+      var c = e.target.closest('.m'); if (!c) return;
+      var yr = +c.getAttribute('data-y'), m = +c.getAttribute('data-m'), last = new Date(Date.UTC(yr, m + 1, 0)).getUTCDate();
+      $('i-desde').value = yr + '-' + ('0' + (m + 1)).slice(-2) + '-01';
+      $('i-hasta').value = yr + '-' + ('0' + (m + 1)).slice(-2) + '-' + last;
+      $('i-desde').focus();
+    };
+  }
+})();
+</script>
+</body>
+</html>

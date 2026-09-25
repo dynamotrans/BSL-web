@@ -62,8 +62,9 @@
 }
 
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;background:var(--ground);color:var(--ink);font:400 17px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
-img{max-width:100%;display:block}
+img{max-width:100%;height:auto;display:block}
 a{color:inherit}
 h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.05;text-wrap:balance;margin:0;letter-spacing:-.01em}
 h2 em,h1 em{font-style:italic}
@@ -224,6 +225,82 @@ dialog.lb::backdrop{background:rgba(9,28,30,.92);backdrop-filter:blur(6px)}
 .street{margin:32px 0 24px;color:var(--muted);max-width:46em}
 .street strong{color:var(--ink)}
 
+
+/* ---------- Habitaciones ---------- */
+.rooms{background:var(--tint)}
+.rooms-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:24px;margin-bottom:28px}
+.rooms-top .head{margin-bottom:0}
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.filters select{font:600 .9rem var(--sans);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:10px 14px}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;color:var(--muted);font:600 .86rem/1 var(--sans);padding:9px 14px;border-radius:999px;transition:background .25s ease,color .25s ease}
+.seg button[aria-checked="true"]{background:var(--teal);color:var(--cream)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin:0 0 22px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.st-libre{--st:#2c9a6a}.st-parcial{--st:#c98a12}.st-ocupada{--st:#c0456f}
+.dot{background:var(--st)}
+.rooms-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.room-card{background:var(--surface);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 0 var(--line),0 18px 36px -30px rgba(16,41,42,.45);transition:transform .35s var(--ease),box-shadow .35s ease}
+.room-card:hover{transform:translateY(-4px);box-shadow:0 1px 0 var(--line),0 26px 44px -28px rgba(16,41,42,.55)}
+.rc-photo{position:relative;display:block;width:100%;padding:0;border:0;background:var(--teal);aspect-ratio:4/3;overflow:hidden}
+.rc-photo img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+.room-card:hover .rc-photo img{transform:scale(1.05)}
+.rc-ph{position:absolute;inset:0;background:var(--tiles) 0 0/40px 40px;opacity:.9;display:grid;place-items:center}
+.rc-ph span{background:rgba(15,48,51,.85);color:var(--cream);font-size:.78rem;padding:6px 10px;border-radius:999px}
+.badge{position:absolute;left:10px;top:10px;display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.94);color:#10292a;font:700 .78rem/1 var(--sans);padding:7px 10px;border-radius:999px}
+.badge .dot{box-shadow:0 0 0 3px color-mix(in srgb,var(--st) 25%,transparent)}
+.room-card.st-ocupada .rc-photo img{filter:grayscale(.6) brightness(.85)}
+.rc-body{padding:16px 16px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
+.rc-num{margin:0;font:600 .74rem/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.rc-body h3{font-size:1.55rem}
+.rc-meta{margin:0;color:var(--muted);font-size:.9rem}
+.rc-price{margin:4px 0 0;font-size:.9rem;color:var(--muted)}
+.rc-price b{font:400 1.5rem/1 var(--serif);color:var(--ink)}
+.rc-actions{display:flex;gap:8px;margin-top:auto;padding-top:12px}
+.btn.sm{padding:10px 16px;font-size:.86rem}
+.demo-note{margin:22px 0 0;font-size:.85rem;color:var(--muted)}
+.demo-note a{color:var(--accent);font-weight:600}
+
+dialog.sheet{border:0;padding:0;border-radius:16px;background:var(--surface);color:var(--ink);width:min(560px,calc(100% - 24px));max-height:calc(100% - 40px);box-shadow:0 40px 80px -30px rgba(0,0,0,.5)}
+dialog.sheet[open]{animation:sheetin .45s var(--ease)}
+@keyframes sheetin{from{opacity:0;transform:translateY(30px) scale(.98)}}
+dialog.sheet::backdrop{background:rgba(9,28,30,.6);backdrop-filter:blur(4px)}
+.sh-head{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--line)}
+.sh-head h3{font-size:1.6rem}
+.sh-x{width:40px;height:40px;border-radius:50%;border:0;background:var(--tint);color:var(--ink);font-size:1.05rem;flex:0 0 auto}
+.sh-body{padding:20px;display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.sh-body fieldset{min-width:0}
+.sh-body label.opt{display:flex}
+dialog.sheet{overflow-x:hidden}
+.sh-body label,.sh-body legend{display:grid;gap:6px;font-size:.85rem;font-weight:600;color:var(--muted)}
+.sh-body select,.sh-body input[type=date]{font:inherit;font-size:1rem;color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;width:100%}
+.sh-body fieldset{border:0;padding:0;margin:0;display:grid;gap:8px}
+.opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r);font-weight:600;color:var(--ink);cursor:pointer;transition:border-color .2s ease,background .2s ease}
+.opt small{display:block;font-weight:400;color:var(--muted);font-size:.83rem}
+.opt input{accent-color:#c0456f;width:18px;height:18px;margin:0}
+.opt:has(input:checked){border-color:var(--coral);background:color-mix(in srgb,var(--coral) 8%,transparent)}
+.dates{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.avail{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);background:color-mix(in srgb,var(--st) 12%,transparent);color:var(--ink);font-size:.92rem;font-weight:600}
+.sh-foot{position:sticky;bottom:0;padding:14px 20px calc(14px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);display:grid;gap:10px}
+.sh-foot .btn{width:100%}
+.wa-btn{background:#25d366;color:#fff;box-shadow:0 10px 24px -12px rgba(37,211,102,.8)}
+.rd-photos{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:-20px -20px 0;padding:0}
+.rd-photos img{flex:0 0 100%;width:100%;aspect-ratio:4/3;object-fit:cover;scroll-snap-align:start}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.chips li{background:var(--tint);border-radius:999px;padding:7px 12px;font-size:.85rem}
+.rd-avail{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.rd-avail li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.92rem}
+.rd-avail li span:last-child{display:inline-flex;align-items:center;gap:8px;font-weight:600}
+@media (max-width:1000px){.rooms-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){
+  .rooms-grid{grid-template-columns:1fr}
+  dialog.sheet{width:100%;max-width:none;margin:auto 0 0;border-radius:18px 18px 0 0;max-height:92%}
+  dialog.sheet[open]{animation:sheetup .45s var(--ease)}
+  .seg button{padding:9px 11px;font-size:.82rem}
+}
+@keyframes sheetup{from{transform:translateY(100%)}}
+
 /* ---------- Condiciones ---------- */
 .cond{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:start}
 .price{position:relative;padding:36px;border-radius:14px;background:var(--teal);color:var(--cream);overflow:hidden;isolation:isolate}
@@ -296,11 +373,11 @@ footer img{height:56px;width:auto}
     <nav class="nav" aria-label="Secciones">
       <a href="#casa">La casa</a>
       <a href="#fotos">Fotos</a>
-      <a href="#habitacion">Habitación</a>
+      <a href="#habitaciones">Habitaciones</a>
       <a href="#ubicacion">Ubicación</a>
       <a href="#condiciones">Condiciones</a>
     </nav>
-    <a class="btn" href="#contacto">Pedir visita</a>
+    <a class="btn" href="#habitaciones">Reservar</a>
   </div>
 </header>
 
@@ -318,7 +395,7 @@ footer img{height:56px;width:auto}
             <p class="lead">Habitaciones individuales en una casa sevillana de 205 m², reformada, junto al Ayuntamiento y a 6 minutos en bus de la Universidad Loyola.</p>
             <div class="pill"><i></i>Solo chicas estudiantes</div>
             <div class="ctas">
-              <a class="btn" href="#contacto">Pedir información</a>
+              <a class="btn" href="#habitaciones">Ver habitaciones libres</a>
               <a class="btn line" href="#fotos">Ver la casa</a>
             </div>
           </div>
@@ -409,6 +486,30 @@ footer img{height:56px;width:auto}
         <h3>Cocinas <em>compartidas</em></h3>
         <p>2 microondas, 3 neveras, 2 placas de inducción, lavadora y secadora, 2 freidoras de aire, cafetera de cápsulas, menaje, vajilla y cubertería.</p>
       </div>
+    </div>
+  </section>
+
+
+  <section class="block rooms" id="habitaciones">
+    <div class="wrap">
+      <div class="rooms-top">
+        <div class="head rv">
+          <p class="eyebrow">Disponibilidad</p>
+          <h2>Elige tu <em>habitación</em></h2>
+          <p>Elige curso y periodo para ver qué habitaciones están libres. Pulsa en reservar y te preparamos el mensaje de WhatsApp.</p>
+        </div>
+        <div class="filters" role="group" aria-label="Periodo">
+          <select id="r-curso" aria-label="Curso"></select>
+          <div class="seg" role="radiogroup" aria-label="Periodo" id="r-seg">
+            <button type="button" role="radio" aria-checked="true" data-p="curso">Curso completo</button>
+            <button type="button" role="radio" aria-checked="false" data-p="c1">1er cuatri</button>
+            <button type="button" role="radio" aria-checked="false" data-p="c2">2º cuatri</button>
+          </div>
+        </div>
+      </div>
+      <p class="legend"><span class="st-libre"><i class="dot"></i>Libre</span><span class="st-parcial"><i class="dot"></i>Libre parte del periodo</span><span class="st-ocupada"><i class="dot"></i>Ocupada</span></p>
+      <div class="rooms-grid" id="rooms-grid" aria-live="polite"></div>
+      <p class="demo-note" id="r-demo" hidden>Precios, fotos y disponibilidad de ejemplo. Se cambian desde el <a href="admin.html">panel de habitaciones</a>.</p>
     </div>
   </section>
 
@@ -517,9 +618,43 @@ footer img{height:56px;width:auto}
   </div>
 </footer>
 
-<a class="fab" id="fab" href="#contacto" aria-label="Escríbenos por WhatsApp">
+<a class="fab" id="fab" href="#habitaciones" aria-label="Escríbenos por WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.8-1.2.2-.6.2-1.1.1-1.2l-.4-.2Z"/></svg>
 </a>
+
+
+<dialog class="sheet" id="room-dlg" aria-labelledby="rd-title">
+  <div class="sh-head"><h3 id="rd-title">Habitación</h3><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
+  <div class="sh-body" id="rd-body"></div>
+  <div class="sh-foot"><button class="btn" type="button" id="rd-reserve">Reservar esta habitación</button></div>
+</dialog>
+
+<dialog class="sheet" id="res-dlg" aria-labelledby="res-title">
+  <form method="dialog" id="res-form" novalidate>
+    <div class="sh-head"><h3 id="res-title">Reservar habitación</h3><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
+    <div class="sh-body">
+      <label>Habitación<select id="res-room"></select></label>
+      <label>Curso<select id="res-curso"></select></label>
+      <fieldset>
+        <legend>Periodo</legend>
+        <label class="opt"><input type="radio" name="res-p" value="curso" checked><span>Curso completo<small id="res-d-curso"></small></span></label>
+        <label class="opt"><input type="radio" name="res-p" value="c1"><span>1er cuatrimestre<small id="res-d-c1"></small></span></label>
+        <label class="opt"><input type="radio" name="res-p" value="c2"><span>2º cuatrimestre<small id="res-d-c2"></small></span></label>
+        <label class="opt"><input type="radio" name="res-p" value="otro"><span>Otro<small>Elige las fechas de entrada y salida</small></span></label>
+      </fieldset>
+      <div class="dates" id="res-dates" hidden>
+        <label>Entrada<input type="date" id="res-from"></label>
+        <label>Salida<input type="date" id="res-to"></label>
+      </div>
+      <p class="avail" id="res-avail"></p>
+      <div class="msg" id="res-msg" hidden></div>
+    </div>
+    <div class="sh-foot">
+      <button class="btn wa-btn" type="submit" id="res-send">Enviar WhatsApp</button>
+      <span class="pending" id="res-pending" hidden>Falta añadir el número de WhatsApp de BSL. Mientras tanto, este es el mensaje que se enviaría:</span>
+    </div>
+  </form>
+</dialog>
 
 <dialog class="lb" id="lb" aria-label="Foto ampliada">
   <div class="lb-in">
@@ -531,9 +666,138 @@ footer img{height:56px;width:auto}
   </div>
 </dialog>
 
+
+<script src="js/rooms.js"></script>
+<script>
+(function () {
+  var B = window.BSL; if (!B) return;
+  var data = { rooms: [] }, course = B.defaultCourse(), period = 'curso';
+  var grid = document.getElementById('rooms-grid');
+  var selCurso = document.getElementById('r-curso');
+  var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  function courses() { var y = B.defaultCourse(); return [y - 1, y, y + 1, y + 2]; }
+  function fillCourses(sel, val) {
+    sel.innerHTML = courses().map(function (y) { return '<option value="' + y + '"' + (y === val ? ' selected' : '') + '>Curso ' + B.courseLabel(y) + '</option>'; }).join('');
+  }
+  function active() { return data.rooms.filter(function (r) { return r.activa; }).sort(function (a, b) { return a.num - b.num; }); }
+  function byId(id) { return data.rooms.filter(function (r) { return r.id === id; })[0]; }
+  function range(p, y) { return B.periodRange(p, y); }
+  function stFor(room, p, y) { var r = range(p, y); return B.status(room, r.from, r.to); }
+  function photo(room, cls) {
+    return room.fotos && room.fotos.length
+      ? '<img src="' + esc(room.fotos[0]) + '" alt="' + esc(room.nombre) + '" loading="lazy">'
+      : '<div class="rc-ph"><span>Fotos próximamente</span></div>';
+  }
+
+  function render() {
+    var list = active();
+    grid.innerHTML = list.map(function (r) {
+      var st = stFor(r, period, course);
+      return '<article class="room-card st-' + st.kind + '">' +
+        '<button type="button" class="rc-photo" data-view="' + r.id + '" aria-label="Ver ' + esc(r.nombre) + '">' + photo(r) +
+        '<span class="badge"><i class="dot"></i>' + esc(st.text) + '</span></button>' +
+        '<div class="rc-body"><p class="rc-num">Nº ' + r.num + '</p><h3>' + esc(r.nombre) + '</h3>' +
+        '<p class="rc-meta">' + esc(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
+        '<p class="rc-price"><b>' + esc(r.precio) + ' €</b>/mes + ' + esc(r.gastos) + ' € de gastos</p>' +
+        '<div class="rc-actions"><button type="button" class="btn sm" data-reserve="' + r.id + '">' + (st.kind === 'ocupada' ? 'Consultar' : 'Reservar') + '</button>' +
+        '<button type="button" class="btn line dark sm" data-view="' + r.id + '">Ver</button></div></div></article>';
+    }).join('') || '<p>No hay habitaciones publicadas ahora mismo.</p>';
+    document.getElementById('r-demo').hidden = !data.demo;
+  }
+
+  function load() { B.store.load().then(function (d) { data = d; render(); }); }
+  fillCourses(selCurso, course);
+  selCurso.addEventListener('change', function () { course = +selCurso.value; render(); });
+  document.getElementById('r-seg').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-p]'); if (!b) return;
+    period = b.getAttribute('data-p');
+    Array.prototype.forEach.call(this.children, function (x) { x.setAttribute('aria-checked', x === b ? 'true' : 'false'); });
+    render();
+  });
+  window.addEventListener('storage', load);
+  load();
+
+  /* Ventanas */
+  function open(dlg) { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
+  Array.prototype.forEach.call(document.querySelectorAll('dialog.sheet'), function (dlg) {
+    dlg.addEventListener('click', function (e) { if (e.target === dlg || e.target.closest('[data-close]')) dlg.close(); });
+  });
+
+  /* Ficha de la habitación */
+  var roomDlg = document.getElementById('room-dlg'), current = null;
+  function showRoom(id) {
+    var r = byId(id); if (!r) return; current = id;
+    document.getElementById('rd-title').textContent = 'Nº ' + r.num + ' · ' + r.nombre;
+    var fotos = (r.fotos || []).map(function (f) { return '<img src="' + esc(f) + '" alt="' + esc(r.nombre) + '">'; }).join('');
+    var rows = ['curso', 'c1', 'c2'].map(function (p) {
+      var st = stFor(r, p, course);
+      return '<li><span>' + B.PERIODS[p].label + ' ' + B.courseLabel(course) + '</span><span class="st-' + st.kind + '"><i class="dot"></i>' + esc(st.text) + '</span></li>';
+    }).join('');
+    document.getElementById('rd-body').innerHTML =
+      (fotos ? '<div class="rd-photos">' + fotos + '</div>' : '') +
+      '<p class="rc-price" style="margin:0"><b>' + esc(r.precio) + ' €</b>/mes + ' + esc(r.gastos) + ' € de gastos · ' + esc(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
+      (r.descripcion ? '<p style="margin:0">' + esc(r.descripcion) + '</p>' : '') +
+      (r.equipamiento && r.equipamiento.length ? '<ul class="chips">' + r.equipamiento.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
+      '<ul class="rd-avail">' + rows + '</ul>';
+    open(roomDlg);
+  }
+  document.getElementById('rd-reserve').addEventListener('click', function () { roomDlg.close(); showReserve(current); });
+
+  /* Reserva */
+  var resDlg = document.getElementById('res-dlg'), resRoom = document.getElementById('res-room'), resCurso = document.getElementById('res-curso');
+  var resFrom = document.getElementById('res-from'), resTo = document.getElementById('res-to');
+  function resPeriod() { return (document.querySelector('input[name="res-p"]:checked') || {}).value || 'curso'; }
+  function resRange() {
+    var p = resPeriod(), y = +resCurso.value;
+    if (p !== 'otro') return range(p, y);
+    return resFrom.value && resTo.value && resFrom.value <= resTo.value ? { from: resFrom.value, to: resTo.value } : null;
+  }
+  function updateRes() {
+    var y = +resCurso.value;
+    ['curso', 'c1', 'c2'].forEach(function (p) { var r = range(p, y); document.getElementById('res-d-' + p).textContent = 'Del ' + B.fmt(r.from, true) + ' al ' + B.fmt(r.to, true); });
+    document.getElementById('res-dates').hidden = resPeriod() !== 'otro';
+    var room = byId(resRoom.value), rg = resRange(), av = document.getElementById('res-avail');
+    if (!room || !rg) { av.className = 'avail'; av.textContent = 'Elige las fechas de entrada y salida.'; return; }
+    var st = B.status(room, rg.from, rg.to);
+    av.className = 'avail st-' + st.kind;
+    av.innerHTML = '<i class="dot"></i>' + (st.kind === 'libre' ? 'Libre en esas fechas' : st.kind === 'ocupada' ? 'Ocupada en esas fechas. Puedes escribirnos igualmente por si queda libre.' : esc(st.text) + '. Escríbenos y lo vemos.');
+    document.getElementById('res-msg').hidden = true;
+    document.getElementById('res-pending').hidden = true;
+  }
+  function showReserve(id) {
+    resRoom.innerHTML = active().map(function (r) { return '<option value="' + r.id + '">Nº ' + r.num + ' · ' + esc(r.nombre) + ' · ' + esc(r.precio) + ' €/mes</option>'; }).join('');
+    if (id) resRoom.value = id;
+    fillCourses(resCurso, course);
+    var pr = document.querySelector('input[name="res-p"][value="' + period + '"]'); if (pr) pr.checked = true;
+    updateRes();
+    open(resDlg);
+  }
+  resDlg.addEventListener('change', updateRes);
+  document.getElementById('res-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var room = byId(resRoom.value), rg = resRange(), p = resPeriod();
+    if (!room) return;
+    if (!rg) { document.getElementById('res-avail').textContent = 'Elige las fechas de entrada y salida (la salida después de la entrada).'; return; }
+    var nombreP = p === 'otro' ? 'Fechas concretas' : B.PERIODS[p].label + ' ' + B.courseLabel(+resCurso.value);
+    var text = 'Hola, quiero reservar la habitación nº ' + room.num + ' (' + room.nombre + ') de BSL · Boutique Student Living.\n' +
+      'Periodo: ' + nombreP + ', del ' + B.fmt(rg.from, true) + ' al ' + B.fmt(rg.to, true) + '.\n' +
+      'Precio: ' + room.precio + ' €/mes + ' + room.gastos + ' € de gastos.';
+    var link = B.waLink(text);
+    if (link) { window.location.href = link; return; }
+    document.getElementById('res-pending').hidden = false;
+    var m = document.getElementById('res-msg'); m.textContent = text; m.hidden = false;
+  });
+
+  document.addEventListener('click', function (e) {
+    var v = e.target.closest('[data-view]'), r = e.target.closest('[data-reserve]');
+    if (r) showReserve(r.getAttribute('data-reserve'));
+    else if (v) showRoom(v.getAttribute('data-view'));
+  });
+})();
+</script>
 <script>
 // Número de WhatsApp de BSL en formato internacional sin "+" (ej. 34600111222). Vacío = pendiente.
-var WA_NUMBER = '';
+var WA_NUMBER = (window.BSL_CONFIG && window.BSL_CONFIG.whatsapp) || '';
 
 (function () {
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
