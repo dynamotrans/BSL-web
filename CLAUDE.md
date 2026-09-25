@@ -40,3 +40,4 @@ Proyecto independiente de `dynamo-web`: **no mezclar** código ni contexto entre
 - Publicado en Vercel: `bsl-web.vercel.app` (proyecto creado por la propietaria desde vercel.com/new; el conector de Claude no tiene permiso para crear/editar proyectos).
 - Arreglo: la portada fija ("entrar en la casa") dejaba un hueco vacío porque `overflow-x:hidden` en `html` + `body` rompía `position:sticky`. Ahora solo en `body` con `overflow-x:clip`. **No volver a poner overflow en `html`.**
 - WhatsApp activo (+34 672 338 922) en el botón flotante, la reserva y el formulario. Enlace discreto "Admin" en el pie → `admin.html`, con usuario + clave (solo hash SHA-256 en el código; quitada la pista de la clave demo).
+- **Habitaciones en carrusel** (antes lista/cuadrícula larga): tarjetas de 290 px que se deslizan, puntos para saber por cuál vas, flechas en ordenador y arrastre con ratón.

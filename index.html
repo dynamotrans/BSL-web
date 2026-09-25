@@ -254,7 +254,21 @@ dialog.lb::backdrop{background:rgba(9,28,30,.92);backdrop-filter:blur(6px)}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
 .st-libre{--st:#2c9a6a}.st-parcial{--st:#c98a12}.st-ocupada{--st:#c0456f}
 .dot{background:var(--st)}
-.rooms-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.rooms-grid{--gut:max(20px,calc((100vw - 1160px)/2 + 20px));display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding-inline:var(--gut);scroll-padding-inline:var(--gut);padding-block:6px 20px;scrollbar-width:none;overscroll-behavior-x:contain;cursor:grab}
+.rooms-grid::-webkit-scrollbar{display:none}
+.rooms-grid.drag{cursor:grabbing;scroll-snap-type:none}
+.rooms-grid.drag *{pointer-events:none}
+.rooms-grid .room-card{flex:0 0 auto;width:min(290px,78vw);scroll-snap-align:start}
+.rooms-grid > p{padding-inline:4px}
+.r-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:4px}
+.dots{display:flex;flex-wrap:wrap;gap:4px}
+.dots button{width:26px;height:26px;padding:0;border:0;background:none;display:grid;place-items:center}
+.dots button::before{content:"";width:8px;height:8px;border-radius:999px;background:var(--line);transition:width .35s var(--ease),background .35s ease}
+.dots button[aria-current="true"]::before{width:24px;background:var(--grad)}
+.r-nav{margin:0}
+.r-nav button{background:var(--surface);color:var(--ink);box-shadow:0 1px 0 var(--line),0 8px 18px -12px rgba(16,41,42,.5)}
+.r-nav button:hover{background:var(--surface)}
+.r-nav button:disabled{opacity:.35;cursor:default;transform:none}
 .room-card{background:var(--surface);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 0 var(--line),0 18px 36px -30px rgba(16,41,42,.45);transition:transform .35s var(--ease),box-shadow .35s ease}
 .room-card:hover{transform:translateY(-4px);box-shadow:0 1px 0 var(--line),0 26px 44px -28px rgba(16,41,42,.55)}
 .rc-photo{position:relative;display:block;width:100%;padding:0;border:0;background:var(--teal);aspect-ratio:4/3;overflow:hidden}
@@ -311,9 +325,7 @@ dialog.sheet{overflow-x:hidden}
 .rd-avail{display:grid;gap:8px;margin:0;padding:0;list-style:none}
 .rd-avail li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.92rem}
 .rd-avail li span:last-child{display:inline-flex;align-items:center;gap:8px;font-weight:600}
-@media (max-width:1000px){.rooms-grid{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:560px){
-  .rooms-grid{grid-template-columns:1fr}
   dialog.sheet{width:100%;max-width:none;margin:auto 0 0;border-radius:18px 18px 0 0;max-height:92%}
   dialog.sheet[open]{animation:sheetup .45s var(--ease)}
   .seg button{padding:9px 11px;font-size:.82rem}
@@ -570,7 +582,16 @@ footer img{height:56px;width:auto}
         </div>
       </div>
       <p class="legend"><span class="st-libre"><i class="dot"></i>Libre</span><span class="st-parcial"><i class="dot"></i>Libre parte del curso</span><span class="st-ocupada"><i class="dot"></i>Ocupada</span></p>
-      <div class="rooms-grid" id="rooms-grid" aria-live="polite"></div>
+    </div>
+    <div class="rooms-grid" id="rooms-grid" aria-live="polite" aria-label="Habitaciones"></div>
+    <div class="wrap">
+      <div class="r-foot">
+        <div class="dots" id="r-dots" aria-label="Elegir habitación"></div>
+        <div class="g-nav r-nav">
+          <button type="button" id="r-prev" aria-label="Habitaciones anteriores">←</button>
+          <button type="button" id="r-next" aria-label="Habitaciones siguientes">→</button>
+        </div>
+      </div>
       <p class="demo-note" id="r-demo" hidden>Precios, fotos y disponibilidad de ejemplo.</p>
     </div>
   </section>
@@ -767,7 +788,50 @@ footer img{height:56px;width:auto}
         '<button type="button" class="btn line dark sm" data-view="' + r.id + '">Ver</button></div></div></article>';
     }).join('') || '<p>No hay habitaciones publicadas ahora mismo.</p>';
     document.getElementById('r-demo').hidden = !data.demo;
+    grid.scrollLeft = 0;
+    buildDots();
   }
+  /* Carrusel: puntos, flechas y arrastre con ratón */
+  var dots = document.getElementById('r-dots'), prevB = document.getElementById('r-prev'), nextB = document.getElementById('r-next');
+  var reduceM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function cards() { return grid.querySelectorAll('.room-card'); }
+  function step() { var c = cards()[0]; return c ? c.offsetWidth + 18 : 300; }
+  function index() { return Math.round(grid.scrollLeft / step()); }
+  function go(i) { grid.scrollTo({ left: i * step(), behavior: reduceM ? 'auto' : 'smooth' }); }
+  function syncDots() {
+    var n = cards().length, max = grid.scrollWidth - grid.clientWidth, i = grid.scrollLeft >= max - 4 ? n - 1 : index();
+    Array.prototype.forEach.call(dots.children, function (d, k) { d.setAttribute('aria-current', k === Math.min(i, n - 1) ? 'true' : 'false'); });
+    prevB.disabled = grid.scrollLeft <= 4;
+    nextB.disabled = grid.scrollLeft >= max - 4;
+  }
+  function buildDots() {
+    var list = cards();
+    dots.innerHTML = Array.prototype.map.call(list, function (c, k) {
+      return '<button type="button" aria-label="Habitación ' + (k + 1) + '"></button>';
+    }).join('');
+    syncDots();
+  }
+  dots.addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) go(Array.prototype.indexOf.call(dots.children, b)); });
+  prevB.addEventListener('click', function () { go(Math.max(0, index() - 1)); });
+  nextB.addEventListener('click', function () { go(index() + 1); });
+  var st = null;
+  grid.addEventListener('scroll', function () { if (!st) st = requestAnimationFrame(function () { st = null; syncDots(); }); }, { passive: true });
+  window.addEventListener('resize', syncDots);
+  var dn = false, mv = 0, sx = 0, sl = 0;
+  grid.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse' || e.button !== 0) return; dn = true; mv = 0; sx = e.clientX; sl = grid.scrollLeft; });
+  window.addEventListener('pointermove', function (e) {
+    if (!dn) return;
+    var dx = e.clientX - sx; mv = Math.max(mv, Math.abs(dx));
+    if (mv > 5) grid.classList.add('drag');
+    grid.scrollLeft = sl - dx;
+  });
+  window.addEventListener('pointerup', function () {
+    if (!dn) return; dn = false;
+    if (grid.classList.contains('drag')) { grid.classList.remove('drag'); go(index()); }
+  });
+  // si se ha arrastrado, el soltar no cuenta como pulsación
+  grid.addEventListener('click', function (e) { if (mv > 5) { e.stopPropagation(); e.preventDefault(); mv = 0; } }, true);
+
   function load() { B.store.load().then(function (d) { data = d; render(); }); }
   window.addEventListener('storage', load);
   load();
