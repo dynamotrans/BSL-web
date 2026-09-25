@@ -233,7 +233,7 @@
         '<i class="rb-ve" style="height:' + f(d.ve) + '"></i><i class="rb-pe" style="height:' + f(d.pe) + '"></i><i class="rb-ok" style="height:' + f(d.ok) + '"></i></div><small>' + mlab(d.m) + '</small></div>';
     }).join('') + '</div>';
     // Movimientos próximos (45 días)
-    var lim = B.addDays(t, 45), moves = [];
+    var lim = B.addDays(t, 70), moves = [];
     G.contratos.forEach(function (c) {
       if (c.desde >= t && c.desde <= lim) moves.push({ d: c.desde, k: 'Entra', c: c });
       if (c.hasta >= t && c.hasta <= lim) moves.push({ d: c.hasta, k: 'Sale', c: c });
@@ -262,7 +262,7 @@
         }), 'Nadie debe nada.') + (venc.length > 5 ? '<button type="button" class="btn plain sm rmore" data-go="cob">Ver los ' + venc.length + ' atrasados</button>' : '') + (prox.length ? '<h4 class="rsub">Vencen en 10 días · ' + prox.length + ' · ' + money(prox.reduce(function (t2, x) { return t2 + num(x.importe); }, 0)) + '</h4>' + prox.map(function (x) {
           return '<button type="button" class="crow" data-go="cob"><span><b>' + who(x) + '</b><small>' + esc(x.concepto) + ' · ' + fmt(x.vence) + '</small></span>' + chip('pendiente', money(x.importe)) + '</button>';
         }).join('') : '') + '</section>' +
-        '<section class="card"><h3>Entradas y salidas</h3><p class="hint">Próximos 45 días.</p>' + list(moves.slice(0, 8).map(function (m) {
+        '<section class="card"><h3>Entradas y salidas</h3><p class="hint">Próximos 70 días.</p>' + list(moves.slice(0, 8).map(function (m) {
           var te = tenant(m.c.inquilinaId), rm = room(m.c.habitacionId);
           return '<button type="button" class="crow" data-ten="' + (te ? te.id : '') + '"><span><b>' + esc(fullName(te)) + '</b><small>' + fmt(m.d) + ' · ' + esc(rm ? rm.nombre : '') + '</small></span>' + chip(m.k === 'Entra' ? 'pagado' : 'fin', m.k) + '</button>';
         }), 'Sin entradas ni salidas.') + '</section>' +
