@@ -121,7 +121,7 @@
     { num: 4, nombre: 'Azucena', precio: 320, m2: 9.94, cama: '140', descripcion: 'Planta baja, al fondo, junto al baño, la cocina y el patio. Ventana grande al patio y armario empotrado. Medidas: 3,39 × 2,93 m.' },
     { num: 5, nombre: 'Tulipán', precio: 330, m2: 9.21, cama: '140', descripcion: 'Primera planta, primera a la derecha. Ventana grande a la calle. Medidas: 3,13 × 2,94 m.' },
     { num: 6, nombre: 'Malva', precio: 300, m2: 6.87, cama: '110', descripcion: 'Primera planta, primera a la izquierda. Ventana grande a la azotea de la primera planta. Medidas: 3,38 × 2,03 m.' },
-    { num: 7, nombre: 'Girasol', precio: null, m2: 6.02, cama: '105', descripcion: 'Primera planta, segunda a la derecha. Balcón grande a la calle. Medidas: 2,95 × 2,04 m.' },
+    { num: 7, nombre: 'Girasol', precio: 330, m2: 6.02, cama: '105', descripcion: 'Primera planta, segunda a la derecha. Balcón grande a la calle. Medidas: 2,95 × 2,04 m.' },
     { num: 8, nombre: 'Margarita', precio: 330, m2: 6.02, cama: '105', descripcion: 'Primera planta, tercera a la derecha. Ventana grande a la calle. Medidas: 2,95 × 2,04 m.' }
   ];
   function applyFichas(rooms) {
