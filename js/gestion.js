@@ -4,7 +4,7 @@
  */
 (function () {
   'use strict';
-  var B = window.BSL, A = null, G = null, tab = 'hab', saveT = null, detail = null;
+  var B = window.BSL, A = null, G = null, tab = 'res', saveT = null, detail = null;
   var box, dlg;
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
@@ -178,7 +178,7 @@
   }
 
   /* ---------- Pestañas ---------- */
-  var TABS = [['hab', 'Habitaciones'], ['inq', 'Inquilinas'], ['cob', 'Cobros'], ['inc', 'Incidencias'], ['ocu', 'Ocupación'], ['aju', 'Ajustes']];
+  var TABS = [['res', 'Panel de control'], ['hab', 'Habitaciones'], ['inq', 'Inquilinas'], ['cob', 'Cobros'], ['inc', 'Incidencias'], ['ocu', 'Ocupación'], ['aju', 'Ajustes']];
   function renderTabs() {
     $('tabs').innerHTML = TABS.map(function (t) {
       var badge = '';
@@ -192,10 +192,88 @@
     renderTabs();
     $('tab-hab').hidden = t !== 'hab'; box.hidden = t === 'hab';
     if (t === 'hab') { A.refresh(); return; }
-    ({ inq: viewTenants, cob: viewCobros, inc: viewIncidencias, ocu: viewOcupacion, aju: viewAjustes })[t]();
+    ({ res: viewResumen, inq: viewTenants, cob: viewCobros, inc: viewIncidencias, ocu: viewOcupacion, aju: viewAjustes })[t]();
     window.scrollTo(0, 0);
   }
   function refresh() { renderTabs(); if (tab !== 'hab') show(tab); }
+
+
+  /* ---------- Panel de control: todo de un vistazo ---------- */
+  function viewResumen() {
+    var t = today(), ym = t.slice(0, 7), act = rooms().filter(function (r) { return r.activa; });
+    var y = B.courseOf(t); if (y === null) y = B.nextFullCourse(t);
+    // Ocupación hoy
+    var occ = act.filter(function (r) { return B.dayState(r, t) === 'ocupada'; }), free = act.filter(function (r) { return occ.indexOf(r) < 0; });
+    var pct = act.length ? Math.round(occ.length * 100 / act.length) : 0;
+    // Cobros
+    var rent = G.cobros.filter(function (x) { return x.tipo !== 'fianza'; });
+    var mesL = rent.filter(function (x) { return (x.vence || '').slice(0, 7) === ym; });
+    var mesTot = mesL.reduce(function (s, x) { return s + num(x.importe); }, 0);
+    var mesOk = mesL.filter(function (x) { return x.pagado; }).reduce(function (s, x) { return s + num(x.importe); }, 0);
+    var venc = G.cobros.filter(function (x) { return cobroState(x) === 'vencido'; }).sort(function (a, b) { return a.vence < b.vence ? -1 : 1; });
+    var vencTot = venc.reduce(function (s, x) { return s + num(x.importe); }, 0);
+    var incA = G.incidencias.filter(function (x) { return x.estado !== 'resuelta'; });
+    // Mes a mes del curso
+    var months = []; for (var i = 0; i < 11; i++) { var mm = (8 + i) % 12 + 1, yy = mm >= 9 ? y : y + 1; months.push(yy + '-' + pad(mm)); }
+    var maxMoney = 1, mdata = months.map(function (m) {
+      var mid = m + '-15', o = act.filter(function (r) { return B.dayState(r, mid) === 'ocupada'; }).length;
+      var L = rent.filter(function (x) { return (x.vence || '').slice(0, 7) === m; }), d = { m: m, o: o, ok: 0, pe: 0, ve: 0 };
+      L.forEach(function (x) { var st = cobroState(x); d[st === 'pagado' ? 'ok' : st === 'vencido' ? 've' : 'pe'] += num(x.importe); });
+      maxMoney = Math.max(maxMoney, d.ok + d.pe + d.ve); return d;
+    });
+    function mlab(m) { return B.MESES[+m.slice(5) - 1]; }
+    var occChart = '<div class="rchart">' + mdata.map(function (d) {
+      var h = act.length ? d.o * 100 / act.length : 0;
+      return '<div class="rcol' + (d.m === ym ? ' now' : '') + '" title="' + mesLabel(d.m) + ': ' + d.o + ' de ' + act.length + ' ocupadas"><span class="rv2">' + d.o + '</span><div class="rbarbox"><i class="rb-occ" style="height:' + h + '%"></i></div><small>' + mlab(d.m) + '</small></div>';
+    }).join('') + '</div>';
+    var payChart = '<div class="rchart">' + mdata.map(function (d) {
+      var tot = d.ok + d.pe + d.ve, f = function (v) { return (v * 100 / maxMoney) + '%'; };
+      return '<div class="rcol' + (d.m === ym ? ' now' : '') + '" title="' + mesLabel(d.m) + ': cobrado ' + money(d.ok) + ', pendiente ' + money(d.pe) + ', vencido ' + money(d.ve) + '"><span class="rv2">' + (tot ? String(Math.round(tot / 100) / 10).replace('.', ',') + 'k' : '') + '</span><div class="rbarbox stack">' +
+        '<i class="rb-ve" style="height:' + f(d.ve) + '"></i><i class="rb-pe" style="height:' + f(d.pe) + '"></i><i class="rb-ok" style="height:' + f(d.ok) + '"></i></div><small>' + mlab(d.m) + '</small></div>';
+    }).join('') + '</div>';
+    // Movimientos próximos (45 días)
+    var lim = B.addDays(t, 45), moves = [];
+    G.contratos.forEach(function (c) {
+      if (c.desde >= t && c.desde <= lim) moves.push({ d: c.desde, k: 'Entra', c: c });
+      if (c.hasta >= t && c.hasta <= lim) moves.push({ d: c.hasta, k: 'Sale', c: c });
+    });
+    moves.sort(function (a, b) { return a.d < b.d ? -1 : 1; });
+    var prox = G.cobros.filter(function (x) { return !x.pagado && x.vence >= t && x.vence <= B.addDays(t, 10); }).sort(function (a, b) { return a.vence < b.vence ? -1 : 1; });
+    function who(x) { var c = contract(x.contratoId); return esc(fullName(tenantOfCobro(x))) + (c ? ' · ' + esc(room(c.habitacionId) ? room(c.habitacionId).nombre : '') : ''); }
+    function list(items, empty) { return items.length ? items.join('') : '<p class="empty">' + empty + '</p>'; }
+    var circ = 2 * Math.PI * 34;
+    box.innerHTML = '<div class="ghead"><h2>Panel de control</h2><span class="hint">' + fmt(t) + ' · Curso ' + B.courseLabel(y) + '</span></div>' +
+      '<div class="kpis">' +
+        '<button type="button" class="kpi" data-go="ocu"><svg class="ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34"/><circle class="on" cx="40" cy="40" r="34" style="stroke-dasharray:' + (circ * pct / 100) + ' ' + circ + '"/></svg>' +
+          '<span><small>Ocupación hoy</small><b>' + occ.length + '<em>/' + act.length + '</em></b><small>' + (free.length ? 'Libre: ' + esc(free.map(function (r) { return r.nombre; }).join(', ')) : 'Casa completa') + '</small></span></button>' +
+        '<button type="button" class="kpi" data-go="cob"><span><small>Cobrado en ' + MES_LARGO[+ym.slice(5) - 1] + '</small><b>' + money(mesOk) + '</b><small>de ' + money(mesTot) + ' previstos</small><i class="kbar"><i style="width:' + (mesTot ? mesOk * 100 / mesTot : 0) + '%"></i></i></span></button>' +
+        '<button type="button" class="kpi' + (venc.length ? ' bad' : '') + '" data-go="cob"><span><small>Vencido sin cobrar</small><b>' + money(vencTot) + '</b><small>' + (venc.length ? venc.length + ' cobro' + (venc.length > 1 ? 's' : '') + ' atrasado' + (venc.length > 1 ? 's' : '') : 'Todo al día') + '</small></span></button>' +
+        '<button type="button" class="kpi' + (incA.length ? ' warn' : '') + '" data-go="inc"><span><small>Incidencias abiertas</small><b>' + incA.length + '</b><small>' + (incA.length ? 'Pendientes de resolver' : 'Nada pendiente') + '</small></span></button>' +
+      '</div>' +
+      '<div class="rgrid">' +
+        '<section class="card"><h3>Ocupación del curso</h3><p class="hint">Habitaciones ocupadas cada mes (a día 15).</p>' + occChart + '</section>' +
+        '<section class="card"><h3>Cobros del curso</h3><p class="hint">Mensualidades por mes, en miles de euros.</p>' + payChart +
+          '<p class="legend2"><span><i class="lg ok"></i>Cobrado</span><span><i class="lg pe"></i>Pendiente</span><span><i class="lg ve"></i>Vencido</span></p></section>' +
+      '</div>' +
+      '<div class="rgrid r3">' +
+        '<section class="card"><h3>Cobros atrasados</h3>' + list(venc.slice(0, 5).map(function (x) {
+          return '<button type="button" class="crow" data-go="cob"><span><b>' + who(x) + '</b><small>' + esc(x.concepto) + ' · venció ' + fmt(x.vence) + '</small></span>' + chip('vencido', money(x.importe)) + '</button>';
+        }), 'Nadie debe nada.') + (venc.length > 5 ? '<button type="button" class="btn plain sm rmore" data-go="cob">Ver los ' + venc.length + ' atrasados</button>' : '') + (prox.length ? '<h4 class="rsub">Vencen en 10 días</h4>' + prox.slice(0, 4).map(function (x) {
+          return '<button type="button" class="crow" data-go="cob"><span><b>' + who(x) + '</b><small>' + esc(x.concepto) + ' · ' + fmt(x.vence) + '</small></span>' + chip('pendiente', money(x.importe)) + '</button>';
+        }).join('') : '') + '</section>' +
+        '<section class="card"><h3>Entradas y salidas</h3><p class="hint">Próximos 45 días.</p>' + list(moves.slice(0, 8).map(function (m) {
+          var te = tenant(m.c.inquilinaId), rm = room(m.c.habitacionId);
+          return '<button type="button" class="crow" data-ten="' + (te ? te.id : '') + '"><span><b>' + esc(fullName(te)) + '</b><small>' + fmt(m.d) + ' · ' + esc(rm ? rm.nombre : '') + '</small></span>' + chip(m.k === 'Entra' ? 'pagado' : 'fin', m.k) + '</button>';
+        }), 'Sin entradas ni salidas.') + '</section>' +
+        '<section class="card"><h3>Incidencias</h3>' + list(incA.slice(0, 6).map(function (x) {
+          var s = INC_ST[x.estado] || INC_ST.abierta;
+          return '<button type="button" class="crow" data-i="' + x.id + '"><span><b>' + esc(x.titulo) + '</b><small>' + fmt(x.fecha) + ' · ' + esc(roomName(x.habitacionId)) + '</small></span>' + chip(s[0], s[1]) + '</button>';
+        }), 'Sin incidencias abiertas.') + '</section>' +
+      '</div>';
+    box.querySelectorAll('[data-go]').forEach(function (b) { b.onclick = function () { show(b.getAttribute('data-go')); }; });
+    box.querySelectorAll('[data-ten]').forEach(function (b) { b.onclick = function () { var id = b.getAttribute('data-ten'); if (id) { detail = id; show('inq'); } }; });
+    bindInc(box);
+  }
 
   /* ---------- Inquilinas ---------- */
   var TENANT_FIELDS = [
