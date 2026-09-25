@@ -99,7 +99,7 @@ a,button,select,summary,[role=button]{cursor:var(--cursor),pointer}
 .top .btn{padding:10px 18px;font-size:.88rem}
 
 /* ---------- Portada: entrar en la casa ---------- */
-.intro{position:relative;height:190vh;background:var(--teal-deep);--p:0}
+.intro{position:relative;height:135vh;background:var(--teal-deep);--p:0}
 .stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;contain:paint;background:var(--teal-deep)}
 .stage .photo{position:absolute;z-index:0;margin:0;overflow:hidden;inset:calc(12% * (1 - var(--p))) calc(5% * (1 - var(--p))) calc(8% * (1 - var(--p))) calc(52% * (1 - var(--p)));border-radius:calc(14px * (1 - var(--p)))}
 .stage .photo img{width:100%;height:100%;object-fit:cover;object-position:50% 62%;transform-origin:50% 60%;transform:translateZ(0) scale(calc(1 + var(--p) * .7));will-change:transform;backface-visibility:hidden}
@@ -452,7 +452,7 @@ footer img{height:56px;width:auto}
 @media (max-width:900px){
   .nav{display:none}
   .top .btn{margin-left:auto}
-  .intro{height:170vh}
+  .intro{height:125vh}
   .stage .photo{inset:0;border-radius:0}
   .stage .photo::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(15,48,51,.55),rgba(15,48,51,.88));opacity:calc(1 - var(--p) * 1.6)}
   .copy{align-items:center;padding-bottom:0}
