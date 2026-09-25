@@ -1125,10 +1125,22 @@ var WA_NUMBER = (window.BSL_CONFIG && window.BSL_CONFIG.whatsapp) || '';
   window.addEventListener('resize', onScroll);
   // Al recargar, iOS restauraba la posición a mitad de la portada y la dejaba sin pintar
   // hasta hacer scroll: se empieza siempre arriba (salvo enlace a una sección) y se recalcula.
+  // Al recargar se empieza SIEMPRE arriba. Los enlaces internos (#habitaciones…) no dejan
+  // el ancla en la dirección, así una recarga nunca salta a mitad de página.
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  if (!location.hash) window.scrollTo(0, 0);
-  window.addEventListener('pageshow', function () { requestAnimationFrame(onScroll); });
-  window.addEventListener('load', function () { if (!location.hash) window.scrollTo(0, 0); requestAnimationFrame(onScroll); });
+  var navT = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0] || {}).type;
+  var goTop = !location.hash || navT === 'reload';
+  if (location.hash && navT === 'reload') history.replaceState(null, '', location.pathname + location.search);
+  function toTop() { if (goTop) window.scrollTo(0, 0); }
+  toTop();
+  window.addEventListener('pageshow', function () { toTop(); requestAnimationFrame(onScroll); });
+  window.addEventListener('load', function () { toTop(); setTimeout(toTop, 60); setTimeout(function () { goTop = false; }, 400); requestAnimationFrame(onScroll); });
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href^="#"]'); if (!a) return;
+    var id = a.getAttribute('href').slice(1), el = id && document.getElementById(id); if (!el) return;
+    e.preventDefault();
+    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  });
   onScroll();
 
   /* Botón de contacto: avatar que abre Reservar, Llamar y WhatsApp */
