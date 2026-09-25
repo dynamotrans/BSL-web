@@ -787,7 +787,7 @@ footer img{height:56px;width:auto}
 (function () {
   var B = window.BSL; if (!B) return;
   var data = { rooms: [] }, now = B.today(), inCourse = B.courseOf(now), yn = B.nextFullCourse(now);
-  var view = 'curso';
+  var view = null;
   var INCLUYE = ['Agua', 'Luz', 'Internet fibra + wifi de alta velocidad', 'Limpieza semanal de zonas comunes: baños, cocinas, salón, pasillos…', 'Mantenimiento y reparaciones'];
   function gastosBox(r) {
     return '<div class="gastos"><p><b>Gastos: ' + esc(r.gastos) + ' €/mes</b> · incluyen:</p><ul>' +
@@ -797,13 +797,17 @@ footer img{height:56px;width:auto}
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   function active() { return data.rooms.filter(function (r) { return r.activa; }).sort(function (a, b) { return a.num - b.num; }); }
   function byId(id) { return data.rooms.filter(function (r) { return r.id === id; })[0]; }
-  function opt(room, key) { return B.options(room, now).filter(function (o) { return o.key === key; })[0]; }
+  function opts(room) { return B.options(room, now, data.ajustes); }
+  function opt(room, key) { return opts(room).filter(function (o) { return o.key === key; })[0]; }
   function range(o) { return 'Del ' + B.fmt(o.from, true) + ' al ' + B.fmt(o.to, true); }
 
-  // Filtro: curso completo siguiente (principal) y, si hay curso en marcha, "libre ya"
-  var segs = [['curso', 'Curso ' + B.courseLabel(yn)]];
-  if (inCourse !== null) segs.push(['resto', 'Para entrar ya']);
-  seg.innerHTML = segs.map(function (x, i) { return '<button type="button" role="radio" aria-checked="' + (i === 0) + '" data-p="' + x[0] + '">' + x[1] + '</button>'; }).join('');
+  // Filtro: cursos visibles (Ajustes del panel) y, si hay curso en marcha, "Para entrar ya"
+  function buildSegs() {
+    var segs = B.visibleCourses(data.ajustes, now).map(function (y) { return ['curso-' + y, 'Curso ' + B.courseLabel(y)]; });
+    if (inCourse !== null && !(data.ajustes && data.ajustes.entrarYa === false)) segs.push(['resto', 'Para entrar ya']);
+    if (!segs.some(function (x) { return x[0] === view; })) view = segs[0][0];
+    seg.innerHTML = segs.map(function (x) { return '<button type="button" role="radio" aria-checked="' + (x[0] === view) + '" data-p="' + x[0] + '">' + x[1] + '</button>'; }).join('');
+  }
   seg.addEventListener('click', function (e) {
     var b = e.target.closest('[data-p]'); if (!b) return;
     view = b.getAttribute('data-p');
@@ -816,10 +820,11 @@ footer img{height:56px;width:auto}
       var o = opt(r, 'resto');
       return o ? { kind: 'libre', text: o.short } : { kind: 'ocupada', text: 'Ocupada este curso' };
     }
-    var c = opt(r, 'curso');
+    var c = opt(r, view) || opts(r).filter(function (o) { return o.main; })[0];
     return { kind: c.st.kind, text: c.st.kind === 'libre' ? 'Libre todo el curso' : c.short };
   }
   function render() {
+    buildSegs();
     grid.innerHTML = active().map(function (r) {
       var st = cardState(r);
       return '<article class="room-card st-' + st.kind + '">' +
@@ -893,7 +898,7 @@ footer img{height:56px;width:auto}
     var r = byId(id); if (!r) return; current = id;
     document.getElementById('rd-title').textContent = 'Nº ' + r.num + ' · ' + r.nombre;
     var fotos = (r.fotos || []).map(function (f) { return '<img src="' + esc(f) + '" alt="' + esc(r.nombre) + '">'; }).join('');
-    var rows = B.options(r, now).map(function (o) {
+    var rows = opts(r).map(function (o) {
       return '<li><span>' + esc(o.title) + '<br><small class="muted">' + range(o) + '</small></span><span class="st-' + o.st.kind + '"><i class="dot"></i>' + esc(o.long) + '</span></li>';
     }).join('');
     document.getElementById('rd-body').innerHTML =
@@ -917,11 +922,11 @@ footer img{height:56px;width:auto}
   function drawOpts(pref) {
     var room = byId(resRoom.value); if (!room) return;
     document.getElementById('res-gastos').innerHTML = gastosBox(room);
-    var list = B.options(room, now);
-    var pick = list.some(function (o) { return o.key === pref; }) ? pref : 'curso';
+    var list = opts(room);
+    var pick = list.some(function (o) { return o.key === pref; }) ? pref : list.filter(function (o) { return o.main; })[0].key;
     optsBox.innerHTML = list.map(function (o) {
-      return '<label class="opt' + (o.key === 'curso' ? ' main' : '') + '"><input type="radio" name="res-p" value="' + o.key + '"' + (o.key === pick ? ' checked' : '') + '>' +
-        '<span>' + esc(o.title) + (o.key === 'curso' ? '<span class="tag">Principal</span>' : '') +
+      return '<label class="opt' + (o.main ? ' main' : '') + '"><input type="radio" name="res-p" value="' + o.key + '"' + (o.key === pick ? ' checked' : '') + '>' +
+        '<span>' + esc(o.title) + (o.main ? '<span class="tag">Principal</span>' : '') +
         '<small>' + range(o) + '</small><span class="ost st-' + o.st.kind + '"><i class="dot"></i>' + esc(o.long) + '</span></span></label>';
     }).join('');
     updateAvail();
@@ -941,7 +946,7 @@ footer img{height:56px;width:auto}
     drawOpts(view);
     open(resDlg);
   }
-  resRoom.addEventListener('change', function () { var i = optsBox.querySelector('input:checked'); drawOpts(i ? i.value : 'curso'); });
+  resRoom.addEventListener('change', function () { var i = optsBox.querySelector('input:checked'); drawOpts(i ? i.value : view); });
   optsBox.addEventListener('change', updateAvail);
   document.getElementById('res-form').addEventListener('submit', function (e) {
     e.preventDefault();

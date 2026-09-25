@@ -52,7 +52,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .bar h1{font-size:1.35rem;flex:1}
 .save-state{font-size:.82rem;opacity:.8}
 .layout{max-width:1280px;margin:0 auto;padding:20px 16px 60px;display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
-.list{display:grid;gap:8px;position:sticky;top:78px}
+.list{display:grid;gap:8px;position:sticky;top:124px}
 .layout>*,.editor>*,.card>*,.grid>*,.add-int>*{min-width:0}
 input,select,textarea{min-width:0}
 .item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--line);cursor:pointer;text-align:left;width:100%}
@@ -123,6 +123,85 @@ textarea{min-height:90px;resize:vertical}
 .demo{background:color-mix(in srgb,var(--sun) 22%,var(--surface));border:1px solid color-mix(in srgb,var(--sun) 60%,transparent);border-radius:12px;padding:12px 14px;font-size:.88rem}
 .foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
 
+
+/* Pestañas y gestión */
+.tabs{position:sticky;top:calc(54px + env(safe-area-inset-top,0px));z-index:4;background:var(--ground);border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:8px max(16px,calc((100% - 1248px)/2))}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:0 0 auto;border:0;background:transparent;color:var(--muted);font-weight:600;font-size:.92rem;padding:9px 14px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.tabs button[aria-current="true"]{background:var(--teal);color:var(--cream)}
+.tabs button i{font-style:normal;background:var(--occ);color:#fff;border-radius:999px;font-size:.72rem;padding:1px 7px}
+.galert{max-width:1248px;margin:12px auto 0}
+.gwrap{max-width:1280px;margin:0 auto;padding:20px 16px 60px;display:grid;gap:16px}
+.ghead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+.ghead h2{font-size:2rem}
+.gtools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.gtools input[type=search],.gtools select{width:auto;min-width:200px}
+.back{justify-self:start;border:0;background:none;color:var(--muted);font-weight:600;cursor:pointer;padding:4px 0}
+.empty{color:var(--muted);margin:0}
+.tlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.tcard{display:grid;gap:4px;justify-items:start;text-align:left;padding:14px 16px;border-radius:12px;background:var(--surface);border:1px solid var(--line);cursor:pointer}
+.tcard:hover{border-color:var(--coral)}
+.tcard b{font-size:1.05rem}
+.tcard small{color:var(--muted)}
+.chip2{display:inline-block;font-size:.76rem;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap}
+.k-pagado{background:color-mix(in srgb,var(--free) 16%,transparent);color:var(--free)}
+.k-vencido{background:color-mix(in srgb,var(--occ) 14%,transparent);color:var(--occ)}
+.k-pendiente{background:color-mix(in srgb,#c98a12 18%,transparent);color:#b07408}
+.k-fin{background:var(--tint);color:var(--muted)}
+.ch{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.crow{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 0;border:0;border-top:1px solid var(--line);background:none;cursor:pointer}
+.crow span{display:grid;gap:2px}
+.crow small{color:var(--muted)}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px 20px;margin:0}
+.kv dt{font-size:.78rem;color:var(--muted);font-weight:600}
+.kv dd{margin:2px 0 0;word-break:break-word}
+.tscroll{overflow-x:auto}
+.gt{width:100%;border-collapse:collapse;font-size:.9rem;font-variant-numeric:tabular-nums;min-width:640px}
+.gt th{text-align:left;font-size:.76rem;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line)}
+.gt td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.gt .r{text-align:right}
+.mini{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:.8rem;font-weight:600;cursor:pointer}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tiles div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.tiles small{display:block;color:var(--muted);font-size:.78rem;font-weight:600}
+.tiles b{font:400 1.7rem/1.1 var(--serif);font-variant-numeric:tabular-nums}
+.tiles .ok{color:var(--free)}.tiles .bad{color:var(--occ)}
+.seg2{display:inline-flex;gap:2px;background:var(--tint);border-radius:999px;padding:4px;justify-self:start;flex-wrap:wrap}
+.seg2 button{border:0;background:none;padding:8px 14px;border-radius:999px;font-weight:600;font-size:.85rem;color:var(--muted);cursor:pointer}
+.seg2 button[aria-current="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.checks{display:grid;gap:10px;margin-bottom:6px}
+.checks small{color:var(--muted);font-weight:400}
+.danger{color:var(--occ)!important}
+.occ{min-width:720px;display:grid;gap:6px}
+.orow{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:center}
+.olab{font-weight:700;font-size:.9rem}
+.olab small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.otrack{position:relative;height:34px;background:var(--tint);border-radius:8px;overflow:hidden}
+.ohead .otrack{display:grid;grid-template-columns:repeat(12,1fr);background:none;height:auto;font-size:.72rem;color:var(--muted);text-transform:uppercase;font-weight:600}
+.obar{position:absolute;top:4px;bottom:4px;border-radius:6px;background:var(--teal);color:var(--cream);font-size:.75rem;font-weight:600;padding:0 8px;display:flex;align-items:center;white-space:nowrap;overflow:hidden}
+.obar.man{background:repeating-linear-gradient(45deg,var(--occ),var(--occ) 6px,color-mix(in srgb,var(--occ) 70%,#fff) 6px,color-mix(in srgb,var(--occ) 70%,#fff) 12px)}
+.onow{position:absolute;top:0;bottom:0;width:2px;background:var(--magenta)}
+.legend2{display:flex;flex-wrap:wrap;gap:14px;font-size:.8rem;color:var(--muted);margin:0}
+.legend2 span{display:inline-flex;align-items:center;gap:6px}
+.bar-s{width:18px;height:10px;border-radius:3px;background:var(--teal);display:inline-block}
+.bar-s.man{background:var(--occ)}
+.now-s{width:2px;height:12px;background:var(--magenta);display:inline-block}
+dialog.gdlg{border:0;padding:0;border-radius:16px;width:min(640px,calc(100% - 24px));max-height:calc(100% - 32px);background:var(--surface);color:var(--ink);box-shadow:0 40px 80px -30px rgba(0,0,0,.5)}
+dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
+.dh{position:sticky;top:0;background:var(--surface);display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);z-index:1}
+.dh h3{font-size:1.4rem}
+.dx{width:36px;height:36px;border-radius:50%;border:0;background:var(--tint);cursor:pointer}
+.dbody{padding:16px 18px;grid-template-columns:1fr 1fr}
+.derr{color:var(--occ);font-weight:600;margin:0}
+.dfoot{position:sticky;bottom:0;background:var(--surface);display:flex;justify-content:space-between;gap:10px;padding:12px 18px;border-top:1px solid var(--line)}
+@media (max-width:700px){
+  .tiles{grid-template-columns:1fr 1fr}
+  .dbody{grid-template-columns:1fr}
+  dialog.gdlg{width:100%;max-width:none;margin:auto 0 0;border-radius:18px 18px 0 0;max-height:92%}
+  .gtools input[type=search],.gtools select{min-width:0;width:100%}
+  .gtools{width:100%}
+  .ghead h2{font-size:1.6rem}
+}
 @media (max-width:900px){
   .layout{grid-template-columns:1fr}
   .list{position:static;display:flex;overflow-x:auto;gap:8px;padding-bottom:4px;scrollbar-width:none}
@@ -157,20 +236,25 @@ textarea{min-height:90px;resize:vertical}
   <header class="bar">
     <div class="in">
       <img src="images/logo-mark.png" alt="BSL" width="360" height="240">
-      <h1>Panel de habitaciones</h1>
+      <h1>Panel BSL</h1>
       <span class="save-state" id="save-state">Todo guardado</span>
       <a class="btn ghost" href="index.html#habitaciones">Ver web</a>
       <button class="btn ghost" type="button" id="logout">Salir</button>
     </div>
   </header>
 
-  <div class="layout">
+  <nav class="tabs" id="tabs" aria-label="Secciones del panel"></nav>
+  <p class="demo galert" id="g-alert" role="alert" hidden></p>
+  <div class="layout" id="tab-hab">
     <nav class="list" id="list" aria-label="Habitaciones"></nav>
     <main class="editor" id="editor"></main>
   </div>
+  <main class="gwrap" id="tab-g" hidden></main>
 </div>
+<dialog class="gdlg" id="gdlg" aria-label="Formulario"></dialog>
 
 <script src="js/rooms.js"></script>
+<script src="js/gestion.js"></script>
 <script>
 (function () {
   var B = window.BSL, data = null, sel = 'h1', saveTimer = null;
@@ -180,7 +264,10 @@ textarea{min-height:90px;resize:vertical}
   /* ---------- Acceso ---------- */
   function enter() {
     $('login').hidden = true; $('app').hidden = false;
-    B.store.load().then(function (d) { data = d; renderList(); renderEditor(); });
+    B.store.load().then(function (d) {
+      data = d; data.ajustes = data.ajustes || {}; renderList(); renderEditor();
+      if (window.BSLGestion) window.BSLGestion.start(ADMIN);
+    });
   }
   $('login-form').addEventListener('submit', function (e) {
     e.preventDefault();
@@ -196,6 +283,15 @@ textarea{min-height:90px;resize:vertical}
     location.reload();
   });
   if (B.store.hasSession()) enter();
+  // Lo que necesita el módulo de gestión (js/gestion.js)
+  var ADMIN = {
+    data: function () { return data; },
+    saveRooms: function () { dirty(); renderList(); },
+    refresh: function () { renderList(); renderEditor(); },
+    setState: function (t) { $('save-state').textContent = t; },
+    alert: function (m) { var el = $('g-alert'); el.textContent = m; el.hidden = false; setTimeout(function () { el.hidden = true; }, 6000); },
+    expired: function () { expired(); }
+  };
   function expired() {
     B.store.logout();
     $('app').hidden = true; $('login').hidden = false;
@@ -355,9 +451,10 @@ textarea{min-height:90px;resize:vertical}
     $('i-list').innerHTML = list.length
       ? '<table class="ints"><tbody>' + list.map(function (it, i) {
           var dias = Math.round((B.toDate(it.hasta) - B.toDate(it.desde)) / 864e5) + 1;
+          var who = it.origen && window.BSLGestion ? window.BSLGestion.tenantForOrigin(it.origen) : null;
           return '<tr><td><span class="chip st-' + it.estado + '"><i class="dot"></i>' + (it.estado === 'ocupada' ? 'Ocupada' : 'Libre') + '</span></td>' +
-            '<td>' + B.fmt(it.desde, true) + ' → ' + B.fmt(it.hasta, true) + '</td><td class="muted">' + dias + ' días</td>' +
-            '<td><button type="button" class="x" data-rm="' + i + '">Quitar</button></td></tr>';
+            '<td>' + B.fmt(it.desde, true) + ' → ' + B.fmt(it.hasta, true) + (it.origen ? '<br><small class="muted">Contrato' + (who ? ' de ' + esc(who) : '') + '</small>' : '') + '</td><td class="muted">' + dias + ' días</td>' +
+            '<td>' + (it.origen ? '<small class="muted">Se cambia en Inquilinas</small>' : '<button type="button" class="x" data-rm="' + i + '">Quitar</button>') + '</td></tr>';
         }).join('') + '</tbody></table>'
       : '<p class="hint">Sin intervalos: la habitación sale libre todo el tiempo.</p>';
     $('i-list').onclick = function (e) {

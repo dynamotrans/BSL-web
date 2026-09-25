@@ -14,6 +14,10 @@
 - [ ] Opcional: mover hash y secreto de sesión a variables de entorno de Vercel (`BSL_ADMIN_HASH`, `BSL_SESSION_SECRET`) y elegir una clave más larga
 - [ ] Rellenar las 8 habitaciones reales: precio, gastos, m², cama, fotos y calendario
 
+## Gestión
+- [ ] Informar a las inquilinas del tratamiento de sus datos (RGPD): cláusula en el contrato de alquiler
+- [ ] Ideas: subir DNI y contrato firmado a la ficha, recordatorio automático de pago por WhatsApp/email, devolución de fianza al terminar
+
 ## Ideas
 - [ ] Versión en inglés para estudiantes Erasmus
 - [ ] Formulario de solicitud conectado a n8n (Google Sheets + aviso por WhatsApp)

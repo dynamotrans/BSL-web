@@ -84,10 +84,19 @@
     if (st.from) return 'Ocupada hasta el ' + fmt(addDays(st.from, -1), true) + ' · libre desde el ' + fmt(st.from, true);
     return 'Libre hasta el ' + fmt(st.to, true) + ' · después ocupada';
   }
-  function options(room, iso) {
+  // Cursos que se ofrecen en la web (Ajustes del panel). Por defecto: el siguiente curso completo.
+  function visibleCourses(ajustes, iso) {
+    iso = iso || today();
+    var yn = nextFullCourse(iso), y0 = courseOf(iso);
+    var list = (ajustes && ajustes.cursos && ajustes.cursos.length ? ajustes.cursos : [yn]).map(Number)
+      .filter(function (y) { return (y + 1) + '-07-31' >= iso && y !== y0; }); // solo cursos completos aún por empezar
+    list = list.filter(function (y, i) { return list.indexOf(y) === i; }).sort();
+    return list.length ? list : [yn];
+  }
+  function options(room, iso, ajustes) {
     iso = iso || today();
     var out = [], y0 = courseOf(iso);
-    if (y0 !== null) {
+    if (y0 !== null && !(ajustes && ajustes.entrarYa === false)) {
       var end = (y0 + 1) + '-07-31', st = status(room, iso, end);
       var d = st.kind === 'libre' ? iso : (st.kind === 'parcial' && st.from ? st.from : null);
       if (d) out.push({
@@ -97,8 +106,10 @@
         st: { kind: 'libre' }, long: d === iso ? 'Libre desde hoy' : 'Libre desde el ' + fmt(d, true)
       });
     }
-    var yn = nextFullCourse(iso), r = periodRange('curso', yn), s2 = status(room, r.from, r.to);
-    out.push({ key: 'curso', y: yn, from: r.from, to: r.to, title: 'Curso completo ' + courseLabel(yn), short: s2.text, st: s2, long: longStatus(s2, r.from, r.to) });
+    visibleCourses(ajustes, iso).forEach(function (yn, i) {
+      var r = periodRange('curso', yn), s2 = status(room, r.from, r.to);
+      out.push({ key: 'curso-' + yn, y: yn, main: i === 0, from: r.from, to: r.to, title: 'Curso completo ' + courseLabel(yn), short: s2.text, st: s2, long: longStatus(s2, r.from, r.to) });
+    });
     return out;
   }
 
@@ -139,7 +150,7 @@
     rooms[6].intervalos.push({ desde: (y + 1) + '-02-01', hasta: (y + 1) + '-07-31', estado: 'ocupada' });
     rooms[1].intervalos.push({ desde: (y + 1) + '-09-01', hasta: (y + 2) + '-07-31', estado: 'ocupada' });
     rooms[5].intervalos.push({ desde: (y + 1) + '-09-01', hasta: (y + 2) + '-01-31', estado: 'ocupada' });
-    return { demo: true, rooms: rooms };
+    return { demo: true, rooms: rooms, ajustes: { cursos: [nextFullCourse(today())], entrarYa: true } };
   }
 
   /* ---------- Almacenamiento ----------
@@ -172,7 +183,7 @@
       return fetch('/api/datos', { cache: 'no-store' }).then(function (r) {
         if (r.status === 200 && isJson(r)) {
           BSLStore.remote = true;
-          return r.json().then(function (d) { return { rooms: d.rooms || [], demo: false, updatedAt: d.updatedAt }; });
+          return r.json().then(function (d) { return { rooms: d.rooms || [], ajustes: d.ajustes || {}, demo: false, updatedAt: d.updatedAt }; });
         }
         if ((r.status === 404 || r.status === 503) && isJson(r)) {
           BSLStore.remote = true; BSLStore.broken = r.status === 503;
@@ -186,7 +197,7 @@
         try { localStorage.setItem(KEY, JSON.stringify(data)); return Promise.resolve(); }
         catch (e) { return Promise.reject(new Error('Este navegador no permite guardar más datos.')); }
       }
-      return post('/api/datos', { data: { rooms: data.rooms } }, true).then(function (j) { data.demo = false; return j; });
+      return post('/api/datos', { data: { rooms: data.rooms, ajustes: data.ajustes || {} } }, true).then(function (j) { data.demo = false; return j; });
     },
     upload: function (dataUrl) {
       if (!BSLStore.remote) return Promise.resolve(dataUrl);
@@ -201,6 +212,28 @@
         });
     },
     logout: function () { setToken(''); },
+    // Datos privados de gestión (inquilinas, contratos, cobros, incidencias)
+    loadGestion: function () {
+      var empty = { inquilinas: [], contratos: [], cobros: [], incidencias: [] };
+      if (!BSLStore.remote) {
+        try { var s = localStorage.getItem(KEY + '-gestion'); if (s) return Promise.resolve(JSON.parse(s)); } catch (e) { /* nada */ }
+        return Promise.resolve(empty);
+      }
+      return fetch('/api/gestion', { headers: { Authorization: 'Bearer ' + getToken() }, cache: 'no-store' }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (!r.ok) { var e = new Error(j.error || ('Error ' + r.status)); e.status = r.status; throw e; }
+          ['inquilinas', 'contratos', 'cobros', 'incidencias'].forEach(function (k) { if (!Array.isArray(j[k])) j[k] = []; });
+          return j;
+        });
+      });
+    },
+    saveGestion: function (g) {
+      if (!BSLStore.remote) {
+        try { localStorage.setItem(KEY + '-gestion', JSON.stringify(g)); return Promise.resolve(); }
+        catch (e) { return Promise.reject(new Error('Este navegador no permite guardar más datos.')); }
+      }
+      return post('/api/gestion', { gestion: g }, true);
+    },
     hasSession: function () { return +(getToken().split('.')[0] || 0) > Date.now(); },
     reset: function () {
       if (!BSLStore.remote) { try { localStorage.removeItem(KEY); } catch (e) { /* nada */ } }
@@ -215,6 +248,6 @@
   window.BSL = {
     config: CONFIG, store: BSLStore, waLink: waLink,
     PERIODS: PERIODS, periodRange: periodRange, defaultCourse: defaultCourse, courseLabel: courseLabel,
-    dayState: dayState, status: status, options: options, courseOf: courseOf, nextFullCourse: nextFullCourse, addDays: addDays, toDate: toDate, today: today, fmt: fmt, MESES: MESES
+    dayState: dayState, status: status, options: options, visibleCourses: visibleCourses, periodRange: periodRange, courseOf: courseOf, nextFullCourse: nextFullCourse, addDays: addDays, toDate: toDate, today: today, fmt: fmt, MESES: MESES
   };
 })();

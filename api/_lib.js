@@ -8,6 +8,7 @@ const SECRET = process.env.BSL_SESSION_SECRET || 'VYpIzBHwkBcdYIC0eofkEYkTY2ByxN
 const SESSION_HOURS = 12;
 
 export const DATA_PATH = 'datos/habitaciones.json';
+export const GESTION_PATH = 'privado/gestion.json';
 
 const sha256 = (t) => crypto.createHash('sha256').update(t).digest('hex');
 const hmac = (t) => crypto.createHmac('sha256', SECRET).update(t).digest('hex');
@@ -64,8 +65,40 @@ export function cleanData(data) {
     equipamiento: (Array.isArray(r.equipamiento) ? r.equipamiento : []).slice(0, 30).map((x) => str(x, 120)),
     fotos: (Array.isArray(r.fotos) ? r.fotos : []).filter(okUrl).slice(0, 20),
     intervalos: (Array.isArray(r.intervalos) ? r.intervalos : []).slice(0, 300)
-      .map((x) => ({ desde: iso(x.desde), hasta: iso(x.hasta), estado: x.estado === 'libre' ? 'libre' : 'ocupada' }))
+      .map((x) => {
+        const o = { desde: iso(x.desde), hasta: iso(x.hasta), estado: x.estado === 'libre' ? 'libre' : 'ocupada' };
+        if (typeof x.origen === 'string' && /^c:[\w-]{1,40}$/.test(x.origen)) o.origen = x.origen;
+        return o;
+      })
       .filter((x) => x.desde && x.hasta && x.desde <= x.hasta)
   }));
-  return { rooms, updatedAt: new Date().toISOString() };
+  const aj = data.ajustes || {};
+  const ajustes = {
+    cursos: (Array.isArray(aj.cursos) ? aj.cursos : []).map(Number).filter((y) => y > 2000 && y < 2100).slice(0, 6),
+    entrarYa: aj.entrarYa !== false
+  };
+  return { rooms, ajustes, updatedAt: new Date().toISOString() };
+}
+
+// Limpieza genérica de los datos privados de gestión (inquilinas, contratos, cobros, incidencias)
+export function cleanGestion(g) {
+  if (!g || typeof g !== 'object') return null;
+  const walk = (v, depth) => {
+    if (depth > 4) return null;
+    if (v == null) return null;
+    if (typeof v === 'string') return v.slice(0, 3000);
+    if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
+    if (typeof v === 'boolean') return v;
+    if (Array.isArray(v)) return v.slice(0, 5000).map((x) => walk(x, depth + 1));
+    if (typeof v === 'object') {
+      const o = {};
+      Object.keys(v).slice(0, 60).forEach((k) => { if (/^[\w-]{1,40}$/.test(k)) o[k] = walk(v[k], depth + 1); });
+      return o;
+    }
+    return null;
+  };
+  const out = {};
+  ['inquilinas', 'contratos', 'cobros', 'incidencias'].forEach((k) => { out[k] = Array.isArray(g[k]) ? walk(g[k], 0) : []; });
+  out.updatedAt = new Date().toISOString();
+  return JSON.stringify(out).length > 3 * 1024 * 1024 ? null : out;
 }
