@@ -142,14 +142,6 @@
         intervalos: []
       });
     }
-    // Ejemplos de ocupación para que se vea cómo funciona
-    rooms[1].intervalos.push({ desde: y + '-09-01', hasta: (y + 1) + '-07-31', estado: 'ocupada' });
-    rooms[2].intervalos.push({ desde: y + '-09-01', hasta: (y + 1) + '-07-31', estado: 'ocupada' });
-    rooms[2].intervalos.push({ desde: y + '-10-31', hasta: (y + 1) + '-07-31', estado: 'libre' });
-    rooms[4].intervalos.push({ desde: y + '-09-01', hasta: (y + 1) + '-01-31', estado: 'ocupada' });
-    rooms[6].intervalos.push({ desde: (y + 1) + '-02-01', hasta: (y + 1) + '-07-31', estado: 'ocupada' });
-    rooms[1].intervalos.push({ desde: (y + 1) + '-09-01', hasta: (y + 2) + '-07-31', estado: 'ocupada' });
-    rooms[5].intervalos.push({ desde: (y + 1) + '-09-01', hasta: (y + 2) + '-01-31', estado: 'ocupada' });
     return { demo: true, rooms: rooms, ajustes: { cursos: [nextFullCourse(today())], entrarYa: true } };
   }
 

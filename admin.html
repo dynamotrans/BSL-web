@@ -368,7 +368,7 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
       '<div class="legend"><span><i style="background:var(--occ)"></i>Ocupada</span><span><i style="background:var(--free)"></i>Libre (marcado)</span><span><i style="background:var(--none);box-shadow:inset 0 0 0 1px var(--line)"></i>Sin marcar (libre)</span></div>' +
       '<div class="cal-wrap"><div class="cal" id="cal"></div></div>' +
       '</section>' +
-      '<div class="foot"><span class="hint">Los cambios se guardan solos.</span><button class="btn plain" type="button" id="reset">Volver a los datos de ejemplo</button></div>';
+      '<div class="foot"><span class="hint">Los cambios se guardan solos.</span><button class="btn plain" type="button" id="reset">Vaciar ocupaciones marcadas a mano (todas las habitaciones)</button></div>';
 
     renderPhotos(); renderIntervals(); renderCal(courses);
 
@@ -395,8 +395,9 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
       dirty(); renderIntervals(); renderCal(courses); renderList();
     });
     $('reset').addEventListener('click', function () {
-      if (this.dataset.sure !== '1') { this.dataset.sure = '1'; this.textContent = 'Pulsa otra vez para confirmar'; return; }
-      B.store.reset().then(function (d) { data = d; sel = 'h1'; renderList(); renderEditor(); if (B.store.remote) dirty(); else $('save-state').textContent = 'Datos de ejemplo'; });
+      if (this.dataset.sure !== '1') { this.dataset.sure = '1'; this.textContent = 'Se quitarán las ocupadas/libres marcadas a mano en las 8 habitaciones (no las de contratos). Pulsa otra vez'; return; }
+      data.rooms.forEach(function (x) { x.intervalos = (x.intervalos || []).filter(function (i) { return i.origen; }); });
+      dirty(); renderList(); renderEditor();
     });
   }
 
