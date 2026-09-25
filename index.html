@@ -586,7 +586,7 @@ footer img{height:56px;width:auto}
         <div class="vs-row vs-headrow" role="row"><span role="columnheader"></span><span role="columnheader" class="vs-bsl"><img src="images/logo-mark.png" alt="BSL" width="360" height="240"></span><span role="columnheader" class="vs-res">Residencia típica</span></div>
         <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Precio</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i><b>330 €/mes</b> + 60 € de gastos, todo incluido</span><span class="vs-res" role="cell">Desde <b>800 €/mes</b></span></div>
         <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Ubicación</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i>Junto al <b>Ayuntamiento</b>, zona muy segura, con <b>tren y bus en la misma calle</b></span><span class="vs-res" role="cell">A menudo en zonas <b>periurbanas</b>, lejos del centro</span></div>
-        <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Convivencia</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i><b>Solo chicas</b> estudiantes, casa de 8 compañeras</span><span class="vs-res" role="cell">Residencias <b>mixtas</b> con cientos de residentes</span></div>
+        <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Convivencia</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i><b>Solo chicas</b> estudiantes, ambiente <b>tranquilo y de estudio</b></span><span class="vs-res" role="cell">Residencias <b>mixtas</b> con cientos de residentes</span></div>
         <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Día a día</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i>Céntrico: supermercados, farmacia, bancos y centro de salud <b>andando</b></span><span class="vs-res" role="cell">Hace falta coche o transporte para casi todo</span></div>
         <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Estudio</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i><b>Biblioteca pública 24 h</b> a 50 m y escritorio en cada habitación</span><span class="vs-res" role="cell">Salas de estudio compartidas con horarios</span></div>
         <div class="vs-row" role="row"><span class="vs-k" role="rowheader">Comidas</span><span class="vs-bsl" role="cell"><i aria-hidden="true"></i><b>2 cocinas</b> equipadas: cocinas lo que quieres, cuando quieres</span><span class="vs-res" role="cell">Comedor con menú y horarios fijos</span></div>
@@ -918,7 +918,7 @@ footer img{height:56px;width:auto}
         '<button type="button" class="rc-photo" data-view="' + r.id + '" aria-label="Ver ' + esc(r.nombre) + '">' +
         (r.fotos && r.fotos.length ? '<img src="' + esc(r.fotos[0]) + '" alt="' + esc(r.nombre) + '" loading="lazy">' : '<div class="rc-ph"><span>Fotos próximamente</span></div>') +
         '<span class="badge"><i class="dot"></i>' + esc(st.text) + '</span></button>' +
-        '<div class="rc-body"><p class="rc-num">Nº ' + r.num + '</p><h3>' + esc(r.nombre) + '</h3>' +
+        '<div class="rc-body"><p class="rc-num">Habitación</p><h3>' + esc(r.nombre) + '</h3>' +
         '<p class="rc-meta">' + B.m2(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
         '<p class="rc-price"><b>' + esc(r.precio) + ' €</b>/mes + ' + esc(r.gastos) + ' € de gastos</p>' +
         '<p class="rc-inc">Agua, luz, fibra + wifi, limpieza y mantenimiento incluidos</p>' +
@@ -945,7 +945,7 @@ footer img{height:56px;width:auto}
   function buildDots() {
     var list = cards();
     dots.innerHTML = Array.prototype.map.call(list, function (c, k) {
-      return '<button type="button" aria-label="Habitación ' + (k + 1) + '"></button>';
+      return '<button type="button" aria-label="Habitación ' + ((c.querySelector('h3') || {}).textContent || (k + 1)) + '"></button>';
     }).join('');
     syncDots();
   }
@@ -983,7 +983,7 @@ footer img{height:56px;width:auto}
   var roomDlg = document.getElementById('room-dlg'), current = null;
   function showRoom(id) {
     var r = byId(id); if (!r) return; current = id;
-    document.getElementById('rd-title').textContent = 'Nº ' + r.num + ' · ' + r.nombre;
+    document.getElementById('rd-title').textContent = 'Habitación ' + r.nombre;
     var fotos = (r.fotos || []).map(function (f) { return '<img src="' + esc(f) + '" alt="' + esc(r.nombre) + '">'; }).join('');
     var rows = opts(r).map(function (o) {
       return '<li><span>' + esc(o.title) + '<br><small class="muted">' + range(o) + '</small></span><span class="st-' + o.st.kind + '"><i class="dot"></i>' + esc(o.long) + '</span></li>';
@@ -1028,7 +1028,7 @@ footer img{height:56px;width:auto}
       c.o.st.kind === 'ocupada' ? 'Ocupada ese curso. Escríbenos igualmente y te avisamos si queda libre.' : esc(c.o.long) + '. Escríbenos y lo vemos.');
   }
   function showReserve(id) {
-    resRoom.innerHTML = active().map(function (r) { return '<option value="' + r.id + '">Nº ' + r.num + ' · ' + esc(r.nombre) + ' · ' + esc(r.precio) + ' €/mes</option>'; }).join('');
+    resRoom.innerHTML = active().map(function (r) { return '<option value="' + r.id + '">' + esc(r.nombre) + ' · ' + esc(r.precio) + ' €/mes</option>'; }).join('');
     if (id) resRoom.value = id;
     drawOpts(view);
     open(resDlg);
@@ -1038,7 +1038,7 @@ footer img{height:56px;width:auto}
   document.getElementById('res-form').addEventListener('submit', function (e) {
     e.preventDefault();
     var c = chosen(); if (!c) return;
-    var text = 'Hola, quiero reservar la habitación nº ' + c.room.num + ' (' + c.room.nombre + ') de BSL · Boutique Student Living.\n' +
+    var text = 'Hola, quiero reservar la habitación ' + c.room.nombre + ' de BSL · Boutique Student Living.\n' +
       'Periodo: ' + c.o.title + ', del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + '.\n' +
       'Precio: ' + c.room.precio + ' €/mes + ' + c.room.gastos + ' € de gastos (agua, luz, internet fibra + wifi, limpieza semanal de zonas comunes, mantenimiento y reparaciones).\nSoy estudiante.' +
       (c.o.st.kind !== 'libre' ? '\nHe visto que figura: ' + c.o.long.toLowerCase() + '. ¿Me avisáis si queda libre?' : '');
