@@ -140,6 +140,17 @@ a,button,select,summary,[role=button]{cursor:var(--cursor),pointer}
 .rv{opacity:0;transform:translateY(28px)}
 .in{opacity:1;transform:none;transition:opacity .9s var(--ease),transform .9s var(--ease)}
 
+/* ---------- Para las familias ---------- */
+.families{padding-block:72px 16px}
+.fam-head{display:grid;gap:14px;max-width:44em;margin-bottom:32px}
+.fam-head h2{font-size:clamp(2.2rem,4.4vw,3.4rem)}
+.fam-head p{margin:0;color:var(--muted);font-size:1.08rem}
+.fam{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.fam li{display:grid;gap:6px;align-content:start;padding:20px 18px;border-radius:12px;background:var(--teal);color:var(--cream)}
+.fam li::before{content:"";width:22px;height:22px;margin-bottom:6px;background:var(--grad);-webkit-mask:var(--star) center/contain no-repeat;mask:var(--star) center/contain no-repeat}
+.fam b{font:400 1.35rem/1.15 var(--serif)}
+.fam span{font-size:.92rem;line-height:1.45;color:rgba(243,239,230,.8)}
+
 /* ---------- Datos clave ---------- */
 .facts{padding-block:64px}
 .facts ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr)}
@@ -404,6 +415,8 @@ footer img{height:56px;width:auto}
   .kitchen{grid-template-columns:1fr;gap:10px}
   .duo{gap:12px}
   .amen{grid-template-columns:1fr 1fr}
+  .fam{grid-template-columns:1fr 1fr}
+  .families{padding-block:56px 8px}
   .duo figure:nth-child(2){margin-top:32px}
 }
 @media (max-width:900px) and (max-height:720px){
@@ -424,6 +437,9 @@ footer img{height:56px;width:auto}
   body{font-size:16px}
   .girls{margin-left:auto;font-size:.78rem;padding:7px 12px 7px 10px}
   .amen{grid-template-columns:1fr;gap:10px}
+  .fam{grid-template-columns:1fr;gap:10px}
+  .fam li{grid-template-columns:24px 1fr;column-gap:14px;padding:16px}
+  .fam li::before{grid-row:span 2;margin:2px 0 0}
   .amen li{grid-template-columns:22px 1fr;column-gap:14px;padding:16px}
   .amen li::before{grid-row:span 2;margin:3px 0 0}
   .brand img{height:34px}
@@ -472,7 +488,7 @@ footer img{height:56px;width:auto}
           <div class="copy-in">
             <img class="logo" src="images/logo-bsl.png" alt="BSL · Boutique Student Living · Est. 2025" width="560" height="488">
             <h1>Tu casa en <em>Dos Hermanas</em> para la etapa universitaria</h1>
-            <p class="lead">Habitaciones individuales en una casa sevillana de 205 m², reformada, junto al Ayuntamiento y a 6 minutos en bus de la Universidad Loyola.</p>
+            <p class="lead">Habitaciones individuales solo para chicas estudiantes, en su mayoría de la Universidad Loyola y de la Pablo de Olavide. Casa sevillana reformada, junto al Ayuntamiento.</p>
             <div class="pill"><i></i>Solo chicas estudiantes</div>
             <div class="ctas">
               <a class="btn" href="#habitaciones">Ver habitaciones libres</a>
@@ -487,6 +503,22 @@ footer img{height:56px;width:auto}
   </section>
 
   <div class="zocalo" role="presentation"></div>
+
+  <section class="families" aria-labelledby="fam-t">
+    <div class="wrap">
+      <div class="fam-head rv">
+        <p class="eyebrow">Para las familias</p>
+        <h2 id="fam-t">Tu hija, en una casa <em>tranquila y segura</em></h2>
+        <p>Solo chicas estudiantes, en su mayoría de la Universidad Loyola Andalucía y de la Universidad Pablo de Olavide. Un ambiente de estudio y convivencia entre compañeras.</p>
+      </div>
+      <ul class="fam">
+        <li class="rv"><b>Solo chicas estudiantes</b><span>Ambiente universitario: Loyola, Pablo de Olavide y máster.</span></li>
+        <li class="rv"><b>Zona muy segura</b><span>Junto al Ayuntamiento, con el tren y el bus en la misma calle.</span></li>
+        <li class="rv"><b>Cerradura en cada habitación</b><span>Habitación individual y privada. No se admiten parejas.</span></li>
+        <li class="rv"><b>Casa cuidada cada semana</b><span>Limpieza semanal, mantenimiento y atención inmediata.</span></li>
+      </ul>
+    </div>
+  </section>
 
   <section class="facts">
     <div class="wrap">
