@@ -383,6 +383,7 @@ dialog.sheet{overflow-x:hidden}
 .opt input{accent-color:#c0456f;width:18px;height:18px;margin:0}
 .opt:has(input:checked){border-color:var(--coral);background:color-mix(in srgb,var(--coral) 8%,transparent)}
 .opts{display:grid;gap:8px}
+.res-err{margin:-4px 0 0;color:var(--occ,#c0456f);font-size:.85rem;font-weight:600}
 .opt .ost{display:inline-flex;align-items:center;gap:6px;margin-top:4px;font-size:.83rem;font-weight:600;color:var(--ink)}
 .opt.main{border-width:2px}
 .tag{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:999px;background:var(--grad);color:#1a1414;font-size:.68rem;font-weight:700;vertical-align:2px}
@@ -806,12 +807,13 @@ footer img{height:56px;width:auto}
       </div>
       <form class="form rv" id="f" novalidate>
         <label>Nombre<input id="f-nombre" name="nombre" autocomplete="given-name" placeholder="Lucía"></label>
-        <label>Universidad<select id="f-uni" name="uni">
+        <label>Soy estudiante de<select id="f-uni" name="uni">
           <option>Universidad Loyola Andalucía</option>
           <option>Universidad Pablo de Olavide</option>
           <option>Universidad de Sevilla</option>
           <option>Máster</option>
-          <option>Otra</option>
+          <option>Otro centro docente</option>
+          <option>Prácticas</option>
         </select></label>
         <label class="full">¿Para cuándo?<select id="f-curso" name="curso">
           <option>Próximo curso completo</option>
@@ -856,6 +858,16 @@ footer img{height:56px;width:auto}
     <div class="sh-head"><div><h3 id="res-title">Reservar habitación</h3><p class="sh-sub"><i></i>Solo chicas estudiantes</p></div><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
     <div class="sh-body">
       <label>Habitación<select id="res-room"></select></label>
+      <label>Soy estudiante de<select id="res-perfil" required>
+        <option value="">Elige una opción…</option>
+        <option>Universidad Loyola Andalucía</option>
+        <option>Universidad Pablo de Olavide</option>
+        <option>Universidad de Sevilla</option>
+        <option>Máster</option>
+        <option>Otro centro docente</option>
+        <option>Prácticas</option>
+      </select></label>
+      <p class="res-err" id="res-perfil-err" hidden>Elige dónde estudias para poder enviar la reserva.</p>
       <div id="res-gastos"></div>
       <fieldset>
         <legend>¿Para cuándo?</legend>
@@ -1051,12 +1063,16 @@ footer img{height:56px;width:auto}
   }
   resRoom.addEventListener('change', function () { var i = optsBox.querySelector('input:checked'); drawOpts(i ? i.value : view); });
   optsBox.addEventListener('change', updateAvail);
+  document.getElementById('res-perfil').addEventListener('change', function () { if (this.value) document.getElementById('res-perfil-err').hidden = true; });
   document.getElementById('res-form').addEventListener('submit', function (e) {
     e.preventDefault();
     var c = chosen(); if (!c) return;
+    var perfil = document.getElementById('res-perfil'), pErr = document.getElementById('res-perfil-err');
+    if (!perfil.value) { pErr.hidden = false; perfil.focus(); perfil.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+    pErr.hidden = true;
     var text = 'Hola, quiero reservar la habitación ' + c.room.nombre + ' de BSL · Boutique Student Living.\n' +
       'Periodo: ' + c.o.title + ', del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + '.\n' +
-      'Precio: ' + c.room.precio + ' €/mes + ' + c.room.gastos + ' € de gastos (agua, luz, internet fibra + wifi, limpieza semanal de zonas comunes, mantenimiento y reparaciones).\nSoy estudiante.' +
+      'Precio: ' + c.room.precio + ' €/mes + ' + c.room.gastos + ' € de gastos (agua, luz, internet fibra + wifi, limpieza semanal de zonas comunes, mantenimiento y reparaciones).\nPerfil de estudiante: ' + perfil.value + '.' +
       (c.o.st.kind !== 'libre' ? '\nHe visto que figura: ' + c.o.long.toLowerCase() + '. ¿Me avisáis si queda libre?' : '');
     var link = B.waLink(text);
     if (link) { window.location.href = link; return; }
@@ -1266,7 +1282,7 @@ if (window.BSL) {
       'Hola, me interesa una habitación en BSL · Boutique Student Living (Dos Hermanas).',
       '',
       'Nombre: ' + (v('f-nombre') || '—'),
-      'Universidad: ' + v('f-uni'),
+      'Estudiante de: ' + v('f-uni'),
       'Para cuándo: ' + v('f-curso')
     ];
     if (v('f-msg')) lines.push('', v('f-msg'));
