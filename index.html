@@ -304,7 +304,7 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
 
 
 /* ---------- Habitaciones ---------- */
-.rooms{background:linear-gradient(var(--ground),var(--tint) 14%);padding-bottom:40px}
+.rooms{background:linear-gradient(var(--ground),var(--tint) 14%)}
 .head .addr{margin:2px 0 0;font:600 .9rem/1.3 var(--sans);color:var(--ink);display:flex;align-items:center;gap:8px}
 .head .addr svg{flex:0 0 16px;color:var(--accent)}
 .head .addr a{color:inherit;text-decoration:none}
@@ -798,37 +798,6 @@ footer img{height:56px;width:auto}
     </div>
   </section>
 
-  <section class="block contact" id="contacto">
-    <div class="wrap split">
-      <div class="head rv">
-        <p class="eyebrow">Contacto</p>
-        <h2>Cuéntanos qué estudias y <em>te enseñamos la casa</em></h2>
-        <p>Rellena los datos y se prepara un mensaje de WhatsApp listo para enviar. Te respondemos con las habitaciones libres y una fecha de visita.</p>
-      </div>
-      <form class="form rv" id="f" novalidate>
-        <label>Nombre<input id="f-nombre" name="nombre" autocomplete="given-name" placeholder="Lucía"></label>
-        <label>Soy estudiante de<select id="f-uni" name="uni">
-          <option>Universidad Loyola Andalucía</option>
-          <option>Universidad Pablo de Olavide</option>
-          <option>Universidad de Sevilla</option>
-          <option>Máster</option>
-          <option>Otro centro docente</option>
-          <option>Prácticas</option>
-        </select></label>
-        <label class="full">¿Para cuándo?<select id="f-curso" name="curso">
-          <option>Próximo curso completo</option>
-          <option>Este curso, lo antes posible</option>
-          <option>Otra duración</option>
-        </select></label>
-        <label class="full">Mensaje (opcional)<textarea id="f-msg" name="msg" placeholder="Fecha de entrada, dudas, cuándo te viene bien visitarla…"></textarea></label>
-        <div class="full actions">
-          <button class="btn" type="submit">Preparar mensaje de WhatsApp</button>
-          <span class="pending" id="pending" hidden>Falta añadir el número de WhatsApp de BSL. Mientras tanto, este es el mensaje:</span>
-        </div>
-        <div class="full msg" id="out" hidden></div>
-      </form>
-    </div>
-  </section>
 </main>
 
 <footer>
@@ -1090,10 +1059,6 @@ footer img{height:56px;width:auto}
 <script>
 // Número de WhatsApp de BSL en formato internacional sin "+" (ej. 34600111222). Vacío = pendiente.
 var WA_NUMBER = (window.BSL_CONFIG && window.BSL_CONFIG.whatsapp) || '';
-if (window.BSL) {
-  var yNext = window.BSL.nextFullCourse(window.BSL.today());
-  document.querySelector('#f-curso option').textContent = 'Curso completo ' + window.BSL.courseLabel(yNext);
-}
 
 (function () {
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1274,28 +1239,6 @@ if (window.BSL) {
     if (e.key === 'ArrowRight') show(cur + 1);
   });
 
-  /* Formulario → mensaje de WhatsApp */
-  document.getElementById('f').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var v = function (id) { return document.getElementById(id).value.trim(); };
-    var lines = [
-      'Hola, me interesa una habitación en BSL · Boutique Student Living (Dos Hermanas).',
-      '',
-      'Nombre: ' + (v('f-nombre') || '—'),
-      'Estudiante de: ' + v('f-uni'),
-      'Para cuándo: ' + v('f-curso')
-    ];
-    if (v('f-msg')) lines.push('', v('f-msg'));
-    var text = lines.join('\n');
-    if (WA_NUMBER) {
-      window.location.href = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(text);
-    } else {
-      document.getElementById('pending').hidden = false;
-      var out = document.getElementById('out');
-      out.textContent = text;
-      out.hidden = false;
-    }
-  });
 })();
 </script>
 </body>
