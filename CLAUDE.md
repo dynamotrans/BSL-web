@@ -27,3 +27,4 @@ Proyecto independiente de `dynamo-web`: **no mezclar** código ni contexto entre
 - **Panel `admin.html`** con clave: publicar/ocultar cada habitación, nombre, precio, gastos, m², cama, descripción, equipamiento, fotos (se reducen solas) y calendario por intervalos de días ocupada/libre (manda el último añadido), con vista de 6 cursos (2 atrás, 3 adelante). Guarda solo.
 - Datos y lógica compartidos en `js/rooms.js`. **Versión de prueba: guarda en el navegador**; falta conectar Supabase.
 - Arreglo: en móvil, al terminar la animación de entrada (~1 s) la capa oscura de la foto se ponía encima del texto y bloqueaba los botones de la portada. Orden de capas fijado con `z-index`. Portada ajustada para que quepa en móviles pequeños (iPhone SE).
+- Panel de tiempos más legible: fondo verde azulado de la marca, números en fichas claras grandes y "min" como texto en amarillo (antes todo en fichas amarillas sobre casi negro).
