@@ -1,18 +1,15 @@
 /* BSL · datos de habitaciones y disponibilidad.
  * Compartido por la web pública (index.html) y el panel (admin.html).
  *
- * MODO DEMO: los datos se guardan en el navegador (localStorage), así que
- * solo los ve quien los edita. Para producción se sustituye BSLStore por
- * la versión conectada a la base de datos (ver TODO.md).
+ * Los datos se guardan en Vercel Blob a través de /api (ver api/). Si no hay
+ * servidor (p. ej. vista previa local), se usa el navegador como respaldo.
  */
 (function () {
   'use strict';
 
   var CONFIG = window.BSL_CONFIG = window.BSL_CONFIG || {
     // WhatsApp de BSL en formato internacional sin "+" (ej. 34600111222). Vacío = pendiente.
-    whatsapp: '34672338922',
-    // SHA-256 de 'usuario:clave' del panel. Provisional hasta tener acceso real con Supabase.
-    adminHash: '10e13f83f1e159976fd32f265d70210c0e6baff1a783ce3c497236cfdc9aed27'
+    whatsapp: '34672338922'
   };
 
   var KEY = 'bsl-rooms-v1';
@@ -145,44 +142,78 @@
     return { demo: true, rooms: rooms };
   }
 
-  /* ---------- Almacenamiento (demo: navegador) ---------- */
+  /* ---------- Almacenamiento ----------
+   * En la web publicada: /api/datos (Vercel Blob), visible para todos.
+   * Sin servidor (vista previa local): el navegador, solo para quien edita.
+   */
+  var TOKEN_KEY = 'bsl-admin-token';
+  function getToken() { try { return sessionStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; } }
+  function setToken(t) { try { if (t) sessionStorage.setItem(TOKEN_KEY, t); else sessionStorage.removeItem(TOKEN_KEY); } catch (e) { /* nada */ } }
+  function isJson(r) { return (r.headers.get('content-type') || '').indexOf('json') >= 0; }
+  function post(path, body, auth) {
+    var h = { 'Content-Type': 'application/json' };
+    if (auth) h.Authorization = 'Bearer ' + getToken();
+    return fetch(path, { method: 'POST', headers: h, body: JSON.stringify(body) }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (!r.ok) { var e = new Error(j.error || ('Error ' + r.status)); e.status = r.status; throw e; }
+        return j;
+      });
+    });
+  }
+  function localLoad() {
+    try { var s = localStorage.getItem(KEY); if (s) return JSON.parse(s); } catch (e) { /* nada */ }
+    return seed();
+  }
+
   var BSLStore = {
+    remote: false,   // true = hay servidor y los datos son compartidos
+    broken: false,   // true = hay servidor pero el almacén no está conectado
     load: function () {
-      try {
-        var s = localStorage.getItem(KEY);
-        if (s) return Promise.resolve(JSON.parse(s));
-      } catch (e) { /* sin almacenamiento: se usan los ejemplos */ }
-      return Promise.resolve(seed());
+      return fetch('/api/datos', { cache: 'no-store' }).then(function (r) {
+        if (r.status === 200 && isJson(r)) {
+          BSLStore.remote = true;
+          return r.json().then(function (d) { return { rooms: d.rooms || [], demo: false, updatedAt: d.updatedAt }; });
+        }
+        if ((r.status === 404 || r.status === 503) && isJson(r)) {
+          BSLStore.remote = true; BSLStore.broken = r.status === 503;
+          return seed(); // aún no hay nada guardado: ejemplos
+        }
+        throw new Error('sin servidor');
+      }).catch(function () { BSLStore.remote = false; return localLoad(); });
     },
     save: function (data) {
-      try {
-        localStorage.setItem(KEY, JSON.stringify(data));
-        return Promise.resolve();
-      } catch (e) {
-        return Promise.reject(new Error(e && e.name === 'QuotaExceededError'
-          ? 'No cabe más: quita alguna foto o usa fotos más pequeñas.'
-          : 'Este navegador no permite guardar datos.'));
+      if (!BSLStore.remote) {
+        try { localStorage.setItem(KEY, JSON.stringify(data)); return Promise.resolve(); }
+        catch (e) { return Promise.reject(new Error('Este navegador no permite guardar más datos.')); }
       }
+      return post('/api/datos', { data: { rooms: data.rooms } }, true).then(function (j) { data.demo = false; return j; });
     },
+    upload: function (dataUrl) {
+      if (!BSLStore.remote) return Promise.resolve(dataUrl);
+      return post('/api/subir', { foto: dataUrl }, true).then(function (j) { return j.url; });
+    },
+    login: function (user, key) {
+      return fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: user, key: key }) })
+        .then(function (r) {
+          if (r.status === 200) return r.json().then(function (j) { setToken(j.token); return true; });
+          if (!isJson(r)) throw new Error('El acceso solo funciona en la web publicada.');
+          return r.json().then(function (j) { throw new Error(j.error || 'Usuario o clave incorrectos.'); });
+        });
+    },
+    logout: function () { setToken(''); },
+    hasSession: function () { return +(getToken().split('.')[0] || 0) > Date.now(); },
     reset: function () {
-      try { localStorage.removeItem(KEY); } catch (e) { /* nada */ }
+      if (!BSLStore.remote) { try { localStorage.removeItem(KEY); } catch (e) { /* nada */ } }
       return Promise.resolve(seed());
     }
   };
-
-  function sha256(text) {
-    if (!(window.crypto && crypto.subtle)) return Promise.resolve('');
-    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)).then(function (buf) {
-      return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
-    });
-  }
 
   function waLink(text) {
     return CONFIG.whatsapp ? 'https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(text) : '';
   }
 
   window.BSL = {
-    config: CONFIG, store: BSLStore, sha256: sha256, waLink: waLink,
+    config: CONFIG, store: BSLStore, waLink: waLink,
     PERIODS: PERIODS, periodRange: periodRange, defaultCourse: defaultCourse, courseLabel: courseLabel,
     dayState: dayState, status: status, options: options, courseOf: courseOf, nextFullCourse: nextFullCourse, addDays: addDays, toDate: toDate, today: today, fmt: fmt, MESES: MESES
   };

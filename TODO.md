@@ -9,8 +9,9 @@
 - [ ] Dominio → luego poner URL absoluta en `og:image`
 
 ## Panel de habitaciones (hecho en versión de prueba)
-- [ ] **Conectar a base de datos (Supabase)** para que los cambios del panel se vean en todos los móviles. Hoy se guardan solo en el navegador de quien edita. Crear cuenta en supabase.com (gratis), tablas `habitaciones` e `intervalos`, almacenamiento para fotos y un usuario con email + clave para la propietaria. Solo hay que cambiar `BSLStore` en `js/rooms.js`
-- [ ] Acceso al panel: hoy es usuario + clave comprobados en el navegador (solo se guarda el hash en `js/rooms.js`). **No es seguridad real**: con Supabase pasa a login de verdad
+- [x] Datos compartidos con Vercel Blob (sin Supabase)
+- [x] Acceso al panel comprobado en el servidor
+- [ ] Opcional: mover hash y secreto de sesión a variables de entorno de Vercel (`BSL_ADMIN_HASH`, `BSL_SESSION_SECRET`) y elegir una clave más larga
 - [ ] Rellenar las 8 habitaciones reales: precio, gastos, m², cama, fotos y calendario
 
 ## Ideas

@@ -13,7 +13,7 @@ Proyecto independiente de `dynamo-web`: **no mezclar** código ni contexto entre
 2. Confirmar proyecto + rama antes de tocar nada.
 3. Al terminar la sesión, añadir entrada a la Bitácora y actualizar `TODO.md`.
 4. Imágenes en JPG (≤ 900 px de ancho, calidad ~78) para que carguen rápido.
-5. El número de WhatsApp y el hash del acceso al panel van en `BSL_CONFIG` de `js/rooms.js`. **Nunca escribir la clave en claro en el repo.**
+5. El número de WhatsApp va en `BSL_CONFIG` de `js/rooms.js`. El acceso al panel se comprueba **en el servidor** (`api/_lib.js`, solo el hash). **Nunca escribir la clave en claro en el repo.**
 
 ## Bitácora
 
@@ -41,3 +41,5 @@ Proyecto independiente de `dynamo-web`: **no mezclar** código ni contexto entre
 - Arreglo: la portada fija ("entrar en la casa") dejaba un hueco vacío porque `overflow-x:hidden` en `html` + `body` rompía `position:sticky`. Ahora solo en `body` con `overflow-x:clip`. **No volver a poner overflow en `html`.**
 - WhatsApp activo (+34 672 338 922) en el botón flotante, la reserva y el formulario. Enlace discreto "Admin" en el pie → `admin.html`, con usuario + clave (solo hash SHA-256 en el código; quitada la pista de la clave demo).
 - **Habitaciones en carrusel** (antes lista/cuadrícula larga): tarjetas de 290 px que se deslizan, puntos para saber por cuál vas, flechas en ordenador y arrastre con ratón.
+- **Datos compartidos en Vercel (sin base de datos)**: almacén Vercel Blob `bsl-web-blob` (privado, iad1) conectado al proyecto. Funciones en `api/`: `datos` (GET leer / POST guardar), `subir` (fotos JPG), `foto` (servir fotos), `login` (usuario+clave → sesión firmada de 12 h), `estado` (diagnóstico). Autenticación con OIDC de Vercel (`BLOB_STORE_ID`), sin token.
+- El panel guarda para todos; si no hay servidor (vista previa local) usa el navegador como respaldo. Probado con un servidor local que imita Vercel + almacén en memoria.

@@ -178,33 +178,37 @@ textarea{min-height:90px;resize:vertical}
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
 
   /* ---------- Acceso ---------- */
-  function unlocked() { try { return sessionStorage.getItem('bsl-admin') === '1'; } catch (e) { return false; } }
   function enter() {
     $('login').hidden = true; $('app').hidden = false;
     B.store.load().then(function (d) { data = d; renderList(); renderEditor(); });
   }
   $('login-form').addEventListener('submit', function (e) {
     e.preventDefault();
-    B.sha256($('user').value.trim().toLowerCase() + ':' + $('key').value.trim()).then(function (h) {
-      if (h && h === B.config.adminHash) {
-        try { sessionStorage.setItem('bsl-admin', '1'); } catch (x) { /* nada */ }
-        enter();
-      } else { $('err').textContent = 'Usuario o clave incorrectos. Prueba otra vez.'; $('key').value = ''; $('key').focus(); }
+    var btn = this.querySelector('.btn'); btn.disabled = true; $('err').textContent = '';
+    B.store.login($('user').value.trim(), $('key').value.trim()).then(function () {
+      btn.disabled = false; enter();
+    }, function (err) {
+      btn.disabled = false; $('err').textContent = err.message; $('key').value = ''; $('key').focus();
     });
   });
   $('logout').addEventListener('click', function () {
-    try { sessionStorage.removeItem('bsl-admin'); } catch (e) { /* nada */ }
+    B.store.logout();
     location.reload();
   });
-  if (unlocked()) enter();
+  if (B.store.hasSession()) enter();
+  function expired() {
+    B.store.logout();
+    $('app').hidden = true; $('login').hidden = false;
+    $('err').textContent = 'La sesión ha caducado. Vuelve a entrar; los últimos cambios no se han guardado.';
+  }
 
   /* ---------- Guardado automático ---------- */
   function dirty() {
     $('save-state').textContent = 'Guardando…';
     clearTimeout(saveTimer);
     saveTimer = setTimeout(function () {
-      B.store.save(data).then(function () { $('save-state').textContent = 'Todo guardado'; },
-        function (err) { $('save-state').textContent = err.message; alertBox(err.message); });
+      B.store.save(data).then(function () { $('save-state').textContent = 'Todo guardado'; var d = $('ed-demo'); if (d) d.hidden = true; },
+        function (err) { if (err.status === 401) return expired(); $('save-state').textContent = 'No se ha guardado'; alertBox(err.message); });
     }, 400);
   }
   function alertBox(msg) { var el = $('ed-alert'); if (el) { el.textContent = msg; el.hidden = false; } }
@@ -230,7 +234,9 @@ textarea{min-height:90px;resize:vertical}
     var r = room(), y = B.defaultCourse();
     var courses = []; for (var c = y - 2; c <= y + 3; c++) courses.push(c);
     $('editor').innerHTML =
-      (data.demo ? '<p class="demo"><b>Versión de prueba.</b> Los cambios se guardan solo en este navegador y los ves en la web desde este mismo dispositivo. Cuando conectemos la base de datos, se verán en todos.</p>' : '') +
+      (!B.store.remote ? '<p class="demo"><b>Vista previa sin servidor.</b> Aquí los cambios se guardan solo en este navegador. En la web publicada se guardan para todos.</p>'
+        : B.store.broken ? '<p class="demo"><b>El almacén de Vercel no está conectado.</b> Los cambios no se pueden guardar todavía.</p>'
+        : data.demo ? '<p class="demo" id="ed-demo"><b>Estás viendo los datos de ejemplo.</b> En cuanto cambies algo se guardará y lo verá todo el mundo en la web.</p>' : '') +
       '<p class="demo" id="ed-alert" hidden></p>' +
       '<div class="ed-head"><h2>Nº ' + r.num + ' · ' + esc(r.nombre) + '</h2>' +
       '<label class="switch"><input type="checkbox" id="f-activa"' + (r.activa ? ' checked' : '') + '> Publicada en la web</label></div>' +
@@ -288,7 +294,7 @@ textarea{min-height:90px;resize:vertical}
     });
     $('reset').addEventListener('click', function () {
       if (this.dataset.sure !== '1') { this.dataset.sure = '1'; this.textContent = 'Pulsa otra vez para confirmar'; return; }
-      B.store.reset().then(function (d) { data = d; sel = 'h1'; renderList(); renderEditor(); $('save-state').textContent = 'Datos de ejemplo'; });
+      B.store.reset().then(function (d) { data = d; sel = 'h1'; renderList(); renderEditor(); if (B.store.remote) dirty(); else $('save-state').textContent = 'Datos de ejemplo'; });
     });
   }
 
@@ -312,9 +318,15 @@ textarea{min-height:90px;resize:vertical}
     };
     $('ph-in').addEventListener('change', function () {
       var files = Array.prototype.slice.call(this.files);
-      Promise.all(files.map(shrink)).then(function (urls) {
-        r.fotos = (r.fotos || []).concat(urls.filter(Boolean)); dirty(); renderPhotos();
-      });
+      if (!files.length) return;
+      $('save-state').textContent = 'Subiendo fotos…';
+      Promise.all(files.map(function (f) { return shrink(f).then(function (u) { return u ? B.store.upload(u) : null; }); }))
+        .then(function (urls) {
+          r.fotos = (r.fotos || []).concat(urls.filter(Boolean)); dirty(); renderPhotos();
+        }, function (err) {
+          if (err.status === 401) return expired();
+          $('save-state').textContent = 'No se han subido'; alertBox('No se han podido subir las fotos: ' + err.message);
+        });
     });
   }
   // Reduce la foto a 1000 px de lado mayor en JPG para que ocupe poco

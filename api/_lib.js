@@ -1,0 +1,71 @@
+// Utilidades compartidas por las funciones de /api (los archivos con "_" no se publican como ruta).
+import crypto from 'node:crypto';
+
+// SHA-256 de "usuario:clave" del panel. La clave en claro no está en ningún archivo.
+const ADMIN_HASH = process.env.BSL_ADMIN_HASH || '10e13f83f1e159976fd32f265d70210c0e6baff1a783ce3c497236cfdc9aed27';
+// Secreto para firmar la sesión del panel. Se puede sobrescribir con la variable BSL_SESSION_SECRET en Vercel.
+const SECRET = process.env.BSL_SESSION_SECRET || 'VYpIzBHwkBcdYIC0eofkEYkTY2ByxN8PA5iCZfei';
+const SESSION_HOURS = 12;
+
+export const DATA_PATH = 'datos/habitaciones.json';
+
+const sha256 = (t) => crypto.createHash('sha256').update(t).digest('hex');
+const hmac = (t) => crypto.createHmac('sha256', SECRET).update(t).digest('hex');
+const same = (a, b) => a.length === b.length && crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+
+export function checkLogin(user, key) {
+  if (typeof user !== 'string' || typeof key !== 'string') return false;
+  return same(sha256(user.trim().toLowerCase() + ':' + key.trim()), ADMIN_HASH);
+}
+
+export function makeToken() {
+  const exp = Date.now() + SESSION_HOURS * 3600e3;
+  return exp + '.' + hmac(String(exp));
+}
+
+export function isAuthed(req) {
+  const m = /^Bearer (\d+)\.([0-9a-f]{64})$/.exec(req.headers.authorization || '');
+  if (!m || +m[1] < Date.now()) return false;
+  return same(hmac(m[1]), m[2]);
+}
+
+export function blobReady() {
+  return Boolean(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN);
+}
+
+export async function readStream(stream) {
+  const chunks = [];
+  for await (const c of stream) chunks.push(Buffer.from(c));
+  return Buffer.concat(chunks);
+}
+
+export function send(res, status, body) {
+  res.status(status).setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.send(JSON.stringify(body));
+}
+
+// Comprueba que los datos de habitaciones tienen la forma esperada antes de guardarlos
+export function cleanData(data) {
+  if (!data || !Array.isArray(data.rooms) || data.rooms.length > 30) return null;
+  const str = (v, n) => String(v == null ? '' : v).slice(0, n);
+  const num = (v) => (Number.isFinite(+v) ? +v : 0);
+  const iso = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
+  const okUrl = (u) => typeof u === 'string' && (/^images\/[\w.-]+$/.test(u) || /^\/api\/foto\?p=fotos\/[\w.-]+$/.test(u));
+  const rooms = data.rooms.map((r, i) => ({
+    id: str(r.id || 'h' + (i + 1), 20),
+    num: num(r.num) || i + 1,
+    nombre: str(r.nombre, 80),
+    activa: Boolean(r.activa),
+    precio: num(r.precio),
+    gastos: num(r.gastos),
+    m2: num(r.m2),
+    cama: r.cama === '105' ? '105' : '140',
+    descripcion: str(r.descripcion, 1200),
+    equipamiento: (Array.isArray(r.equipamiento) ? r.equipamiento : []).slice(0, 30).map((x) => str(x, 120)),
+    fotos: (Array.isArray(r.fotos) ? r.fotos : []).filter(okUrl).slice(0, 20),
+    intervalos: (Array.isArray(r.intervalos) ? r.intervalos : []).slice(0, 300)
+      .map((x) => ({ desde: iso(x.desde), hasta: iso(x.hasta), estado: x.estado === 'libre' ? 'libre' : 'ocupada' }))
+      .filter((x) => x.desde && x.hasta && x.desde <= x.hasta)
+  }));
+  return { rooms, updatedAt: new Date().toISOString() };
+}
