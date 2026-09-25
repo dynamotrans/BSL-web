@@ -526,8 +526,8 @@ footer img{height:56px;width:auto}
       <ul>
         <li class="rv"><strong class="grad-text"><span data-count="6">6</span> min</strong><span>a la Universidad Loyola en bus directo (línea 5)</span></li>
         <li class="rv"><strong class="grad-text"><span data-count="205">205</span> m²</strong><span>con patio y dos azoteas de 70 y 80 m²</span></li>
-        <li class="rv"><strong class="grad-text">Semanal</strong><span>limpieza de baños, cocinas, salón y pasillos incluida</span></li>
-        <li class="rv"><strong class="grad-text"><span data-count="330">330</span> €</strong><span>al mes, desde, según habitación</span></li>
+        <li class="rv"><strong class="grad-text">Limpieza</strong><span>semanal de baños, cocinas, salón y pasillos incluida</span></li>
+        <li class="rv"><strong class="grad-text"><span data-count="330">330</span> €</strong><span>al mes, según habitación</span></li>
       </ul>
     </div>
   </section>
@@ -614,7 +614,7 @@ footer img{height:56px;width:auto}
         <div class="head rv">
           <p class="eyebrow">Disponibilidad</p>
           <h2>Elige tu <em>habitación</em></h2>
-          <p>Mira qué habitaciones quedan libres para el próximo curso o desde ya. Pulsa en reservar y te preparamos el mensaje de WhatsApp.</p>
+          <p>Mira qué habitaciones quedan libres para el próximo curso o durante este curso. Pulsa en reservar y te preparamos el mensaje de WhatsApp.</p>
         </div>
         <div class="filters">
           <div class="seg" role="radiogroup" aria-label="Periodo" id="r-seg"></div>
@@ -804,7 +804,7 @@ footer img{height:56px;width:auto}
   // Filtro: cursos visibles (Ajustes del panel) y, si hay curso en marcha, "Para entrar ya"
   function buildSegs() {
     var segs = B.visibleCourses(data.ajustes, now).map(function (y) { return ['curso-' + y, 'Curso ' + B.courseLabel(y)]; });
-    if (inCourse !== null && !(data.ajustes && data.ajustes.entrarYa === false)) segs.push(['resto', 'Para entrar ya']);
+    if (inCourse !== null && !(data.ajustes && data.ajustes.entrarYa === false)) segs.push(['resto', 'Libres este curso']);
     if (!segs.some(function (x) { return x[0] === view; })) view = segs[0][0];
     seg.innerHTML = segs.map(function (x) { return '<button type="button" role="radio" aria-checked="' + (x[0] === view) + '" data-p="' + x[0] + '">' + x[1] + '</button>'; }).join('');
   }
@@ -818,7 +818,7 @@ footer img{height:56px;width:auto}
   function cardState(r) {
     if (view === 'resto') {
       var o = opt(r, 'resto');
-      return o ? { kind: 'libre', text: o.short } : { kind: 'ocupada', text: 'Ocupada este curso' };
+      return o ? { kind: o.from === now ? 'libre' : 'parcial', text: o.short } : { kind: 'ocupada', text: 'Ocupada este curso' };
     }
     var c = opt(r, view) || opts(r).filter(function (o) { return o.main; })[0];
     return { kind: c.st.kind, text: c.st.kind === 'libre' ? 'Libre todo el curso' : c.short };

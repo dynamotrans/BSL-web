@@ -102,7 +102,7 @@
       if (d) out.push({
         key: 'resto', y: y0, from: d, to: end,
         title: 'Resto del curso ' + courseLabel(y0),
-        short: d === iso ? 'Libre ya' : 'Libre desde el ' + fmt(d),
+        short: d === iso ? 'Libre ya' : 'Libre desde el ' + fmt(d, true),
         st: { kind: 'libre' }, long: d === iso ? 'Libre desde hoy' : 'Libre desde el ' + fmt(d, true)
       });
     }
