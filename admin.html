@@ -24,7 +24,6 @@
 :root[data-theme="dark"]{color-scheme:dark;--ground:#0d2224;--surface:#132d30;--ink:#eef2f0;--muted:#9fb4b2;--line:#23413f;--tint:#18373a;--none:#1d3a3c}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{height:100%}
 body{margin:0;overflow-x:hidden;overflow-x:clip;max-width:100vw;background:var(--ground);color:var(--ink);font:400 15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
 h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;line-height:1.1}
 img{max-width:100%;height:auto;display:block}
@@ -36,7 +35,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .muted{color:var(--muted)}
 
 /* Acceso */
-.login{min-height:100%;display:grid;place-items:center;background:var(--teal);padding:24px 16px}
+.login{min-height:100vh;min-height:100svh;display:grid;place-items:center;background:var(--teal);padding:24px 16px}
 .login form{width:min(380px,100%);display:grid;gap:14px;color:var(--cream);text-align:center}
 .login img{width:180px;margin:0 auto 6px}
 .login h1{font-size:2.2rem}
