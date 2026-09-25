@@ -130,6 +130,27 @@ textarea{min-height:90px;resize:vertical}
 .foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
 
 
+/* Asistente para marcar fechas */
+.wiz{display:grid;gap:14px;padding:14px;border-radius:12px;background:var(--tint)}
+.wstep{display:grid;gap:8px;animation:wIn .3s ease}
+@keyframes wIn{from{opacity:0;transform:translateY(6px)}}
+.wtitle{margin:0;font-weight:700;display:flex;align-items:center;gap:8px}
+.wtitle i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--teal);color:var(--cream);display:grid;place-items:center;font-size:.8rem}
+.wopts{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:8px}
+.wopt{display:grid;gap:2px;text-align:left;padding:12px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.wopt small{color:var(--muted);font-size:.8rem}
+.wopt.on{border-color:var(--teal);box-shadow:0 0 0 3px color-mix(in srgb,var(--teal) 18%,transparent)}
+.wopt[data-e="ocupada"].on{border-color:var(--occ);box-shadow:0 0 0 3px color-mix(in srgb,var(--occ) 18%,transparent)}
+.wopt[data-e="libre"].on{border-color:var(--free);box-shadow:0 0 0 3px color-mix(in srgb,var(--free) 18%,transparent)}
+.wdates{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));gap:10px}
+.wsum p{margin:0;line-height:1.5}
+.wsum{padding:12px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--line);display:grid;gap:10px}
+.wsum.bad{color:var(--occ);font-weight:600}
+.wsum .wo{color:var(--occ)}.wsum .wl{color:var(--free)}
+.wbtns{display:flex;flex-wrap:wrap;gap:8px}
+.linkbtn{border:0;background:none;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0;font:inherit}
+.subh{font:600 .8rem/1 var(--sans);color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:4px 0 0}
+
 /* Cambios preparados por Claude */
 .pend{max-width:1248px;margin:14px auto 0;padding:16px 18px;border-radius:14px;background:color-mix(in srgb,var(--sun) 16%,var(--surface));border:1px solid color-mix(in srgb,var(--sun) 60%,transparent);display:grid;gap:12px}
 .pend h2{font-size:1.4rem}
@@ -392,14 +413,9 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
       '<section class="card"><h3>Fotos</h3><p class="hint">La primera es la que sale en la tarjeta. Usa las flechas para cambiar el orden.</p><div class="photos" id="photos"></div></section>' +
 
       '<section class="card"><h3>Calendario</h3>' +
-      '<p class="hint">Añade intervalos de ocupada o libre. Si dos intervalos se pisan, manda el último añadido: si una chica se va antes, añade un intervalo <b>libre</b> desde ese día. Los días sin marcar cuentan como libres.</p>' +
-      '<div class="quick"><span class="hint">Rellenar fechas:</span><select id="q-curso" aria-label="Curso">' +
-      courses.map(function (c) { return '<option value="' + c + '"' + (c === y ? ' selected' : '') + '>Curso ' + B.courseLabel(c) + '</option>'; }).join('') +
-      '</select><button type="button" data-q="curso">Curso completo</button><button type="button" data-q="c1">1er cuatrimestre</button><button type="button" data-q="c2">2º cuatrimestre</button></div>' +
-      '<div class="add-int">' +
-      '<div class="seg" role="radiogroup" aria-label="Estado"><label class="occ"><input type="radio" name="i-estado" value="ocupada" checked>Ocupada</label><label class="free"><input type="radio" name="i-estado" value="libre">Libre</label></div>' +
-      '<label>Desde<input type="date" id="i-desde"></label><label>Hasta<input type="date" id="i-hasta"></label>' +
-      '<button class="btn" type="button" id="i-add">Añadir</button></div>' +
+      '<p class="hint">Lo normal es que la ocupación se marque sola con los <b>contratos</b> (pestaña Inquilinas). Usa esto solo para bloquear o liberar fechas a mano.</p>' +
+      '<div class="wiz" id="wiz"></div>' +
+      '<h4 class="subh">Fechas marcadas</h4>' +
       '<div id="i-list"></div>' +
       '<div class="legend"><span><i style="background:var(--occ)"></i>Ocupada</span><span><i style="background:var(--free)"></i>Libre (marcado)</span><span><i style="background:var(--none);box-shadow:inset 0 0 0 1px var(--line)"></i>Sin marcar (libre)</span></div>' +
       '<div class="cal-wrap"><div class="cal" id="cal"></div></div>' +
@@ -417,19 +433,67 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
     $('f-cama').addEventListener('change', function () { r.cama = this.value; dirty(); });
     $('f-activa').addEventListener('change', function () { r.activa = this.checked; dirty(); renderList(); });
 
-    $('editor').querySelector('.quick').addEventListener('click', function (e) {
-      var b = e.target.closest('[data-q]'); if (!b) return;
-      var rg = B.periodRange(b.getAttribute('data-q'), +$('q-curso').value);
-      $('i-desde').value = rg.from; $('i-hasta').value = rg.to;
-    });
-    $('i-add').addEventListener('click', function () {
-      var d = $('i-desde').value, h = $('i-hasta').value;
-      if (!d || !h || d > h) { alertBox('Pon la fecha "desde" y la fecha "hasta" (la segunda igual o posterior).'); return; }
-      $('ed-alert').hidden = true;
-      r.intervalos = r.intervalos || [];
-      r.intervalos.push({ desde: d, hasta: h, estado: document.querySelector('input[name="i-estado"]:checked').value });
-      dirty(); renderIntervals(); renderCal(courses); renderList();
-    });
+    W = { estado: null, periodo: null, desde: '', hasta: '' };
+    renderWizard();
+  }
+
+  /* ---------- Marcar fechas a mano, paso a paso ---------- */
+  var W = { estado: null, periodo: null, desde: '', hasta: '' };
+  function wizRange() {
+    if (!W.periodo) return null;
+    if (W.periodo.indexOf('curso-') === 0) return B.periodRange('curso', +W.periodo.slice(6));
+    if (W.periodo === 'fin') {
+      if (!W.desde) return null;
+      var y = B.courseOf(W.desde); if (y === null) y = +W.desde.slice(0, 4);
+      return { from: W.desde, to: (y + 1) + '-07-31' };
+    }
+    return W.desde && W.hasta ? { from: W.desde, to: W.hasta } : null;
+  }
+  function renderWizard() {
+    var r = room(), box = $('wiz'); if (!box) return;
+    var cur = B.courseOf(B.today()), base = cur === null ? B.nextFullCourse(B.today()) : cur;
+    var opt = function (on, attr, title, sub) { return '<button type="button" class="wopt' + (on ? ' on' : '') + '" ' + attr + '><b>' + title + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</button>'; };
+    var html = '<div class="wstep"><p class="wtitle"><i>1</i>¿Qué quieres marcar?</p><div class="wopts">' +
+      opt(W.estado === 'ocupada', 'data-e="ocupada"', 'Ocupada', 'No se podrá reservar en esas fechas') +
+      opt(W.estado === 'libre', 'data-e="libre"', 'Libre', 'Vuelve a estar disponible (p. ej. si alguien se va antes)') + '</div></div>';
+    if (W.estado) {
+      html += '<div class="wstep"><p class="wtitle"><i>2</i>¿Qué fechas?</p><div class="wopts">' +
+        [base, base + 1, base + 2].map(function (y) { var rg = B.periodRange('curso', y); return opt(W.periodo === 'curso-' + y, 'data-p="curso-' + y + '"', 'Curso ' + B.courseLabel(y), B.fmt(rg.from, true) + ' → ' + B.fmt(rg.to, true)); }).join('') +
+        opt(W.periodo === 'fin', 'data-p="fin"', 'Desde un día hasta fin de curso', 'Eliges el día; termina el 31 de julio') +
+        opt(W.periodo === 'otras', 'data-p="otras"', 'Otras fechas', 'Eliges inicio y fin') + '</div></div>';
+    }
+    if (W.periodo === 'fin' || W.periodo === 'otras') {
+      html += '<div class="wstep"><p class="wtitle"><i>3</i>' + (W.periodo === 'fin' ? '¿Desde qué día?' : '¿Del día… al día…?') + '</p><div class="wdates">' +
+        '<label>Desde<input type="date" id="w-desde" value="' + esc(W.desde) + '"></label>' +
+        (W.periodo === 'otras' ? '<label>Hasta<input type="date" id="w-hasta" value="' + esc(W.hasta) + '"></label>' : '') + '</div></div>';
+    }
+    var rg = wizRange(), bad = rg && rg.from > rg.to;
+    if (W.estado && rg) {
+      html += '<div class="wsum' + (bad ? ' bad' : '') + '"><p>' + (bad ? 'La fecha de fin es anterior a la de inicio. Corrígela.' :
+        'Vas a marcar <b>' + esc(r.nombre) + '</b> como <b class="' + (W.estado === 'ocupada' ? 'wo' : 'wl') + '">' + W.estado + '</b> del <b>' + B.fmt(rg.from, true) + '</b> al <b>' + B.fmt(rg.to, true) + '</b>.') + '</p>' +
+        '<div class="wbtns">' + (bad ? '' : '<button type="button" class="btn" id="w-ok">Guardar</button>') + '<button type="button" class="btn plain" id="w-reset">Empezar de nuevo</button></div></div>';
+    } else if (W.estado || W.periodo) {
+      html += '<p class="hint"><button type="button" class="linkbtn" id="w-reset">Empezar de nuevo</button></p>';
+    }
+    box.innerHTML = html;
+    box.onclick = function (e) {
+      var b = e.target.closest('[data-e],[data-p]');
+      if (b && b.hasAttribute('data-e')) { W.estado = b.getAttribute('data-e'); renderWizard(); }
+      else if (b) { W.periodo = b.getAttribute('data-p'); if (W.periodo.indexOf('curso-') === 0) { W.desde = ''; W.hasta = ''; } renderWizard(); if ($('w-desde')) $('w-desde').focus(); }
+      if (e.target.id === 'w-reset') { W = { estado: null, periodo: null, desde: '', hasta: '' }; renderWizard(); }
+      if (e.target.id === 'w-ok') {
+        var g = wizRange(); if (!g || g.from > g.to) return;
+        r.intervalos = r.intervalos || [];
+        r.intervalos.push({ desde: g.from, hasta: g.to, estado: W.estado });
+        W = { estado: null, periodo: null, desde: '', hasta: '' };
+        dirty(); renderIntervals(); renderCal(); renderList(); renderWizard();
+      }
+    };
+    box.onchange = function (e) {
+      if (e.target.id === 'w-desde') W.desde = e.target.value;
+      if (e.target.id === 'w-hasta') W.hasta = e.target.value;
+      renderWizard();
+    };
   }
 
   /* ---------- Fotos ---------- */
@@ -525,9 +589,8 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
     $('cal').onclick = function (e) {
       var c = e.target.closest('.m'); if (!c) return;
       var yr = +c.getAttribute('data-y'), m = +c.getAttribute('data-m'), last = new Date(Date.UTC(yr, m + 1, 0)).getUTCDate();
-      $('i-desde').value = yr + '-' + ('0' + (m + 1)).slice(-2) + '-01';
-      $('i-hasta').value = yr + '-' + ('0' + (m + 1)).slice(-2) + '-' + last;
-      $('i-desde').focus();
+      W.periodo = 'otras'; W.desde = yr + '-' + ('0' + (m + 1)).slice(-2) + '-01'; W.hasta = yr + '-' + ('0' + (m + 1)).slice(-2) + '-' + last;
+      renderWizard(); $('wiz').scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
   }
 })();
