@@ -172,6 +172,14 @@ section.block{padding-block:88px}
 .duo figcaption{margin-top:10px;font-size:.88rem;color:var(--muted)}
 .duo figcaption b{display:block;font:400 1.35rem/1.1 var(--serif);color:var(--ink)}
 
+.amen{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.amen li{position:relative;background:var(--surface);border-radius:12px;padding:20px 18px 18px;display:grid;gap:6px;align-content:start;box-shadow:0 1px 0 var(--line),0 16px 30px -26px rgba(16,41,42,.45);transition:transform .35s var(--ease)}
+.amen li:hover{transform:translateY(-3px)}
+.amen li::before{content:"";width:20px;height:20px;background:var(--grad);-webkit-mask:var(--star) center/contain no-repeat;mask:var(--star) center/contain no-repeat;margin-bottom:6px;transition:transform .5s var(--ease)}
+.amen li:hover::before{transform:rotate(90deg)}
+.amen b{font:400 1.35rem/1.15 var(--serif);color:var(--ink)}
+.amen span{color:var(--muted);font-size:.92rem;line-height:1.45}
+
 /* ---------- Galería ---------- */
 .gallery{background:var(--teal);color:var(--cream);padding-block:88px;overflow:hidden}
 .gallery .eyebrow{color:var(--sun)}
@@ -367,6 +375,7 @@ footer img{height:56px;width:auto}
   section.block,.gallery{padding-block:64px}
   .kitchen{grid-template-columns:1fr;gap:10px}
   .duo{gap:12px}
+  .amen{grid-template-columns:1fr 1fr}
   .duo figure:nth-child(2){margin-top:32px}
 }
 @media (max-width:900px) and (max-height:720px){
@@ -385,6 +394,9 @@ footer img{height:56px;width:auto}
 }
 @media (max-width:520px){
   body{font-size:16px}
+  .amen{grid-template-columns:1fr;gap:10px}
+  .amen li{grid-template-columns:22px 1fr;column-gap:14px;padding:16px}
+  .amen li::before{grid-row:span 2;margin:3px 0 0}
   .brand img{height:34px}
   .top .btn{display:none}
   .form{grid-template-columns:1fr}
@@ -510,22 +522,21 @@ footer img{height:56px;width:auto}
 
   <section class="block" id="habitacion">
     <div class="wrap">
-      <div class="split">
-        <div class="head rv">
-          <p class="eyebrow">Tu habitación</p>
-          <h2>Individual, con cerradura y <em>todo para estudiar</em></h2>
-          <p>Cada habitación es de uso individual. No se admiten parejas.</p>
-        </div>
-        <ul class="check rv">
-          <li>Cama de 105 o 140 cm según habitación, con colchón nuevo</li>
-          <li>Armario, escritorio y silla ergonómica</li>
-          <li>Smart TV de 32″ con wifi</li>
-          <li>Cerradura propia en la puerta</li>
-          <li>Radiador De’Longhi y ventilador de techo</li>
-          <li>Juego de sábanas, funda nórdica, almohadas y cojines, cubrecolchón, toallas, perchas y bolsa de ropa</li>
-          <li>Mobiliario y decoración modernos</li>
-        </ul>
+      <div class="head rv">
+        <p class="eyebrow">Tu habitación</p>
+        <h2>Individual, con cerradura y <em>todo para estudiar</em></h2>
+        <p>Cada habitación es de uso individual. No se admiten parejas.</p>
       </div>
+      <ul class="amen">
+        <li class="rv"><b>Cama nueva</b><span>105 o 140 cm según habitación, con colchón a estrenar</span></li>
+        <li class="rv"><b>Zona de estudio</b><span>Escritorio y silla ergonómica junto a la ventana</span></li>
+        <li class="rv"><b>Smart TV 32″</b><span>Con wifi, en cada habitación</span></li>
+        <li class="rv"><b>Cerradura propia</b><span>Tu habitación, solo para ti</span></li>
+        <li class="rv"><b>Frío y calor</b><span>Radiador De’Longhi y ventilador de techo</span></li>
+        <li class="rv"><b>Ropa de cama</b><span>Sábanas, nórdico, almohadas, cubrecolchón y toallas</span></li>
+        <li class="rv"><b>Armario</b><span>Con espejo, perchas y bolsa de ropa</span></li>
+        <li class="rv"><b>Limpieza semanal</b><span>De baños, cocinas, salón y pasillos, incluida</span></li>
+      </ul>
       <div class="kitchen rv">
         <h3>Cocinas <em>compartidas</em></h3>
         <p>2 microondas, 3 neveras, 2 placas de inducción, lavadora y secadora, 2 freidoras de aire, cafetera de cápsulas, menaje, vajilla y cubertería.</p>

@@ -30,3 +30,4 @@ Proyecto independiente de `dynamo-web`: **no mezclar** código ni contexto entre
 - Panel de tiempos más legible: fondo verde azulado de la marca, números en fichas claras grandes y "min" como texto en amarillo (antes todo en fichas amarillas sobre casi negro).
 - **Responsive revisado**: un bloque `@media` del móvil se había roto (las cifras quedaban en 4 columnas de 566 px y la web se desplazaba de lado en el iPhone). Arreglado + ajustes de portada para móvil en horizontal y portátiles de pantalla baja + panel sin desbordes en móvil. Escaneo automático sin desbordes en 320, 390, 844×390, 768, 1024, 1280×720 y 1920.
 - "La vivienda": la foto suelta del baño con etiqueta encima pasa a composición de 2 fotos (baño + habitación) escalonadas, con el texto debajo.
+- "Tu habitación": la lista pasa a 8 tarjetas de equipamiento (título + detalle), 4 por fila en ordenador, 2 en tablet y 1 en móvil.
