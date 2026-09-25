@@ -521,10 +521,14 @@
 
   /* ---------- Cobros ---------- */
   function viewCobros() {
-    var f = box.dataset.cf || 'abiertos', mesSel = box.dataset.cm || 'todos';
-    var meses = G.cobros.map(function (x) { return x.mes || (x.vence || '').slice(0, 7); }).concat([today().slice(0, 7)])
-      .filter(function (m, i, a) { return m && a.indexOf(m) === i; }).sort();
-    var inMes = function (x) { return mesSel === 'todos' || (x.mes || (x.vence || '').slice(0, 7)) === mesSel; };
+    var f = box.dataset.cf || 'abiertos', mesSel = box.dataset.cm || 'prox2';
+    // Lista de meses: los anteriores que tengan cobros + el actual y los 24 siguientes
+    var cur = today().slice(0, 7), ahead = [];
+    for (var k = 0; k <= 24; k++) { var yy = +cur.slice(0, 4), mm = +cur.slice(5) + k; yy += Math.floor((mm - 1) / 12); mm = (mm - 1) % 12 + 1; ahead.push(yy + '-' + pad(mm)); }
+    var meses = G.cobros.map(function (x) { return x.mes || (x.vence || '').slice(0, 7); }).filter(function (m) { return m && m < cur; }).concat(ahead)
+      .filter(function (m, i, a) { return a.indexOf(m) === i; }).sort();
+    var mesDe = function (x) { return x.mes || (x.vence || '').slice(0, 7); };
+    var inMes = function (x) { return mesSel === 'todos' || (mesSel === 'prox2' ? (mesDe(x) === ahead[0] || mesDe(x) === ahead[1]) : mesDe(x) === mesSel); };
     var delMes = G.cobros.filter(inMes);
     var sum = function (arr) { return arr.reduce(function (s, x) { return s + num(x.importe); }, 0); };
     var prev = sum(delMes), cobrado = sum(delMes.filter(function (x) { return x.pagado; }));
@@ -536,6 +540,7 @@
     // Los vencidos de otros meses también salen en "Pendientes" para no perderlos de vista
     if (f === 'abiertos' || f === 'vencido') G.cobros.forEach(function (x) { if (!inMes(x) && cobroState(x) === 'vencido' && list.indexOf(x) < 0) list.push(x); });
     box.innerHTML = '<div class="ghead"><h2>Cobros</h2><div class="gtools"><select id="cm">' +
+      '<option value="prox2"' + (mesSel === 'prox2' ? ' selected' : '') + '>Próximos 2 meses (' + MES_LARGO[+ahead[0].slice(5) - 1] + ' y ' + MES_LARGO[+ahead[1].slice(5) - 1] + ')</option>' +
       '<option value="todos"' + (mesSel === 'todos' ? ' selected' : '') + '>Todos los meses</option>' +
       meses.map(function (m) { return '<option value="' + m + '"' + (m === mesSel ? ' selected' : '') + '>' + mesLabel(m) + '</option>'; }).join('') +
       '</select><button class="btn plain" type="button" id="new-x">+ Cobro manual</button></div></div>' +
