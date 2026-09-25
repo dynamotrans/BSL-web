@@ -20,3 +20,5 @@ Proyecto independiente de `dynamo-web`: **no mezclar** código ni contexto entre
 - Primera versión de la web: hero con el pasillo de azulejo, datos clave, la vivienda, la habitación, cocinas, ubicación con tiempos "desde la puerta", condiciones y formulario que prepara un mensaje de WhatsApp.
 - Paleta sacada del azulejo del pasillo (verde botella + ocre) y banda de "zócalo" como separador. Tipografías Young Serif + Instrument Sans.
 - 5 fotos optimizadas en `images/` + `og-bsl.jpg` (1200×630) para compartir por WhatsApp.
+- Logo elegido: casa + libro con degradado magenta → coral → amarillo sobre verde azulado. Recortado sin fondo (`logo-bsl.png`, `logo-mark.png`) + `favicon.png`. La paleta de la web pasa a la del logo.
+- Animaciones: portada que "entra en la casa" al hacer scroll, zócalo de azulejo con los colores del logo, galería arrastrable con visor, panel de estación con tiempos que cambian letra a letra, contadores, revelado al hacer scroll y botón flotante de WhatsApp. Todo se desactiva con "reducir movimiento".

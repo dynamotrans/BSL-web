@@ -8,188 +8,288 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="BSL · Boutique Student Living · Dos Hermanas">
 <meta property="og:description" content="Habitaciones para chicas estudiantes. Casa reformada de 205 m², a 6 min de la Universidad Loyola. Desde 330 €/mes.">
-<meta property="og:image" content="/images/og-bsl.jpg">
+<meta property="og:image" content="images/og-bsl.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#1f4a3a">
+<meta name="theme-color" content="#164346">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="apple-touch-icon" href="images/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@600&display=swap">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LodgingBusiness","name":"BSL · Boutique Student Living","description":"Habitaciones para chicas estudiantes en Dos Hermanas (Sevilla).","address":{"@type":"PostalAddress","streetAddress":"Calle Canónigo","postalCode":"41701","addressLocality":"Dos Hermanas","addressRegion":"Sevilla","addressCountry":"ES"},"priceRange":"Desde 330 €/mes","image":"images/pasillo-azulejos.jpg"}
+{"@context":"https://schema.org","@type":"LodgingBusiness","name":"BSL · Boutique Student Living","description":"Habitaciones para chicas estudiantes en Dos Hermanas (Sevilla).","address":{"@type":"PostalAddress","streetAddress":"Calle Canónigo","postalCode":"41701","addressLocality":"Dos Hermanas","addressRegion":"Sevilla","addressCountry":"ES"},"priceRange":"Desde 330 €/mes","image":"images/pasillo-azulejos.jpg","logo":"images/logo-bsl.png"}
 </script>
 <style>
 :root{
-  --ground:#f8f8f4;
+  /* Marca (sacada del logo): fijos en ambos temas */
+  --teal:#164346;
+  --teal-deep:#0f3033;
+  --magenta:#d4507f;
+  --coral:#f08a6c;
+  --sun:#f7c95c;
+  --grad:linear-gradient(90deg,var(--magenta),var(--coral) 50%,var(--sun));
+  --cream:#f3efe6;
+
+  /* Tema claro */
+  --ground:#f4f6f5;
   --surface:#ffffff;
-  --ink:#1b211e;
-  --muted:#5c665f;
-  --line:#dfe2dc;
-  --green:#1f4a3a;
-  --green-soft:#e6eee9;
-  --ochre:#a8741f;
-  --on-green:#f5f3ea;
-  --serif:"Young Serif",Georgia,"Times New Roman",serif;
+  --ink:#10292a;
+  --muted:#566a69;
+  --line:#dbe3e1;
+  --accent:#b8406b;
+  --tint:#e7efed;
+
+  --serif:"Instrument Serif",Georgia,"Times New Roman",serif;
   --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --r:6px;
-  --tiles:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23f5efdf'/%3E%3Cpath d='M24 4 L30 18 L44 24 L30 30 L24 44 L18 30 L4 24 L18 18Z' fill='%23b8832c'/%3E%3Cpath d='M24 13 L27 21 L35 24 L27 27 L24 35 L21 27 L13 24 L21 21Z' fill='%231f4a3a'/%3E%3Ccircle cx='24' cy='24' r='2.6' fill='%23f5efdf'/%3E%3Cpath d='M0 0h8L0 8zM48 0h-8l8 8zM0 48h8l-8-8zM48 48h-8l8-8z' fill='%231f4a3a'/%3E%3C/svg%3E");
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:8px;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --tiles:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23164346'/%3E%3Cpath d='M24 4 L30 18 L44 24 L30 30 L24 44 L18 30 L4 24 L18 18Z' fill='%23f08a6c'/%3E%3Cpath d='M24 13 L27 21 L35 24 L27 27 L24 35 L21 27 L13 24 L21 21Z' fill='%23f7c95c'/%3E%3Ccircle cx='24' cy='24' r='2.6' fill='%23164346'/%3E%3Cpath d='M0 0h9L0 9zM48 0h-9l9 9zM0 48h9l-9-9zM48 48h-9l9-9z' fill='%23d4507f'/%3E%3C/svg%3E");
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     color-scheme:dark;
-    --ground:#111613;--surface:#18201c;--ink:#ecebe4;--muted:#a2aba4;--line:#2b3530;
-    --green:#8cc2a6;--green-soft:#1d2c25;--ochre:#dcaa55;--on-green:#10251c;
+    --ground:#0d2224;--surface:#132d30;--ink:#eef2f0;--muted:#9fb4b2;--line:#23413f;--accent:#f08a6c;--tint:#11292b;
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --ground:#111613;--surface:#18201c;--ink:#ecebe4;--muted:#a2aba4;--line:#2b3530;
-  --green:#8cc2a6;--green-soft:#1d2c25;--ochre:#dcaa55;--on-green:#10251c;
+  --ground:#0d2224;--surface:#132d30;--ink:#eef2f0;--muted:#9fb4b2;--line:#23413f;--accent:#f08a6c;--tint:#11292b;
 }
+
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--ground);color:var(--ink);font:400 17px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--ground);color:var(--ink);font:400 17px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{max-width:100%;display:block}
 a{color:inherit}
-h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.12;text-wrap:balance;margin:0}
-.wrap{max-width:1120px;margin:0 auto;padding-inline:20px}
-.eyebrow{font:600 .78rem/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ochre)}
-:focus-visible{outline:2px solid var(--ochre);outline-offset:3px}
+h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.05;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h2 em,h1 em{font-style:italic}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:20px}
+.eyebrow{font:600 .76rem/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+:focus-visible{outline:2px solid var(--coral);outline-offset:3px}
 
-/* Header */
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:color-mix(in srgb,var(--ground) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px}
-.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none}
-.brand b{font:400 1.6rem/1 var(--serif);color:var(--green);letter-spacing:.02em}
-.brand span{font-size:.8rem;color:var(--muted)}
-.nav{display:flex;gap:22px;font-size:.92rem}
-.nav a{text-decoration:none;color:var(--muted)}
-.nav a:hover{color:var(--ink)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:var(--r);border:1px solid var(--green);background:var(--green);color:var(--on-green);font:600 .95rem/1 var(--sans);text-decoration:none;cursor:pointer;transition:transform .15s ease,background .15s ease}
-.btn:hover{transform:translateY(-1px)}
-.btn.ghost{background:transparent;color:var(--green)}
-.top .btn{padding:10px 16px;font-size:.88rem}
+/* ---------- Cabecera ---------- */
+.top{position:fixed;inset:0 0 auto 0;z-index:30;padding-top:env(safe-area-inset-top,0px);background:rgba(15,48,51,.0);transition:background .35s ease,box-shadow .35s ease}
+.top.solid{background:rgba(15,48,51,.92);backdrop-filter:blur(10px);box-shadow:0 1px 0 rgba(255,255,255,.06)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:68px}
+.brand img{height:40px;width:auto;transition:opacity .35s ease,transform .35s var(--ease)}
+.top:not(.solid) .brand img{opacity:0;transform:translateY(-6px)}
+.nav{display:flex;gap:26px;font-size:.92rem}
+.nav a{text-decoration:none;color:rgba(243,239,230,.78);position:relative}
+.nav a::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:2px;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease)}
+.nav a:hover{color:var(--cream)}
+.nav a:hover::after{transform:scaleX(1)}
 
-/* Hero */
-.hero{padding-block:56px 64px}
-.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
-.hero h1{font-size:clamp(2.6rem,6vw,4.6rem);color:var(--ink)}
-.hero h1 em{font-style:normal;color:var(--green)}
-.hero .lead{font-size:1.14rem;color:var(--muted);max-width:34em;margin:22px 0 0}
-.only{display:inline-flex;align-items:center;gap:10px;margin-top:26px;padding:10px 16px;border:1px solid var(--ochre);border-radius:var(--r);font-weight:600;color:var(--ochre);font-size:.95rem}
-.only i{width:8px;height:8px;border-radius:50%;background:var(--ochre)}
-.hero .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
-.hero figure{margin:0;position:relative}
-.hero figure img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 60%;border-radius:var(--r);max-height:620px}
-.hero figcaption{position:absolute;left:14px;bottom:14px;background:var(--surface);color:var(--ink);font-size:.8rem;padding:6px 10px;border-radius:4px}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 22px;border-radius:999px;border:0;background:var(--grad);color:#1a1414;font:700 .95rem/1 var(--sans);text-decoration:none;cursor:pointer;transition:transform .25s var(--ease),box-shadow .25s ease;box-shadow:0 8px 24px -10px rgba(212,80,127,.7)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px -10px rgba(212,80,127,.8)}
+.btn.line{background:transparent;color:var(--cream);box-shadow:inset 0 0 0 1.5px rgba(243,239,230,.5)}
+.btn.line:hover{box-shadow:inset 0 0 0 1.5px var(--cream)}
+.btn.line.dark{color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.top .btn{padding:10px 18px;font-size:.88rem}
 
-/* Zócalo: banda de azulejo */
-.zocalo{height:48px;background:var(--tiles) repeat-x;background-size:48px 48px;border-block:6px solid #1f4a3a}
+/* ---------- Portada: entrar en la casa ---------- */
+.intro{position:relative;height:190vh;background:var(--teal-deep);--p:0}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.stage .photo{position:absolute;margin:0;overflow:hidden;inset:calc(12% * (1 - var(--p))) calc(5% * (1 - var(--p))) calc(8% * (1 - var(--p))) calc(52% * (1 - var(--p)));border-radius:calc(14px * (1 - var(--p)))}
+.stage .photo img{width:100%;height:100%;object-fit:cover;object-position:50% 62%;transform-origin:50% 60%;transform:scale(calc(1 + var(--p) * 1.15))}
+.stage .photo::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,transparent 25%,rgba(15,48,51,.6)),linear-gradient(180deg,transparent 55%,rgba(10,30,32,.75));opacity:var(--p)}
+.copy{position:absolute;inset:0;display:flex;align-items:center;pointer-events:none;padding-top:68px}
+.copy .wrap{width:100%}
+.copy-in{max-width:520px;pointer-events:auto;opacity:calc(1 - var(--p) * 2.2);transform:translateY(calc(var(--p) * -60px))}
+.copy .logo{width:min(300px,70vw);height:auto;margin-bottom:26px}
+.copy h1{font-size:clamp(2.6rem,5.4vw,4.3rem);color:var(--cream)}
+.copy h1 em{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.06em}
+.copy .lead{color:rgba(243,239,230,.8);font-size:1.1rem;margin:18px 0 0;max-width:30em}
+.pill{display:inline-flex;align-items:center;gap:10px;margin-top:22px;padding:8px 14px;border-radius:999px;background:rgba(243,239,230,.08);color:var(--cream);font-weight:600;font-size:.9rem;box-shadow:inset 0 0 0 1px rgba(243,239,230,.18)}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--grad);box-shadow:0 0 0 4px rgba(240,138,108,.18);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(240,138,108,0)}}
+.copy .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.welcome{position:absolute;left:0;right:0;bottom:12%;text-align:center;color:var(--cream);font:italic 400 clamp(2.4rem,7vw,5rem)/1 var(--serif);opacity:clamp(0,calc((var(--p) - .62) * 3),1);transform:translateY(calc((1 - var(--p)) * 30px));text-shadow:0 4px 30px rgba(0,0,0,.35);pointer-events:none}
+.welcome small{display:block;margin-top:12px;font:600 .8rem/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;font-style:normal;opacity:.85}
+.hint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);color:rgba(243,239,230,.6);font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;opacity:calc(1 - var(--p) * 4);display:flex;flex-direction:column;align-items:center;gap:8px}
+.hint::after{content:"";width:1px;height:34px;background:linear-gradient(var(--coral),transparent);animation:drip 1.8s ease-in-out infinite}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 
-/* Datos clave */
-.facts{padding-block:56px}
-.facts ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-block:1px solid var(--line)}
-.facts li{padding:26px 22px;border-left:1px solid var(--line)}
-.facts li:first-child{border-left:0}
-.facts strong{display:block;font:400 2.1rem/1.1 var(--serif);color:var(--green);font-variant-numeric:tabular-nums}
-.facts span{display:block;margin-top:6px;color:var(--muted);font-size:.95rem}
+/* Carga inicial de la portada */
+.load .copy .logo{animation:draw 1.4s var(--ease) both}
+.load .copy h1{animation:rise 1s .35s var(--ease) both}
+.load .copy .lead,.load .copy .pill,.load .copy .ctas{animation:rise 1s .55s var(--ease) both}
+.load .stage .photo{animation:frame 1.4s .1s var(--ease) both}
+@keyframes draw{from{clip-path:inset(0 100% 0 0);filter:blur(4px)}to{clip-path:inset(0 0 0 0);filter:blur(0)}}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}}
+@keyframes frame{from{opacity:0;transform:scale(1.04)}}
 
-/* Secciones */
-section.block{padding-block:72px}
-.head{display:grid;gap:12px;margin-bottom:36px;max-width:40em}
-.head h2{font-size:clamp(2rem,4vw,2.8rem)}
+/* ---------- Zócalo ---------- */
+.zocalo{height:48px;background:var(--tiles) 0 0/48px 48px repeat-x;border-block:5px solid var(--teal);animation:slide 40s linear infinite}
+@keyframes slide{to{background-position:480px 0}}
+.zocalo.rv{clip-path:inset(0 100% 0 0)}
+.zocalo.in{clip-path:inset(0 0 0 0);transition:clip-path 1.6s var(--ease)}
+
+/* ---------- Revelado al hacer scroll ---------- */
+.rv{opacity:0;transform:translateY(28px)}
+.in{opacity:1;transform:none;transition:opacity .9s var(--ease),transform .9s var(--ease)}
+
+/* ---------- Datos clave ---------- */
+.facts{padding-block:64px}
+.facts ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr)}
+.facts li{padding:10px 24px;border-left:1px solid var(--line)}
+.facts li:first-child{border-left:0;padding-left:0}
+.facts strong{display:block;font:400 clamp(2.6rem,5vw,3.6rem)/1 var(--serif);font-variant-numeric:tabular-nums}
+.facts span{display:block;margin-top:10px;color:var(--muted);font-size:.95rem;max-width:16em}
+
+/* ---------- Secciones ---------- */
+section.block{padding-block:88px}
+.head{display:grid;gap:14px;margin-bottom:40px;max-width:40em}
+.head h2{font-size:clamp(2.3rem,4.6vw,3.6rem)}
 .head p{margin:0;color:var(--muted)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
 
-.split{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
 .spec{list-style:none;margin:0;padding:0}
-.spec li{display:grid;grid-template-columns:3.2rem 1fr;gap:14px;padding:13px 0;border-bottom:1px solid var(--line);align-items:baseline}
-.spec li b{font:400 1.25rem/1 var(--serif);color:var(--green);font-variant-numeric:tabular-nums}
-.check{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-.check li{padding-left:26px;position:relative}
-.check li::before{content:"";position:absolute;left:2px;top:.62em;width:10px;height:10px;background:var(--ochre);transform:rotate(45deg)}
+.spec li{display:grid;grid-template-columns:3.6rem 1fr;gap:14px;padding:15px 0;border-bottom:1px solid var(--line);align-items:baseline;transition:padding-left .3s var(--ease)}
+.spec li:hover{padding-left:8px}
+.spec li b{font:400 1.7rem/1 var(--serif);font-variant-numeric:tabular-nums;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.check{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.check li{padding-left:28px;position:relative}
+.check li::before{content:"";position:absolute;left:2px;top:.55em;width:11px;height:11px;background:var(--grad);transform:rotate(45deg);border-radius:2px}
 
-.photos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.photos img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:var(--r)}
-.one{margin:0}
-.one img{width:100%;aspect-ratio:4/5;max-height:560px;object-fit:cover;border-radius:var(--r)}
-.one figcaption{margin-top:10px;font-size:.85rem;color:var(--muted)}
-.photos.three{grid-template-columns:repeat(3,1fr)}
+.feature{margin:0;position:relative;border-radius:var(--r);overflow:hidden}
+.feature img{width:100%;aspect-ratio:4/5;max-height:600px;object-fit:cover;transition:transform 1.2s var(--ease)}
+.feature:hover img{transform:scale(1.04)}
+.feature figcaption{position:absolute;left:14px;bottom:14px;background:rgba(15,48,51,.85);color:var(--cream);font-size:.82rem;padding:7px 12px;border-radius:999px;backdrop-filter:blur(6px)}
 
-.room{background:var(--green-soft)}
-.kitchen{margin-top:40px;padding:26px 28px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
-.kitchen h3{font-size:1.4rem;margin-bottom:10px}
+/* ---------- Galería ---------- */
+.gallery{background:var(--teal);color:var(--cream);padding-block:88px;overflow:hidden}
+.gallery .eyebrow{color:var(--sun)}
+.gallery .head p{color:rgba(243,239,230,.75)}
+.g-top{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap}
+.g-nav{display:flex;gap:10px;margin-bottom:40px}
+.g-nav button{width:48px;height:48px;border-radius:50%;border:0;background:rgba(243,239,230,.1);color:var(--cream);font-size:1.2rem;cursor:pointer;transition:background .25s ease,transform .25s var(--ease)}
+.g-nav button:hover{background:rgba(243,239,230,.2);transform:scale(1.06)}
+.track{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding-inline:max(20px,calc((100vw - 1160px)/2 + 20px));padding-bottom:14px;scrollbar-width:none;cursor:grab;overscroll-behavior-x:contain}
+.track::-webkit-scrollbar{display:none}
+.track.drag{cursor:grabbing;scroll-snap-type:none}
+.track figure{flex:0 0 auto;width:min(340px,72vw);margin:0;scroll-snap-align:start;position:relative}
+.track button{display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in;border-radius:var(--r);overflow:hidden}
+.track img{width:100%;aspect-ratio:3/4;object-fit:cover;transition:transform .8s var(--ease),filter .8s ease;pointer-events:none;user-select:none}
+.track button:hover img{transform:scale(1.05)}
+.track figcaption{margin-top:12px;font-size:.9rem;color:rgba(243,239,230,.8)}
+.track figcaption b{font-family:var(--serif);font-weight:400;font-size:1.25rem;color:var(--cream);display:block}
+
+dialog.lb{border:0;padding:0;background:transparent;max-width:none;max-height:none;width:100%;height:100%}
+dialog.lb::backdrop{background:rgba(9,28,30,.92);backdrop-filter:blur(6px)}
+.lb-in{position:fixed;inset:0;display:grid;place-items:center;padding:60px 16px}
+.lb-in img{max-height:84vh;width:auto;border-radius:var(--r);animation:zoomin .45s var(--ease)}
+@keyframes zoomin{from{opacity:0;transform:scale(.94)}}
+.lb-btn{position:fixed;width:48px;height:48px;border-radius:50%;border:0;background:rgba(243,239,230,.14);color:var(--cream);font-size:1.3rem;cursor:pointer}
+.lb-close{top:calc(14px + env(safe-area-inset-top,0px));right:14px}
+.lb-prev{left:14px;top:50%}
+.lb-next{right:14px;top:50%}
+.lb-cap{position:fixed;left:0;right:0;bottom:calc(18px + env(safe-area-inset-bottom,0px));text-align:center;color:var(--cream);font-size:.9rem}
+
+/* ---------- Cocinas ---------- */
+.kitchen{margin-top:48px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;padding:28px 30px;background:var(--surface);border-radius:var(--r);box-shadow:0 1px 0 var(--line),0 20px 40px -30px rgba(16,41,42,.35)}
+.kitchen h3{font-size:2rem}
 .kitchen p{margin:0;color:var(--muted)}
 
-/* Horarios desde la puerta */
-.board{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.board-h{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#1f4a3a;color:#f5f3ea;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
-.board table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-.board td{padding:14px 20px;border-top:1px solid var(--line)}
-.board td:last-child{text-align:right;white-space:nowrap}
-.board .min{font:400 1.5rem/1 var(--serif);color:var(--green)}
-.board .via{display:block;font-size:.82rem;color:var(--muted)}
-.near{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:40px;border-top:1px solid var(--line)}
-.near div{padding:18px 18px 18px 0;border-bottom:1px solid var(--line)}
-.near b{display:block;font:400 1.3rem/1.2 var(--serif);color:var(--green);font-variant-numeric:tabular-nums}
+/* ---------- Panel de estación ---------- */
+.board{background:#0b1f21;color:#e9e4d8;border-radius:12px;overflow:hidden;box-shadow:0 30px 60px -35px rgba(0,0,0,.6)}
+.board-h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 22px;border-bottom:1px solid rgba(255,255,255,.08);font:600 .78rem/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:rgba(233,228,216,.7)}
+.board-h .clock{font-family:var(--mono);color:var(--sun);letter-spacing:.08em}
+.board table{width:100%;border-collapse:collapse}
+.board td{padding:15px 22px;border-top:1px solid rgba(255,255,255,.06);vertical-align:middle}
+.board tr:first-child td{border-top:0}
+.board .dest{font-weight:600}
+.board .via{display:block;font-size:.8rem;color:rgba(233,228,216,.55);font-weight:400}
+.board .t{text-align:right;white-space:nowrap}
+.flap{display:inline-flex;gap:3px}
+.flap span{display:inline-grid;place-items:center;min-width:1.35em;height:1.7em;padding:0 .12em;background:#132e31;border-radius:3px;font:600 1.15rem/1 var(--mono);color:var(--sun);position:relative;box-shadow:inset 0 -1px 0 rgba(0,0,0,.5)}
+.flap span::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.55)}
+.flap span.sp{background:transparent;box-shadow:none;min-width:.4em}
+.flap span.sp::after{display:none}
+.flap span.tick{animation:tick .08s linear}
+@keyframes tick{50%{transform:scaleY(.6)}}
+.near{display:grid;grid-template-columns:repeat(3,1fr);margin-top:44px;border-top:1px solid var(--line)}
+.near div{padding:20px 20px 20px 0;border-bottom:1px solid var(--line)}
+.near b{display:block;font:400 1.7rem/1.1 var(--serif);font-variant-numeric:tabular-nums}
 .near span{color:var(--muted);font-size:.93rem}
-.street{margin-top:32px;color:var(--muted);max-width:46em}
+.street{margin:32px 0 24px;color:var(--muted);max-width:46em}
 .street strong{color:var(--ink)}
 
-/* Condiciones */
-.cond{display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:start}
-.price{padding:32px;border-radius:var(--r);background:var(--green);color:var(--on-green)}
-.price small{display:block;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
-.price strong{display:block;font:400 3.6rem/1 var(--serif);margin:10px 0 6px;font-variant-numeric:tabular-nums}
-.price p{margin:14px 0 0;opacity:.9;font-size:.95rem}
+/* ---------- Condiciones ---------- */
+.cond{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:start}
+.price{position:relative;padding:36px;border-radius:14px;background:var(--teal);color:var(--cream);overflow:hidden;isolation:isolate}
+.price::before{content:"";position:absolute;inset:-40%;background:conic-gradient(from 0deg,var(--magenta),var(--coral),var(--sun),var(--magenta));opacity:.22;filter:blur(40px);animation:spin 14s linear infinite;z-index:-1}
+@keyframes spin{to{transform:rotate(1turn)}}
+.price small{display:block;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;opacity:.8}
+.price strong{display:block;font:400 clamp(3.4rem,7vw,4.6rem)/1 var(--serif);margin:12px 0 6px;font-variant-numeric:tabular-nums}
+.price p{margin:16px 0 0;opacity:.88;font-size:.95rem}
 
-/* Contacto */
-.contact{background:var(--green-soft)}
-.form{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+/* ---------- Contacto ---------- */
+.contact{background:var(--tint)}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .form label{display:grid;gap:6px;font-size:.85rem;font-weight:600;color:var(--muted)}
 .form .full{grid-column:1/-1}
-.form input,.form select,.form textarea{font:inherit;font-size:1rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;width:100%}
-.form textarea{min-height:92px;resize:vertical}
+.form input,.form select,.form textarea{font:inherit;font-size:1rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 13px;width:100%;transition:border-color .2s ease,box-shadow .2s ease}
+.form input:focus,.form select:focus,.form textarea:focus{outline:none;border-color:var(--coral);box-shadow:0 0 0 4px rgba(240,138,108,.18)}
+.form textarea{min-height:96px;resize:vertical}
 .form .actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.pending{font-size:.85rem;color:var(--ochre)}
-.msg{white-space:pre-wrap;background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:14px;font-size:.9rem;margin-top:14px}
+.pending{font-size:.85rem;color:var(--accent)}
+.msg{white-space:pre-wrap;background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:14px;font-size:.9rem}
 
-footer{padding-block:40px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}
-footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+/* ---------- WhatsApp flotante ---------- */
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:25;width:60px;height:60px;border-radius:50%;display:grid;place-items:center;background:#25d366;color:#fff;text-decoration:none;box-shadow:0 12px 30px -8px rgba(0,0,0,.4);transform:scale(0);transition:transform .45s var(--ease)}
+.fab.show{transform:scale(1)}
+.fab::before{content:"";position:absolute;inset:-5px;border-radius:50%;background:var(--grad);z-index:-1;animation:spin 6s linear infinite}
+.fab svg{width:30px;height:30px}
+
+footer{padding-block:48px;background:var(--teal-deep);color:rgba(243,239,230,.7);font-size:.88rem}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px}
+footer img{height:56px;width:auto}
 
 @media (max-width:900px){
   .nav{display:none}
-  .hero .wrap,.split,.cond{grid-template-columns:1fr;gap:32px}
-  .hero{padding-block:32px 48px}
-  .facts ul{grid-template-columns:1fr 1fr}
-  .facts li:nth-child(3){border-left:0}
-  .facts li:nth-child(n+3){border-top:1px solid var(--line)}
+  .intro{height:170vh}
+  .stage .photo{inset:0;border-radius:0}
+  .stage .photo::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(15,48,51,.55),rgba(15,48,51,.88));opacity:calc(1 - var(--p) * 1.6)}
+  .copy{align-items:flex-end;padding-bottom:13vh}
+  .copy .logo{width:190px;margin-bottom:18px}
+  .split,.cond{grid-template-columns:1fr;gap:36px}
+  .facts ul{grid-template-columns:1fr 1fr;row-gap:30px}
+  .facts li:nth-child(3){border-left:0;padding-left:0}
   .near{grid-template-columns:1fr 1fr}
-  section.block{padding-block:56px}
+  section.block,.gallery{padding-block:64px}
+  .kitchen{grid-template-columns:1fr;gap:10px}
 }
 @media (max-width:520px){
   body{font-size:16px}
-  .brand span{display:none}
-  .one{margin:0}
-.one img{width:100%;aspect-ratio:4/5;max-height:560px;object-fit:cover;border-radius:var(--r)}
-.one figcaption{margin-top:10px;font-size:.85rem;color:var(--muted)}
-.photos.three{grid-template-columns:1fr 1fr}
-  .photos.three img:last-child{grid-column:1/-1;aspect-ratio:4/3}
+  .brand img{height:34px}
+  .top .btn{display:none}
   .form{grid-template-columns:1fr}
   .near{grid-template-columns:1fr}
-  .board td{padding:12px 14px}
-  .facts strong{font-size:1.7rem}
+  .board td{padding:13px 14px}
+  .board-h{padding:14px}
+  .flap span{font-size:1rem}
+  .g-nav{display:none}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .intro{height:auto}
+  .stage{position:relative}
+  .rv{opacity:1;transform:none}
+  .zocalo.rv{clip-path:none}
+}
 </style>
 </head>
-<body>
+<body class="load">
 
-<header class="top">
+<header class="top" id="top">
   <div class="wrap">
-    <a class="brand" href="#inicio"><b>BSL</b><span>Boutique Student Living</span></a>
+    <a class="brand" href="#inicio" aria-label="BSL · Boutique Student Living, inicio"><img src="images/logo-mark.png" alt="BSL" width="360" height="240"></a>
     <nav class="nav" aria-label="Secciones">
       <a href="#casa">La casa</a>
+      <a href="#fotos">Fotos</a>
       <a href="#habitacion">Habitación</a>
       <a href="#ubicacion">Ubicación</a>
       <a href="#condiciones">Condiciones</a>
@@ -199,22 +299,27 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 </header>
 
 <main id="inicio">
-  <section class="hero">
-    <div class="wrap">
-      <div>
-        <p class="eyebrow">Dos Hermanas · Sevilla · Curso 2026/27</p>
-        <h1 style="margin-top:16px">Una casa sevillana <em>reformada</em> para vivir tu etapa universitaria</h1>
-        <p class="lead">Habitaciones individuales en una vivienda de 205 m² junto al Ayuntamiento, en la misma calle que el tren Cercanías y a 6 minutos en bus de la Universidad Loyola.</p>
-        <div class="only"><i></i>Solo chicas estudiantes</div>
-        <div class="ctas">
-          <a class="btn" href="#contacto">Pedir información</a>
-          <a class="btn ghost" href="#habitacion">Ver habitaciones</a>
+  <section class="intro" id="intro" aria-label="Portada">
+    <div class="stage">
+      <figure class="photo" style="margin:0">
+        <img src="images/pasillo-azulejos.jpg" alt="Pasillo de entrada con zócalo de azulejo sevillano, molduras restauradas y suelo de madera" width="900" height="1598" fetchpriority="high">
+      </figure>
+      <div class="copy">
+        <div class="wrap">
+          <div class="copy-in">
+            <img class="logo" src="images/logo-bsl.png" alt="BSL · Boutique Student Living · Est. 2025" width="560" height="488">
+            <h1>Tu casa en <em>Dos Hermanas</em> para la etapa universitaria</h1>
+            <p class="lead">Habitaciones individuales en una casa sevillana de 205 m², reformada, junto al Ayuntamiento y a 6 minutos en bus de la Universidad Loyola.</p>
+            <div class="pill"><i></i>Solo chicas estudiantes</div>
+            <div class="ctas">
+              <a class="btn" href="#contacto">Pedir información</a>
+              <a class="btn line" href="#fotos">Ver la casa</a>
+            </div>
+          </div>
         </div>
       </div>
-      <figure>
-        <img src="images/pasillo-azulejos.jpg" alt="Pasillo de entrada con zócalo de azulejo sevillano, molduras restauradas y suelo de madera" width="900" height="1598">
-        <figcaption>Entrada original con azulejo restaurado</figcaption>
-      </figure>
+      <p class="welcome" aria-hidden="true">Bienvenida a casa<small>Calle Canónigo · Dos Hermanas</small></p>
+      <span class="hint" aria-hidden="true">Entra</span>
     </div>
   </section>
 
@@ -223,10 +328,10 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
   <section class="facts">
     <div class="wrap">
       <ul>
-        <li><strong>6 min</strong><span>a la Universidad Loyola en bus directo (línea 5)</span></li>
-        <li><strong>205 m²</strong><span>con patio y dos azoteas de 70 y 80 m²</span></li>
-        <li><strong>Semanal</strong><span>limpieza de baños, cocinas, salón y pasillos incluida</span></li>
-        <li><strong>330 €</strong><span>al mes, desde, según habitación</span></li>
+        <li class="rv"><strong class="grad-text"><span data-count="6">6</span> min</strong><span>a la Universidad Loyola en bus directo (línea 5)</span></li>
+        <li class="rv"><strong class="grad-text"><span data-count="205">205</span> m²</strong><span>con patio y dos azoteas de 70 y 80 m²</span></li>
+        <li class="rv"><strong class="grad-text">Semanal</strong><span>limpieza de baños, cocinas, salón y pasillos incluida</span></li>
+        <li class="rv"><strong class="grad-text"><span data-count="330">330</span> €</strong><span>al mes, desde, según habitación</span></li>
       </ul>
     </div>
   </section>
@@ -234,12 +339,12 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
   <section class="block" id="casa">
     <div class="wrap split">
       <div>
-        <div class="head">
+        <div class="head rv">
           <p class="eyebrow">La vivienda</p>
-          <h2>Totalmente reformada, equipada y lista para entrar</h2>
+          <h2>Reformada, equipada y <em>lista para entrar</em></h2>
           <p>La casa conserva el azulejo y las molduras originales. Todo lo demás es nuevo: suelos, baños, cocinas y mobiliario.</p>
         </div>
-        <ul class="spec">
+        <ul class="spec rv">
           <li><b>2</b><span>cocinas equipadas con electrodomésticos y menaje a estrenar</span></li>
           <li><b>4</b><span>baños completos</span></li>
           <li><b>1</b><span>salón comedor con Smart TV de 50″</span></li>
@@ -248,22 +353,43 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
           <li><b>A/C</b><span>aire acondicionado y bomba de calor en zonas comunes</span></li>
         </ul>
       </div>
-      <figure class="one">
+      <figure class="feature rv">
         <img src="images/bano.jpg" alt="Baño reformado con mueble de madera, mampara de cristal y pared de mármol" width="900" height="1598" loading="lazy">
-        <figcaption>Uno de los 4 baños, reformados a estrenar</figcaption>
+        <figcaption>Uno de los 4 baños, a estrenar</figcaption>
       </figure>
     </div>
   </section>
 
-  <section class="block room" id="habitacion">
-    <div class="wrap">
-      <div class="head">
-        <p class="eyebrow">Tu habitación</p>
-        <h2>Individual, con cerradura y todo lo que necesitas para estudiar</h2>
-        <p>Cada habitación es de uso individual. No se admiten parejas.</p>
+  <section class="gallery" id="fotos">
+    <div class="wrap g-top">
+      <div class="head rv">
+        <p class="eyebrow">La casa en fotos</p>
+        <h2>Pasa y <em>mira</em></h2>
+        <p>Arrastra para ver más. Toca una foto para verla en grande.</p>
       </div>
+      <div class="g-nav">
+        <button type="button" id="g-prev" aria-label="Fotos anteriores">←</button>
+        <button type="button" id="g-next" aria-label="Fotos siguientes">→</button>
+      </div>
+    </div>
+    <div class="track" id="track">
+      <figure><button type="button"><img src="images/pasillo-azulejos.jpg" alt="Pasillo de entrada con azulejo sevillano" width="900" height="1598" loading="lazy"></button><figcaption><b>La entrada</b>Azulejo y molduras originales</figcaption></figure>
+      <figure><button type="button"><img src="images/habitacion-escritorio.jpg" alt="Habitación con estantería, escritorio y silla ergonómica" width="900" height="1598" loading="lazy"></button><figcaption><b>Zona de estudio</b>Escritorio, silla ergonómica y TV</figcaption></figure>
+      <figure><button type="button"><img src="images/habitacion-cama-140.jpg" alt="Habitación con cama de 140 cm y armario con espejo" width="900" height="1598" loading="lazy"></button><figcaption><b>Cama de 140 cm</b>Colchón nuevo y ropa de cama incluida</figcaption></figure>
+      <figure><button type="button"><img src="images/habitacion-completa.jpg" alt="Habitación con armario, escritorio junto a la ventana y televisor" width="900" height="1598" loading="lazy"></button><figcaption><b>Habitación completa</b>Armario de tres puertas y luz natural</figcaption></figure>
+      <figure><button type="button"><img src="images/bano.jpg" alt="Baño reformado con ducha y mueble de madera" width="900" height="1598" loading="lazy"></button><figcaption><b>Baños</b>4 baños completos reformados</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="block" id="habitacion">
+    <div class="wrap">
       <div class="split">
-        <ul class="check">
+        <div class="head rv">
+          <p class="eyebrow">Tu habitación</p>
+          <h2>Individual, con cerradura y <em>todo para estudiar</em></h2>
+          <p>Cada habitación es de uso individual. No se admiten parejas.</p>
+        </div>
+        <ul class="check rv">
           <li>Cama de 105 o 140 cm según habitación, con colchón nuevo</li>
           <li>Armario, escritorio y silla ergonómica</li>
           <li>Smart TV de 32″ con wifi</li>
@@ -272,50 +398,45 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
           <li>Juego de sábanas, funda nórdica, almohadas y cojines, cubrecolchón, toallas, perchas y bolsa de ropa</li>
           <li>Mobiliario y decoración modernos</li>
         </ul>
-        <div class="photos three">
-          <img src="images/habitacion-escritorio.jpg" alt="Habitación con estantería, escritorio rosa, silla ergonómica y televisor en la pared" width="900" height="1598" loading="lazy">
-          <img src="images/habitacion-cama-140.jpg" alt="Habitación con cama de 140 cm, ropa de cama nueva y armario con espejo" width="900" height="1598" loading="lazy">
-          <img src="images/habitacion-completa.jpg" alt="Habitación con escritorio blanco junto a la ventana y armario" width="900" height="1598" loading="lazy">
-        </div>
       </div>
-      <div class="kitchen">
-        <h3>Cocinas compartidas</h3>
+      <div class="kitchen rv">
+        <h3>Cocinas <em>compartidas</em></h3>
         <p>2 microondas, 3 neveras, 2 placas de inducción, lavadora y secadora, 2 freidoras de aire, cafetera de cápsulas, menaje, vajilla y cubertería.</p>
       </div>
     </div>
   </section>
 
-  <section class="block" id="ubicacion">
+  <section class="block" id="ubicacion" style="padding-top:0">
     <div class="wrap">
-      <div class="head">
+      <div class="head rv">
         <p class="eyebrow">Ubicación · Calle Canónigo, 41701</p>
-        <h2>Junto al Ayuntamiento, en la misma calle que el tren</h2>
+        <h2>Junto al Ayuntamiento, <em>en la misma calle que el tren</em></h2>
         <p>Zona muy segura del centro de Dos Hermanas. Estación de Cercanías, parada de taxis y parada central de autobuses a pie de casa.</p>
       </div>
-      <div class="board" role="region" aria-label="Tiempos desde casa">
-        <div class="board-h"><span>Desde la puerta</span><span>Tiempo</span></div>
+      <div class="board rv" role="region" aria-label="Tiempos de viaje desde casa">
+        <div class="board-h"><span>Salidas desde casa</span><span class="clock" id="clock">--:--</span></div>
         <table>
           <tbody>
-            <tr><td>Universidad Loyola Andalucía<span class="via">Bus directo, línea 5</span></td><td><span class="min">6</span> min</td></tr>
-            <tr><td>Bellavista<span class="via">Tren Cercanías</span></td><td><span class="min">6</span> min</td></tr>
-            <tr><td>Hospital Virgen del Rocío · Reina Mercedes<span class="via">Tren Cercanías</span></td><td><span class="min">11</span> min</td></tr>
-            <tr><td>Sevilla Viapol · San Bernardo<span class="via">Tren Cercanías</span></td><td><span class="min">14</span> min</td></tr>
-            <tr><td>Sevilla Santa Justa (AVE)<span class="via">Tren Cercanías</span></td><td><span class="min">16</span> min</td></tr>
-            <tr><td>Playa de Cádiz capital<span class="via">Tren directo</span></td><td><span class="min">1</span> h</td></tr>
+            <tr><td class="dest">Universidad Loyola Andalucía<span class="via">Bus directo · línea 5</span></td><td class="t"><span class="flap" data-flap="6 MIN">6 MIN</span></td></tr>
+            <tr><td class="dest">Bellavista<span class="via">Tren Cercanías</span></td><td class="t"><span class="flap" data-flap="6 MIN">6 MIN</span></td></tr>
+            <tr><td class="dest">Hospital Virgen del Rocío · Reina Mercedes<span class="via">Tren Cercanías</span></td><td class="t"><span class="flap" data-flap="11 MIN">11 MIN</span></td></tr>
+            <tr><td class="dest">Sevilla Viapol · San Bernardo<span class="via">Tren Cercanías</span></td><td class="t"><span class="flap" data-flap="14 MIN">14 MIN</span></td></tr>
+            <tr><td class="dest">Sevilla Santa Justa · AVE<span class="via">Tren Cercanías</span></td><td class="t"><span class="flap" data-flap="16 MIN">16 MIN</span></td></tr>
+            <tr><td class="dest">Playa de Cádiz capital<span class="via">Tren directo</span></td><td class="t"><span class="flap" data-flap="1 H">1 H</span></td></tr>
           </tbody>
         </table>
       </div>
 
       <div class="near">
-        <div><b>50 m</b><span>Biblioteca pública con salas de estudio climatizadas abiertas 24 h todo el año</span></div>
-        <div><b>100 m</b><span>Farmacia</span></div>
-        <div><b>150 m</b><span>Centro de salud público</span></div>
-        <div><b>250 m</b><span>Parque de la Alquería</span></div>
-        <div><b>3 min</b><span>Aparcamiento público, 40 €/mes</span></div>
-        <div><b>10 min</b><span>Clínica San Agustín: Adeslas, Sanitas, Caser, Mapfre…</span></div>
+        <div class="rv"><b>50 m</b><span>Biblioteca pública con salas de estudio climatizadas, abiertas 24 h todo el año</span></div>
+        <div class="rv"><b>100 m</b><span>Farmacia</span></div>
+        <div class="rv"><b>150 m</b><span>Centro de salud público</span></div>
+        <div class="rv"><b>250 m</b><span>Parque de la Alquería</span></div>
+        <div class="rv"><b>3 min</b><span>Aparcamiento público, 40 €/mes</span></div>
+        <div class="rv"><b>10 min</b><span>Clínica San Agustín: Adeslas, Sanitas, Caser, Mapfre…</span></div>
       </div>
       <p class="street"><strong>En la misma calle:</strong> bancos (BBVA, CaixaBank, Sabadell, Santander, Cajasur), plaza de abastos y zona de ocio. Mercadona y Lidl a 5 minutos andando.</p>
-      <p><a class="btn ghost" href="https://www.openstreetmap.org/search?query=Calle%20Can%C3%B3nigo%2C%2041701%20Dos%20Hermanas" target="_blank" rel="noopener">Ver en el mapa</a></p>
+      <a class="btn line dark" href="https://www.openstreetmap.org/search?query=Calle%20Can%C3%B3nigo%2C%2041701%20Dos%20Hermanas" target="_blank" rel="noopener">Ver en el mapa ↗</a>
     </div>
   </section>
 
@@ -323,18 +444,18 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 
   <section class="block" id="condiciones">
     <div class="wrap cond">
-      <div class="price">
+      <div class="price rv">
         <small>Alquiler mensual</small>
-        <strong>Desde 330 €</strong>
+        <strong>Desde <span data-count="330">330</span> €</strong>
         <span>según habitación, más gastos fijos</span>
         <p>Los gastos fijos cubren luz, agua, wifi, limpieza semanal y mantenimiento durante el curso. Precio final sin sorpresas.</p>
       </div>
       <div>
-        <div class="head">
+        <div class="head rv">
           <p class="eyebrow">Condiciones</p>
-          <h2>Contratos claros y atención inmediata</h2>
+          <h2>Contratos claros y <em>atención inmediata</em></h2>
         </div>
-        <ul class="check">
+        <ul class="check rv">
           <li>Solo para chicas estudiantes. Preferencia por ambiente universitario: Universidad Loyola Andalucía, Universidad Pablo de Olavide y máster.</li>
           <li>Alquiler de uso individual. El precio depende de la habitación.</li>
           <li>La vivienda es solo para uso de las inquilinas.</li>
@@ -347,12 +468,12 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 
   <section class="block contact" id="contacto">
     <div class="wrap split">
-      <div class="head">
+      <div class="head rv">
         <p class="eyebrow">Contacto</p>
-        <h2>Cuéntanos qué estudias y te enseñamos la casa</h2>
-        <p>Rellena los datos y se prepara un mensaje de WhatsApp listo para enviar. Respondemos con las habitaciones libres y una fecha de visita.</p>
+        <h2>Cuéntanos qué estudias y <em>te enseñamos la casa</em></h2>
+        <p>Rellena los datos y se prepara un mensaje de WhatsApp listo para enviar. Te respondemos con las habitaciones libres y una fecha de visita.</p>
       </div>
-      <form class="form" id="f" novalidate>
+      <form class="form rv" id="f" novalidate>
         <label>Nombre<input id="f-nombre" name="nombre" autocomplete="given-name" placeholder="Lucía"></label>
         <label>Universidad<select id="f-uni" name="uni">
           <option>Universidad Loyola Andalucía</option>
@@ -361,7 +482,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
           <option>Máster</option>
           <option>Otra</option>
         </select></label>
-        <label>Curso<select id="f-curso" name="curso">
+        <label>Duración<select id="f-curso" name="curso">
           <option>Curso completo 2026/27</option>
           <option>Primer cuatrimestre</option>
           <option>Segundo cuatrimestre</option>
@@ -375,7 +496,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
         <label class="full">Mensaje (opcional)<textarea id="f-msg" name="msg" placeholder="Fecha de entrada, dudas, cuándo te viene bien visitarla…"></textarea></label>
         <div class="full actions">
           <button class="btn" type="submit">Preparar mensaje de WhatsApp</button>
-          <span class="pending" id="pending" hidden>Falta añadir el número de WhatsApp de BSL. Mientras tanto, aquí tienes el mensaje:</span>
+          <span class="pending" id="pending" hidden>Falta añadir el número de WhatsApp de BSL. Mientras tanto, este es el mensaje:</span>
         </div>
         <div class="full msg" id="out" hidden></div>
       </form>
@@ -385,39 +506,205 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 
 <footer>
   <div class="wrap">
-    <span>BSL · Boutique Student Living · Calle Canónigo, 41701 Dos Hermanas (Sevilla)</span>
-    <span>© <span id="y">2026</span></span>
+    <img src="images/logo-mark.png" alt="BSL" width="360" height="240">
+    <span>Calle Canónigo, 41701 Dos Hermanas (Sevilla) · © <span id="y">2026</span> BSL · Boutique Student Living</span>
   </div>
 </footer>
+
+<a class="fab" id="fab" href="#contacto" aria-label="Escríbenos por WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.8-1.2.2-.6.2-1.1.1-1.2l-.4-.2Z"/></svg>
+</a>
+
+<dialog class="lb" id="lb" aria-label="Foto ampliada">
+  <div class="lb-in">
+    <img id="lb-img" src="" alt="">
+    <button class="lb-btn lb-close" type="button" id="lb-close" aria-label="Cerrar">✕</button>
+    <button class="lb-btn lb-prev" type="button" id="lb-prev" aria-label="Anterior">←</button>
+    <button class="lb-btn lb-next" type="button" id="lb-next" aria-label="Siguiente">→</button>
+    <p class="lb-cap" id="lb-cap"></p>
+  </div>
+</dialog>
 
 <script>
 // Número de WhatsApp de BSL en formato internacional sin "+" (ej. 34600111222). Vacío = pendiente.
 var WA_NUMBER = '';
 
-document.getElementById('y').textContent = new Date().getFullYear();
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.getElementById('y').textContent = new Date().getFullYear();
+  setTimeout(function () { document.body.classList.remove('load'); }, 2200);
 
-document.getElementById('f').addEventListener('submit', function (e) {
-  e.preventDefault();
-  var v = function (id) { return document.getElementById(id).value.trim(); };
-  var lines = [
-    'Hola, me interesa una habitación en BSL · Boutique Student Living (Dos Hermanas).',
-    '',
-    'Nombre: ' + (v('f-nombre') || '—'),
-    'Universidad: ' + v('f-uni'),
-    'Duración: ' + v('f-curso'),
-    'Cama: ' + v('f-cama')
-  ];
-  if (v('f-msg')) lines.push('', v('f-msg'));
-  var text = lines.join('\n');
-  if (WA_NUMBER) {
-    window.location.href = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(text);
-  } else {
-    document.getElementById('pending').hidden = false;
-    var out = document.getElementById('out');
-    out.textContent = text;
-    out.hidden = false;
+  /* Portada: entrar en la casa al hacer scroll */
+  var intro = document.getElementById('intro');
+  var top = document.getElementById('top');
+  var fab = document.getElementById('fab');
+  var ticking = false;
+  function onScroll() {
+    ticking = false;
+    var r = intro.getBoundingClientRect();
+    var total = intro.offsetHeight - window.innerHeight;
+    var p = total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 0;
+    if (!reduce) intro.style.setProperty('--p', p.toFixed(4));
+    top.classList.toggle('solid', r.bottom < 90);
+    fab.classList.toggle('show', window.scrollY > window.innerHeight * 0.6);
   }
-});
+  window.addEventListener('scroll', function () {
+    if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+  }, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  if (WA_NUMBER) fab.href = 'https://wa.me/' + WA_NUMBER;
+
+  /* Revelado, contadores, zócalo y panel al entrar en pantalla */
+  function countUp(el) {
+    var to = +el.getAttribute('data-count'), t0 = null;
+    function step(t) {
+      if (!t0) t0 = t;
+      var k = Math.min(1, (t - t0) / 1400);
+      el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3)));
+      if (k < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  var CH = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  function buildFlap(el) {
+    var txt = el.getAttribute('data-flap');
+    el.textContent = '';
+    el.setAttribute('aria-label', txt.toLowerCase());
+    txt.split('').forEach(function (c) {
+      var s = document.createElement('span');
+      s.setAttribute('aria-hidden', 'true');
+      if (c === ' ') s.className = 'sp';
+      s.textContent = c === ' ' ? '' : c;
+      el.appendChild(s);
+    });
+  }
+  function runFlap(el) {
+    var txt = el.getAttribute('data-flap');
+    Array.prototype.forEach.call(el.children, function (s, i) {
+      var target = txt[i];
+      if (target === ' ') return;
+      var n = 8 + i * 4 + Math.floor(Math.random() * 6);
+      var iv = setInterval(function () {
+        if (n-- <= 0) { clearInterval(iv); s.textContent = target; return; }
+        s.textContent = CH[Math.floor(Math.random() * (/\d/.test(target) ? 10 : CH.length))];
+        s.classList.remove('tick'); void s.offsetWidth; s.classList.add('tick');
+      }, 55);
+    });
+  }
+  var flaps = document.querySelectorAll('[data-flap]');
+  Array.prototype.forEach.call(flaps, buildFlap);
+
+  if (!reduce && 'IntersectionObserver' in window) {
+    var vh = window.innerHeight;
+    var items = document.querySelectorAll('.rv, .zocalo');
+    Array.prototype.forEach.call(items, function (el) {
+      if (el.getBoundingClientRect().top < vh * 0.95) { el.classList.remove('rv'); }
+      else { el.classList.add('rv'); }
+    });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var el = e.target;
+        io.unobserve(el);
+        if (el.classList.contains('rv')) {
+          var sib = el.parentNode ? Array.prototype.indexOf.call(el.parentNode.children, el) : 0;
+          el.style.transitionDelay = Math.min(sib, 5) * 70 + 'ms';
+          el.classList.add('in');
+        }
+        Array.prototype.forEach.call(el.querySelectorAll('[data-count]'), countUp);
+        if (el.classList.contains('board')) Array.prototype.forEach.call(el.querySelectorAll('[data-flap]'), runFlap);
+      });
+    }, { threshold: 0.18 });
+    Array.prototype.forEach.call(document.querySelectorAll('.rv, .zocalo, .board'), function (el) { io.observe(el); });
+  } else {
+    Array.prototype.forEach.call(document.querySelectorAll('.rv'), function (el) { el.classList.remove('rv'); });
+  }
+
+  /* Reloj del panel */
+  function clock() {
+    var d = new Date();
+    document.getElementById('clock').textContent =
+      ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+  }
+  clock(); setInterval(clock, 20000);
+
+  /* Galería: arrastrar con el ratón, flechas y visor */
+  var track = document.getElementById('track');
+  var down = false, moved = 0, sx = 0, sl = 0;
+  track.addEventListener('pointerdown', function (e) {
+    if (e.pointerType !== 'mouse') return;
+    down = true; moved = 0; sx = e.clientX; sl = track.scrollLeft;
+  });
+  window.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var dx = e.clientX - sx; moved = Math.max(moved, Math.abs(dx));
+    if (moved > 4) track.classList.add('drag');
+    track.scrollLeft = sl - dx;
+  });
+  window.addEventListener('pointerup', function () {
+    if (!down) return;
+    down = false;
+    track.classList.remove('drag');
+  });
+  function page(dir) {
+    var w = track.querySelector('figure').offsetWidth + 18;
+    track.scrollBy({ left: dir * w, behavior: reduce ? 'auto' : 'smooth' });
+  }
+  document.getElementById('g-prev').addEventListener('click', function () { page(-1); });
+  document.getElementById('g-next').addEventListener('click', function () { page(1); });
+
+  var figs = track.querySelectorAll('figure');
+  var lb = document.getElementById('lb'), lbImg = document.getElementById('lb-img'), lbCap = document.getElementById('lb-cap');
+  var cur = 0;
+  function show(i) {
+    cur = (i + figs.length) % figs.length;
+    var img = figs[cur].querySelector('img');
+    lbImg.src = img.src; lbImg.alt = img.alt;
+    lbImg.style.animation = 'none'; void lbImg.offsetWidth; lbImg.style.animation = '';
+    lbCap.textContent = figs[cur].querySelector('b').textContent + ' · ' + (cur + 1) + '/' + figs.length;
+  }
+  Array.prototype.forEach.call(figs, function (f, i) {
+    f.querySelector('button').addEventListener('click', function (e) {
+      if (moved > 6) { e.preventDefault(); moved = 0; return; }
+      show(i);
+      if (lb.showModal) lb.showModal(); else lb.setAttribute('open', '');
+    });
+  });
+  document.getElementById('lb-close').addEventListener('click', function () { lb.close(); });
+  document.getElementById('lb-prev').addEventListener('click', function () { show(cur - 1); });
+  document.getElementById('lb-next').addEventListener('click', function () { show(cur + 1); });
+  lb.addEventListener('click', function (e) { if (e.target === lb || e.target.classList.contains('lb-in')) lb.close(); });
+  lb.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+
+  /* Formulario → mensaje de WhatsApp */
+  document.getElementById('f').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = function (id) { return document.getElementById(id).value.trim(); };
+    var lines = [
+      'Hola, me interesa una habitación en BSL · Boutique Student Living (Dos Hermanas).',
+      '',
+      'Nombre: ' + (v('f-nombre') || '—'),
+      'Universidad: ' + v('f-uni'),
+      'Duración: ' + v('f-curso'),
+      'Cama: ' + v('f-cama')
+    ];
+    if (v('f-msg')) lines.push('', v('f-msg'));
+    var text = lines.join('\n');
+    if (WA_NUMBER) {
+      window.location.href = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(text);
+    } else {
+      document.getElementById('pending').hidden = false;
+      var out = document.getElementById('out');
+      out.textContent = text;
+      out.hidden = false;
+    }
+  });
+})();
 </script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 - [ ] Número de WhatsApp (constante `WA_NUMBER` en `index.html`), email e Instagram
 - [ ] Más fotos: salón, cocinas, patio, azoteas, fachada
 - [ ] Nº de habitaciones y precio de cada una (tabla de habitaciones)
-- [ ] Logo (de momento es texto "BSL")
+- [x] Logo: elegido el de casa + libro (`images/logo-bsl.png`, `logo-mark.png`)
 - [ ] Dominio → luego poner URL absoluta en `og:image`
 
 ## Ideas
