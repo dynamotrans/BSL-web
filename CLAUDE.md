@@ -5,7 +5,8 @@ Proyecto independiente de `dynamo-web`: **no mezclar** código ni contexto entre
 
 ## Proyecto
 - Sitio estático HTML (`index.html` + `images/`). Local: `python3 -m http.server 3000`.
-- Hosting previsto: Vercel conectado a GitHub (rama `main` = producción).
+- **Repo**: `dynamotrans/BSL-web` (privado). **Vercel**: proyecto `bsl-web` → https://bsl-web.vercel.app (cada push a `main` se publica solo).
+- La protección "Vercel Authentication" del proyecto debe quedar en *Only Preview Deployments* para que `bsl-web.vercel.app` se vea sin registro.
 
 ## Reglas
 1. **Nunca hacer push sin preguntar.** Resumir cambios, commit local y preguntar "¿Subo los cambios a GitHub?".
@@ -36,3 +37,5 @@ Proyecto independiente de `dynamo-web`: **no mezclar** código ni contexto entre
 - Quitado "Hospital Virgen del Rocío · Reina Mercedes" del panel de tiempos.
 - Botón del mapa → Google Maps de la casa (`https://maps.app.goo.gl/VNDkkathCcGhzhDj8`).
 - **"Solo chicas estudiantes" siempre visible**: etiqueta fija en la barra superior (todas las pantallas), también en la ventana de reserva, y el mensaje de WhatsApp añade "Soy estudiante".
+- Publicado en Vercel: `bsl-web.vercel.app` (proyecto creado por la propietaria desde vercel.com/new; el conector de Claude no tiene permiso para crear/editar proyectos).
+- Arreglo: la portada fija ("entrar en la casa") dejaba un hueco vacío porque `overflow-x:hidden` en `html` + `body` rompía `position:sticky`. Ahora solo en `body` con `overflow-x:clip`. **No volver a poner overflow en `html`.**

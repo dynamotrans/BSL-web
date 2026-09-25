@@ -25,7 +25,7 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%}
-body{margin:0;background:var(--ground);color:var(--ink);font:400 15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+body{margin:0;overflow-x:hidden;overflow-x:clip;background:var(--ground);color:var(--ink);font:400 15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
 h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;line-height:1.1}
 img{max-width:100%;display:block}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -54,7 +54,6 @@ button,input,select,textarea{font:inherit;color:inherit}
 .list{display:grid;gap:8px;position:sticky;top:78px}
 .layout>*,.editor>*,.card>*,.grid>*,.add-int>*{min-width:0}
 input,select,textarea{min-width:0}
-html{overflow-x:hidden}
 .item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--line);cursor:pointer;text-align:left;width:100%}
 .item[aria-current="true"]{border-color:var(--coral);box-shadow:0 0 0 3px color-mix(in srgb,var(--coral) 22%,transparent)}
 .item .n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--teal);color:var(--cream);font-weight:700;font-size:.85rem}
