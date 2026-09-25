@@ -1151,8 +1151,7 @@ var WA_NUMBER = (window.BSL_CONFIG && window.BSL_CONFIG.whatsapp) || '';
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') fabOpen(false); });
   document.getElementById('fab-res').addEventListener('click', function () {
     fabOpen(false);
-    var first = document.querySelector('#rooms-grid [data-reserve]');
-    if (first) first.click(); else document.getElementById('habitaciones').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('habitaciones').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
   });
   if (WA_NUMBER) {
     fabWa.href = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent('Hola, me interesa una habitación en BSL · Boutique Student Living (Dos Hermanas).');
