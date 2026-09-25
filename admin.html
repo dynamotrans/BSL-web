@@ -441,6 +441,16 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
       '<div class="ed-head"><h2>Nº ' + r.num + ' · ' + esc(r.nombre) + '</h2>' +
       '<label class="switch"><input type="checkbox" id="f-activa"' + (r.activa ? ' checked' : '') + '> Publicada en la web</label></div>' +
 
+      '<section class="card"><h3>Calendario</h3>' +
+      '<div class="legend"><span><i style="background:var(--occ)"></i>Ocupada</span><span><i style="background:var(--free)"></i>Libre (marcado)</span><span><i style="background:var(--none);box-shadow:inset 0 0 0 1px var(--line)"></i>Sin marcar (libre)</span></div>' +
+      '<div class="cal-wrap"><div class="cal" id="cal"></div></div>' +
+      '<h4 class="subh">Marcar fechas a mano</h4>' +
+      '<p class="hint">Lo normal es que la ocupación se marque sola con los <b>contratos</b> (pestaña Inquilinas). Usa esto solo para bloquear o liberar fechas a mano.</p>' +
+      '<div class="wiz" id="wiz"></div>' +
+      '<h4 class="subh">Fechas marcadas</h4>' +
+      '<div id="i-list"></div>' +
+      '</section>' +
+
       '<section class="card"><h3>Datos</h3><div class="grid">' +
       '<label class="wide">Nombre<input type="text" id="f-nombre" value="' + esc(r.nombre) + '"></label>' +
       '<label>Precio (€/mes)<input type="number" min="0" step="5" id="f-precio" value="' + esc(r.precio) + '"></label>' +
@@ -453,14 +463,6 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
 
       '<section class="card"><h3>Fotos</h3><p class="hint">La primera es la que sale en la tarjeta. Usa las flechas para cambiar el orden.</p><div class="photos" id="photos"></div></section>' +
 
-      '<section class="card"><h3>Calendario</h3>' +
-      '<p class="hint">Lo normal es que la ocupación se marque sola con los <b>contratos</b> (pestaña Inquilinas). Usa esto solo para bloquear o liberar fechas a mano.</p>' +
-      '<div class="wiz" id="wiz"></div>' +
-      '<h4 class="subh">Fechas marcadas</h4>' +
-      '<div id="i-list"></div>' +
-      '<div class="legend"><span><i style="background:var(--occ)"></i>Ocupada</span><span><i style="background:var(--free)"></i>Libre (marcado)</span><span><i style="background:var(--none);box-shadow:inset 0 0 0 1px var(--line)"></i>Sin marcar (libre)</span></div>' +
-      '<div class="cal-wrap"><div class="cal" id="cal"></div></div>' +
-      '</section>' +
       '<p class="hint">Los cambios se guardan solos.</p>';
 
     renderPhotos(); renderIntervals(); renderCal(courses);
