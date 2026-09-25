@@ -69,6 +69,42 @@
     return { kind: 'ocupada', text: 'Ocupada' };
   }
 
+  /* ---------- Opciones de reserva ----------
+   * 1) Resto del curso en marcha: solo si la habitación queda libre desde hoy (o desde una fecha)
+   *    hasta el 31 de julio.
+   * 2) Curso completo siguiente (1 sep – 31 jul): siempre, aunque esté ocupada, con sus fechas libres.
+   */
+  function courseOf(iso) { // curso en marcha que contiene la fecha, o null en agosto
+    var y = +iso.slice(0, 4), md = iso.slice(5);
+    if (md >= '09-01') return y;
+    if (md <= '07-31') return y - 1;
+    return null;
+  }
+  function nextFullCourse(iso) { var y = +iso.slice(0, 4); return iso.slice(5) >= '09-01' ? y + 1 : y; }
+  function longStatus(st, from, to) {
+    if (st.kind === 'libre') return 'Libre';
+    if (st.kind === 'ocupada') return 'Ocupada todo el periodo';
+    if (st.from) return 'Ocupada hasta el ' + fmt(addDays(st.from, -1), true) + ' · libre desde el ' + fmt(st.from, true);
+    return 'Libre hasta el ' + fmt(st.to, true) + ' · después ocupada';
+  }
+  function options(room, iso) {
+    iso = iso || today();
+    var out = [], y0 = courseOf(iso);
+    if (y0 !== null) {
+      var end = (y0 + 1) + '-07-31', st = status(room, iso, end);
+      var d = st.kind === 'libre' ? iso : (st.kind === 'parcial' && st.from ? st.from : null);
+      if (d) out.push({
+        key: 'resto', y: y0, from: d, to: end,
+        title: 'Resto del curso ' + courseLabel(y0),
+        short: d === iso ? 'Libre ya' : 'Libre desde el ' + fmt(d),
+        st: { kind: 'libre' }, long: d === iso ? 'Libre desde hoy' : 'Libre desde el ' + fmt(d, true)
+      });
+    }
+    var yn = nextFullCourse(iso), r = periodRange('curso', yn), s2 = status(room, r.from, r.to);
+    out.push({ key: 'curso', y: yn, from: r.from, to: r.to, title: 'Curso completo ' + courseLabel(yn), short: s2.text, st: s2, long: longStatus(s2, r.from, r.to) });
+    return out;
+  }
+
   /* ---------- Datos de ejemplo ---------- */
   var EQUIP = ['Cerradura propia', 'Armario', 'Escritorio y silla ergonómica', 'Smart TV 32″ con wifi',
     'Radiador De’Longhi', 'Ventilador de techo', 'Ropa de cama y toallas'];
@@ -104,6 +140,8 @@
     rooms[2].intervalos.push({ desde: y + '-10-31', hasta: (y + 1) + '-07-31', estado: 'libre' });
     rooms[4].intervalos.push({ desde: y + '-09-01', hasta: (y + 1) + '-01-31', estado: 'ocupada' });
     rooms[6].intervalos.push({ desde: (y + 1) + '-02-01', hasta: (y + 1) + '-07-31', estado: 'ocupada' });
+    rooms[1].intervalos.push({ desde: (y + 1) + '-09-01', hasta: (y + 2) + '-07-31', estado: 'ocupada' });
+    rooms[5].intervalos.push({ desde: (y + 1) + '-09-01', hasta: (y + 2) + '-01-31', estado: 'ocupada' });
     return { demo: true, rooms: rooms };
   }
 
@@ -146,6 +184,6 @@
   window.BSL = {
     config: CONFIG, store: BSLStore, sha256: sha256, waLink: waLink,
     PERIODS: PERIODS, periodRange: periodRange, defaultCourse: defaultCourse, courseLabel: courseLabel,
-    dayState: dayState, status: status, addDays: addDays, toDate: toDate, today: today, fmt: fmt, MESES: MESES
+    dayState: dayState, status: status, options: options, courseOf: courseOf, nextFullCourse: nextFullCourse, addDays: addDays, toDate: toDate, today: today, fmt: fmt, MESES: MESES
   };
 })();

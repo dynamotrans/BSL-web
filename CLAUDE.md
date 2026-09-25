@@ -31,3 +31,6 @@ Proyecto independiente de `dynamo-web`: **no mezclar** código ni contexto entre
 - **Responsive revisado**: un bloque `@media` del móvil se había roto (las cifras quedaban en 4 columnas de 566 px y la web se desplazaba de lado en el iPhone). Arreglado + ajustes de portada para móvil en horizontal y portátiles de pantalla baja + panel sin desbordes en móvil. Escaneo automático sin desbordes en 320, 390, 844×390, 768, 1024, 1280×720 y 1920.
 - "La vivienda": la foto suelta del baño con etiqueta encima pasa a composición de 2 fotos (baño + habitación) escalonadas, con el texto debajo.
 - "Tu habitación": la lista pasa a 8 tarjetas de equipamiento (título + detalle), 4 por fila en ordenador, 2 en tablet y 1 en móvil.
+- **Reserva simplificada** (decisión de la propietaria): fuera cuatrimestres y fechas libres ("Otro"). Solo 2 opciones: **Curso completo siguiente** (1 sep – 31 jul, principal, sale siempre aunque esté ocupada, indicando fechas libres) y **Resto del curso en marcha** (solo si queda libre desde hoy o desde una fecha hasta el 31 jul). Lógica en `BSL.options()` de `js/rooms.js`. Filtros de la web: "Curso AAAA/AA" y "Para entrar ya".
+- Carrusel "Pasa y mira": la primera foto ya no queda pegada al borde (`scroll-padding-inline`).
+- Quitado "Hospital Virgen del Rocío · Reina Mercedes" del panel de tiempos.
