@@ -912,8 +912,11 @@ footer img{height:56px;width:auto}
   }
   function render() {
     buildSegs();
-    grid.innerHTML = active().map(function (r) {
-      var st = cardState(r);
+    var RANK = { libre: 0, parcial: 1, ocupada: 2 };
+    grid.innerHTML = active().map(function (r) { return { r: r, st: cardState(r) }; }).sort(function (a, b) {
+      return (RANK[a.st.kind] - RANK[b.st.kind]) || (a.r.num - b.r.num);
+    }).map(function (x) {
+      var r = x.r, st = x.st;
       return '<article class="room-card st-' + st.kind + '">' +
         '<button type="button" class="rc-photo" data-view="' + r.id + '" aria-label="Ver ' + esc(r.nombre) + '">' +
         (r.fotos && r.fotos.length ? '<img src="' + esc(r.fotos[0]) + '" alt="' + esc(r.nombre) + '" loading="lazy">' : '<div class="rc-ph"><span>Fotos próximamente</span></div>') +
