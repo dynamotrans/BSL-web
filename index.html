@@ -156,35 +156,35 @@ a,button,select,summary,[role=button]{cursor:var(--cursor),pointer}
 /* ---------- BSL o residencia ---------- */
 .vs{padding-block:64px 24px}
 .vs .head{margin-bottom:28px}
-.vs-table{display:grid;gap:0;border-radius:16px;overflow:hidden;background:var(--surface);box-shadow:0 1px 0 var(--line),0 24px 48px -36px rgba(16,41,42,.5)}
-.vs-row{display:grid;grid-template-columns:150px minmax(0,1.2fr) minmax(0,1fr);align-items:stretch}
+.vs-table{display:grid;border-radius:18px;overflow:hidden;background:var(--surface);border:1px solid var(--line);box-shadow:0 24px 48px -36px rgba(16,41,42,.45)}
+.vs-row{display:grid;grid-template-columns:170px minmax(0,1.15fr) minmax(0,1fr);align-items:center}
 .vs-row + .vs-row{border-top:1px solid var(--line)}
-.vs-row > span{padding:16px 18px;font-size:.95rem;line-height:1.45}
-.vs-k{font:400 1.25rem/1.2 var(--serif);color:var(--ink);display:flex;align-items:center}
-.vs-bsl{background:color-mix(in srgb,var(--teal) 7%,var(--surface));color:var(--ink);position:relative;padding-left:44px!important}
-.vs-bsl i{position:absolute;left:16px;top:18px;width:18px;height:18px;background:var(--grad);-webkit-mask:var(--star) center/contain no-repeat;mask:var(--star) center/contain no-repeat}
+.vs-row > span{padding:18px 22px;font-size:.95rem;line-height:1.5}
+.vs-k{font:600 .74rem/1.3 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.vs-bsl{position:relative;padding-left:54px!important;color:var(--ink);align-self:stretch;background:color-mix(in srgb,var(--teal) 5%,var(--surface))}
+.vs-bsl i{position:absolute;left:22px;top:20px;width:20px;height:20px;border-radius:50%;background:var(--grad);-webkit-mask:none;mask:none}
+.vs-bsl i::after{content:"";position:absolute;left:7px;top:4px;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
 .vs-bsl b{color:var(--teal)}
 .vs-res{color:var(--muted)}
-.vs-res b{color:var(--muted)}
-.vs-headrow > span{padding-block:14px;font-weight:700;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center}
-.vs-headrow .vs-bsl{background:var(--teal);padding-left:18px!important}
-.vs-headrow .vs-bsl img{height:34px;width:auto}
+.vs-res b{color:var(--muted);font-weight:600}
+.vs-headrow{background:var(--teal)}
+.vs-headrow .vs-bsl{padding-left:22px!important}
+.vs-headrow > span{padding-block:14px;font:700 .74rem/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:rgba(243,239,230,.7);display:flex;align-items:center;background:none}
+.vs-headrow .vs-bsl img{height:30px;width:auto}
 .vs-note{margin:12px 0 22px;font-size:.8rem;color:var(--muted)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .vs-bsl b{color:var(--cream)}}
 :root[data-theme="dark"] .vs-bsl b{color:var(--cream)}
 @media (max-width:760px){
-  .vs-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"k k" "a b"}
-  .vs-k{grid-area:k;padding-bottom:0!important;font-size:1.15rem}
-  .vs-row > .vs-bsl{grid-area:a}
-  .vs-row > .vs-res{grid-area:b}
-  .vs-row > span{padding:12px 14px;font-size:.88rem}
-  .vs-bsl{padding-left:14px!important;padding-top:34px!important}
-  .vs-bsl i{left:14px;top:12px}
-  .vs-headrow{grid-template-areas:"a b"}
-  .vs-headrow > span:first-child{display:none}
-  .vs-headrow .vs-bsl{padding-top:12px!important}
-  .vs-headrow .vs-res{font-size:.72rem}
+  .vs-headrow{display:none!important}
+  .vs-row{grid-template-columns:minmax(0,1fr);padding:18px 18px 16px;gap:8px}
+  .vs-row > span{padding:0;background:none}
+  .vs-k{font-size:.7rem}
+  .vs-bsl{font-size:1rem;line-height:1.45;background:none;padding-left:32px!important}
+  .vs-bsl i{left:0;top:2px}
+  .vs-res{font-size:.86rem;padding-left:32px!important;line-height:1.45}
+  .vs-res::before{content:"Residencia · ";font-weight:600;color:color-mix(in srgb,var(--muted) 80%,transparent)}
 }
+
 
 /* ---------- Datos clave ---------- */
 .facts{padding-block:64px}
