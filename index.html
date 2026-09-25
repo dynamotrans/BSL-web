@@ -118,6 +118,11 @@ a,button,select,summary,[role=button]{cursor:var(--cursor),pointer}
 .copy .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
 .welcome{position:absolute;z-index:2;left:0;right:0;bottom:12%;text-align:center;color:var(--cream);font:italic 400 clamp(2.4rem,7vw,5rem)/1 var(--serif);opacity:clamp(0,calc((var(--p) - .62) * 3),1);transform:translateY(calc((1 - var(--p)) * 30px));text-shadow:0 4px 30px rgba(0,0,0,.35);pointer-events:none}
 .welcome small{display:block;margin-top:12px;font:600 .8rem/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;font-style:normal;opacity:.85}
+.down{position:absolute;z-index:3;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));margin-left:-27px;width:54px;height:54px;border-radius:50%;border:1.5px solid rgba(243,239,230,.55);background:rgba(15,48,51,.35);color:var(--cream);display:grid;place-items:center;cursor:pointer;opacity:calc(1 - var(--p) * 4);animation:nudge 2.2s ease-in-out infinite}
+.down:hover{border-color:var(--cream)}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+@media (prefers-reduced-motion: reduce){.down{animation:none}}
+.fam-cta{margin:28px 0 0}
 .hint{position:absolute;z-index:2;left:50%;bottom:22px;transform:translateX(-50%);color:rgba(243,239,230,.6);font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;opacity:calc(1 - var(--p) * 4);display:flex;flex-direction:column;align-items:center;gap:8px}
 .hint::after{content:"";width:1px;height:34px;background:linear-gradient(var(--coral),transparent);animation:drip 1.8s ease-in-out infinite}
 @keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
@@ -550,16 +555,11 @@ footer img{height:56px;width:auto}
             <img class="logo" src="images/logo-bsl.png" alt="BSL · Boutique Student Living · Est. 2025" width="560" height="488">
             <h1>Tu hogar universitario en <em>Dos Hermanas</em></h1>
             <p class="lead"><strong>Habitaciones individuales solo para chicas estudiantes</strong>, en su mayoría de la Universidad Loyola y de la Pablo de Olavide. Casa sevillana reformada, junto al Ayuntamiento.</p>
-            <div class="pill"><i></i>Solo chicas estudiantes</div>
-            <div class="ctas">
-              <a class="btn" href="#habitaciones">Ver habitaciones libres</a>
-              <a class="btn line" href="#fotos">Ver la casa</a>
-            </div>
           </div>
         </div>
       </div>
       <p class="welcome" aria-hidden="true">Bienvenida a casa<small>Calle Canónigo · Dos Hermanas</small></p>
-      <span class="hint" aria-hidden="true">Entra</span>
+      <button type="button" class="down" id="down" aria-label="Bajar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button>
     </div>
   </section>
 
@@ -578,6 +578,7 @@ footer img{height:56px;width:auto}
         <li class="rv"><b>Cerradura en cada habitación</b><span>Habitación individual y privada. No se admiten parejas.</span></li>
         <li class="rv"><b>Casa cuidada cada semana</b><span>Limpieza semanal, mantenimiento y atención inmediata.</span></li>
       </ul>
+      <p class="fam-cta rv"><a class="btn" href="#habitaciones">Ver habitaciones libres</a></p>
     </div>
   </section>
 
@@ -1079,6 +1080,7 @@ if (window.BSL) {
   var top = document.getElementById('top');
   var fab = document.getElementById('fab');
   var totop = document.getElementById('totop');
+  document.getElementById('down').addEventListener('click', function () { window.scrollTo({ top: intro.offsetTop + intro.offsetHeight - (document.getElementById('top').offsetHeight || 0), behavior: reduce ? 'auto' : 'smooth' }); });
   totop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
   var ticking = false;
   function onScroll() {
