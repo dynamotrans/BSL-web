@@ -131,6 +131,11 @@
       if (f.precio == null) r.activa = false; else r.precio = f.precio; // sin precio: se oculta hasta que se ponga
     });
   }
+  // true si las habitaciones aún tienen los datos genéricos de ejemplo
+  function needsFichas(data) {
+    if (!data || !data.rooms || (data.ajustes && data.ajustes.fichas)) return false;
+    return data.rooms.some(function (r) { return /^Habitación( \d+)?$/.test(r.nombre || ''); });
+  }
   function m2(v) { return (+v || 0).toLocaleString('es-ES', { maximumFractionDigits: 2 }); }
 
   /* ---------- Datos de ejemplo ---------- */
@@ -261,6 +266,6 @@
   window.BSL = {
     config: CONFIG, store: BSLStore, waLink: waLink,
     PERIODS: PERIODS, periodRange: periodRange, defaultCourse: defaultCourse, courseLabel: courseLabel,
-    dayState: dayState, status: status, options: options, visibleCourses: visibleCourses, FICHAS: FICHAS, applyFichas: applyFichas, m2: m2, periodRange: periodRange, courseOf: courseOf, nextFullCourse: nextFullCourse, addDays: addDays, toDate: toDate, today: today, fmt: fmt, MESES: MESES
+    dayState: dayState, status: status, options: options, visibleCourses: visibleCourses, FICHAS: FICHAS, applyFichas: applyFichas, needsFichas: needsFichas, m2: m2, periodRange: periodRange, courseOf: courseOf, nextFullCourse: nextFullCourse, addDays: addDays, toDate: toDate, today: today, fmt: fmt, MESES: MESES
   };
 })();

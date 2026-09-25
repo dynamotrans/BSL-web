@@ -291,7 +291,12 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
   function enter() {
     $('login').hidden = true; $('app').hidden = false;
     B.store.load().then(function (d) {
-      data = d; data.ajustes = data.ajustes || {}; renderList(); renderEditor();
+      data = d; data.ajustes = data.ajustes || {};
+      if (B.store.remote && !B.store.broken && B.needsFichas(data)) {
+        B.applyFichas(data.rooms); data.ajustes.fichas = true; dirty();
+        setTimeout(function () { ADMIN.alert('He cargado las fichas reales de las 8 habitaciones (Azahar, Jazmín, Dalia…). Revísalas en Habitaciones.'); }, 300);
+      }
+      renderList(); renderEditor();
       if (window.BSLGestion) window.BSLGestion.start(ADMIN);
     });
   }

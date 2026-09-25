@@ -964,7 +964,7 @@ footer img{height:56px;width:auto}
   // si se ha arrastrado, el soltar no cuenta como pulsación
   grid.addEventListener('click', function (e) { if (mv > 5) { e.stopPropagation(); e.preventDefault(); mv = 0; } }, true);
 
-  function load() { B.store.load().then(function (d) { data = d; render(); }); }
+  function load() { B.store.load().then(function (d) { if (B.needsFichas(d)) B.applyFichas(d.rooms); data = d; render(); }); }
   window.addEventListener('storage', load);
   load();
 

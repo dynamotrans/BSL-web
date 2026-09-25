@@ -75,7 +75,8 @@ export function cleanData(data) {
   const aj = data.ajustes || {};
   const ajustes = {
     cursos: (Array.isArray(aj.cursos) ? aj.cursos : []).map(Number).filter((y) => y > 2000 && y < 2100).slice(0, 6),
-    entrarYa: aj.entrarYa !== false
+    entrarYa: aj.entrarYa !== false,
+    fichas: aj.fichas === true
   };
   return { rooms, ajustes, updatedAt: new Date().toISOString() };
 }
