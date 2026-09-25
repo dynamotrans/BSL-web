@@ -27,7 +27,7 @@
 html,body{height:100%}
 body{margin:0;overflow-x:hidden;overflow-x:clip;background:var(--ground);color:var(--ink);font:400 15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
 h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;line-height:1.1}
-img{max-width:100%;display:block}
+img{max-width:100%;height:auto;display:block}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--coral);outline-offset:2px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:999px;border:0;background:var(--grad);color:#1a1414;font-weight:700;font-size:.9rem;cursor:pointer;text-decoration:none}
@@ -40,7 +40,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .login form{width:min(380px,100%);display:grid;gap:14px;color:var(--cream);text-align:center}
 .login img{width:180px;margin:0 auto 6px}
 .login h1{font-size:2.2rem}
-.login input{width:100%;padding:14px 16px;border-radius:12px;border:1px solid rgba(243,239,230,.25);background:rgba(0,0,0,.18);color:var(--cream);font-size:1rem;text-align:center;letter-spacing:.08em}
+.login input,.login input[type=text],.login input[type=password]{width:100%;padding:14px 16px;border-radius:12px;border:1px solid rgba(243,239,230,.25);background:rgba(0,0,0,.18);color:var(--cream);font-size:1rem;text-align:center;letter-spacing:.08em}
 .login .err{color:var(--sun);min-height:1.4em;margin:0;font-size:.9rem}
 .login small{opacity:.7}
 .login small a{color:var(--cream)}
@@ -48,7 +48,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 /* Panel */
 .bar{position:sticky;top:0;z-index:5;background:var(--teal);color:var(--cream);padding-top:env(safe-area-inset-top,0px)}
 .bar .in{max-width:1280px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
-.bar img{height:34px;width:auto}
+.bar img{height:34px!important;width:auto}
 .bar h1{font-size:1.35rem;flex:1}
 .save-state{font-size:.82rem;opacity:.8}
 .layout{max-width:1280px;margin:0 auto;padding:20px 16px 60px;display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
@@ -223,7 +223,7 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
 <div class="login" id="login">
   <form id="login-form">
     <img src="images/logo-bsl.png" alt="BSL · Boutique Student Living" width="560" height="488">
-    <h1>Panel de habitaciones</h1>
+    <h1>Panel BSL</h1>
     <input type="text" id="user" placeholder="Usuario" aria-label="Usuario" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" autofocus>
     <input type="password" id="key" placeholder="Clave" aria-label="Clave" autocomplete="current-password">
     <button class="btn" type="submit">Entrar</button>
