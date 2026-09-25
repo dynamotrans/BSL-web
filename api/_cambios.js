@@ -82,5 +82,260 @@ export default [
         "universidad": "Universidad Loyola Andalucía"
       }
     ]
+  },
+  {
+    "id": "2026-09-25-2",
+    "fecha": "2026-09-25",
+    "resumen": "Contratos del curso 2026/27 de las 7 inquilinas (Girasol queda libre)",
+    "ops": [
+      {
+        "tipo": "inquilina",
+        "nombre": "Melania",
+        "apellidos": "Pegoraro",
+        "direccion": "Santa Cruz de Tenerife"
+      },
+      {
+        "tipo": "inquilina",
+        "nombre": "Lhaura Sophia",
+        "apellidos": "Silva Torino",
+        "direccion": "Fuengirola (Málaga)"
+      },
+      {
+        "tipo": "inquilina",
+        "nombre": "Cecilia Leonor",
+        "apellidos": "Jimenez Miralles",
+        "direccion": "Montilla (Córdoba)"
+      },
+      {
+        "tipo": "inquilina",
+        "nombre": "Nuria Gema",
+        "apellidos": "Segura Ortega",
+        "direccion": "Linares (Jaén)"
+      },
+      {
+        "tipo": "inquilina",
+        "nombre": "Fabiola Rocio",
+        "apellidos": "Ferrera Cerpa",
+        "direccion": "Huelva"
+      },
+      {
+        "tipo": "inquilina",
+        "nombre": "Maria Kristina",
+        "apellidos": "Alvarado Estrada",
+        "direccion": "Guatemala"
+      },
+      {
+        "tipo": "inquilina",
+        "nombre": "Angela",
+        "apellidos": "Mateo Nieto",
+        "direccion": "Constantina (Sevilla)"
+      },
+      {
+        "tipo": "contrato",
+        "inquilina": "Melania Pegoraro",
+        "num": 1,
+        "desde": "2026-09-01",
+        "hasta": "2027-07-31",
+        "precio": 330,
+        "gastos": 60,
+        "fianza": 300,
+        "diaPago": 5
+      },
+      {
+        "tipo": "contrato",
+        "inquilina": "Lhaura Sophia Silva Torino",
+        "num": 2,
+        "desde": "2026-09-01",
+        "hasta": "2027-07-31",
+        "precio": 330,
+        "gastos": 60,
+        "fianza": 300,
+        "diaPago": 5
+      },
+      {
+        "tipo": "contrato",
+        "inquilina": "Cecilia Leonor Jimenez Miralles",
+        "num": 3,
+        "desde": "2026-09-01",
+        "hasta": "2027-07-31",
+        "precio": 320,
+        "gastos": 60,
+        "fianza": 300,
+        "diaPago": 5
+      },
+      {
+        "tipo": "contrato",
+        "inquilina": "Nuria Gema Segura Ortega",
+        "num": 4,
+        "desde": "2026-09-01",
+        "hasta": "2027-07-31",
+        "precio": 320,
+        "gastos": 60,
+        "fianza": 300,
+        "diaPago": 5
+      },
+      {
+        "tipo": "contrato",
+        "inquilina": "Fabiola Rocio Ferrera Cerpa",
+        "num": 5,
+        "desde": "2026-09-01",
+        "hasta": "2027-07-31",
+        "precio": 330,
+        "gastos": 60,
+        "fianza": 300,
+        "diaPago": 5
+      },
+      {
+        "tipo": "contrato",
+        "inquilina": "Maria Kristina Alvarado Estrada",
+        "num": 6,
+        "desde": "2026-09-01",
+        "hasta": "2027-07-31",
+        "precio": 300,
+        "gastos": 60,
+        "fianza": 300,
+        "diaPago": 5
+      },
+      {
+        "tipo": "contrato",
+        "inquilina": "Angela Mateo Nieto",
+        "num": 8,
+        "desde": "2026-10-01",
+        "hasta": "2027-07-31",
+        "precio": 330,
+        "gastos": 60,
+        "fianza": 330,
+        "diaPago": 5
+      }
+    ]
+  },
+  {
+    "id": "2026-09-25-3",
+    "fecha": "2026-09-25",
+    "resumen": "Quitar las fechas de prueba de Azahar (Nº 1)",
+    "ops": [
+      {
+        "tipo": "intervalo",
+        "num": 1,
+        "accion": "quitar",
+        "desde": "2027-09-25",
+        "hasta": "2028-06-25",
+        "estado": "ocupada"
+      },
+      {
+        "tipo": "intervalo",
+        "num": 1,
+        "accion": "quitar",
+        "desde": "2028-09-01",
+        "hasta": "2029-07-31",
+        "estado": "libre"
+      },
+      {
+        "tipo": "intervalo",
+        "num": 1,
+        "accion": "quitar",
+        "desde": "2028-09-01",
+        "hasta": "2029-07-31",
+        "estado": "ocupada"
+      }
+    ]
+  },
+  {
+    "id": "2026-09-25-4",
+    "fecha": "2026-09-25",
+    "resumen": "(Opcional) Marcar como cobradas la fianza de las 7 y la mensualidad de septiembre de las 6 que entraron el 1 sep. Aplica solo si ya las cobraste; si no, Descartar",
+    "ops": [
+      {
+        "tipo": "cobro-pagado",
+        "inquilina": "Melania Pegoraro",
+        "concepto": "Mensualidad septiembre 2026",
+        "fecha": "2026-09-01",
+        "metodo": "Otro"
+      },
+      {
+        "tipo": "cobro-pagado",
+        "inquilina": "Melania Pegoraro",
+        "concepto": "Fianza",
+        "fecha": "2026-09-01",
+        "metodo": "Otro"
+      },
+      {
+        "tipo": "cobro-pagado",
+        "inquilina": "Lhaura Sophia Silva Torino",
+        "concepto": "Mensualidad septiembre 2026",
+        "fecha": "2026-09-01",
+        "metodo": "Otro"
+      },
+      {
+        "tipo": "cobro-pagado",
+        "inquilina": "Lhaura Sophia Silva Torino",
+        "concepto": "Fianza",
+        "fecha": "2026-09-01",
+        "metodo": "Otro"
+      },
+      {
+        "tipo": "cobro-pagado",
+        "inquilina": "Cecilia Leonor Jimenez Miralles",
+        "concepto": "Mensualidad septiembre 2026",
+        "fecha": "2026-09-01",
+        "metodo": "Otro"
+      },
+      {
+        "tipo": "cobro-pagado",
+        "inquilina": "Cecilia Leonor Jimenez Miralles",
+        "concepto": "Fianza",
+        "fecha": "2026-09-01",
+        "metodo": "Otro"
+      },
+      {
+        "tipo": "cobro-pagado",
+        "inquilina": "Nuria Gema Segura Ortega",
+        "concepto": "Mensualidad septiembre 2026",
+        "fecha": "2026-09-01",
+        "metodo": "Otro"
+      },
+      {
+        "tipo": "cobro-pagado",
+        "inquilina": "Nuria Gema Segura Ortega",
+        "concepto": "Fianza",
+        "fecha": "2026-09-01",
+        "metodo": "Otro"
+      },
+      {
+        "tipo": "cobro-pagado",
+        "inquilina": "Fabiola Rocio Ferrera Cerpa",
+        "concepto": "Mensualidad septiembre 2026",
+        "fecha": "2026-09-01",
+        "metodo": "Otro"
+      },
+      {
+        "tipo": "cobro-pagado",
+        "inquilina": "Fabiola Rocio Ferrera Cerpa",
+        "concepto": "Fianza",
+        "fecha": "2026-09-01",
+        "metodo": "Otro"
+      },
+      {
+        "tipo": "cobro-pagado",
+        "inquilina": "Maria Kristina Alvarado Estrada",
+        "concepto": "Mensualidad septiembre 2026",
+        "fecha": "2026-09-01",
+        "metodo": "Otro"
+      },
+      {
+        "tipo": "cobro-pagado",
+        "inquilina": "Maria Kristina Alvarado Estrada",
+        "concepto": "Fianza",
+        "fecha": "2026-09-01",
+        "metodo": "Otro"
+      },
+      {
+        "tipo": "cobro-pagado",
+        "inquilina": "Angela Mateo Nieto",
+        "concepto": "Fianza",
+        "fecha": "2026-09-25",
+        "metodo": "Otro"
+      }
+    ]
   }
 ];
