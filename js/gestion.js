@@ -452,7 +452,7 @@
 
   /* ---------- Cobros ---------- */
   function viewCobros() {
-    var f = box.dataset.cf || 'abiertos', mesSel = box.dataset.cm || today().slice(0, 7);
+    var f = box.dataset.cf || 'abiertos', mesSel = box.dataset.cm || 'todos';
     var meses = G.cobros.map(function (x) { return x.mes || (x.vence || '').slice(0, 7); }).concat([today().slice(0, 7)])
       .filter(function (m, i, a) { return m && a.indexOf(m) === i; }).sort();
     var inMes = function (x) { return mesSel === 'todos' || (x.mes || (x.vence || '').slice(0, 7)) === mesSel; };
