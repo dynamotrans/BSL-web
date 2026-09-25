@@ -318,7 +318,7 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
 .legend{display:flex;flex-wrap:wrap;gap:16px;margin:0 0 22px;font-size:.85rem;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:7px}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
-.st-libre{--st:#2c9a6a}.st-parcial{--st:#c98a12}.st-ocupada{--st:#c0456f}
+.st-libre{--st:#2c9a6a}.st-pronto{--st:#2f7fd6}.st-parcial{--st:#c98a12}.st-ocupada{--st:#c0456f}
 .dot{background:var(--st)}
 .rooms-grid{--gut:max(20px,calc((100vw - 1160px)/2 + 20px));display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding-inline:var(--gut);scroll-padding-inline:var(--gut);padding-block:6px 20px;scrollbar-width:none;overscroll-behavior-x:contain;cursor:grab}
 .rooms-grid::-webkit-scrollbar{display:none}
@@ -803,7 +803,7 @@ footer img{height:56px;width:auto}
           <div class="seg" role="radiogroup" aria-label="Periodo" id="r-seg"></div>
         </div>
       </div>
-      <p class="legend"><span class="st-libre"><i class="dot"></i>Libre</span><span class="st-parcial"><i class="dot"></i>Libre parte del curso</span><span class="st-ocupada"><i class="dot"></i>Ocupada</span></p>
+      <p class="legend"><span class="st-libre"><i class="dot"></i>Libre</span><span class="st-pronto"><i class="dot"></i>Libre más adelante</span><span class="st-parcial"><i class="dot"></i>Libre parte del curso</span><span class="st-ocupada"><i class="dot"></i>Ocupada</span></p>
     </div>
     <div class="rooms-grid" id="rooms-grid" aria-live="polite" aria-label="Habitaciones"></div>
     <div class="wrap">
@@ -936,7 +936,11 @@ footer img{height:56px;width:auto}
   function cardState(r) {
     if (view === 'resto') {
       var o = opt(r, 'resto');
-      return o ? { kind: o.from === now ? 'libre' : 'parcial', text: o.short } : { kind: 'ocupada', text: 'Ocupada este curso' };
+      if (!o) return { kind: 'ocupada', text: 'Ocupada este curso' };
+      if (o.from === now) return { kind: 'libre', text: o.short };
+      // Queda libre más adelante en este curso (p. ej. termina un contrato el 30 abr)
+      var dias = Math.round((B.toDate(o.from) - B.toDate(now)) / 864e5);
+      return { kind: 'pronto', text: (dias === 1 ? 'Libre mañana' : 'Libre en ' + dias + ' días') + ' · ' + B.fmt(o.from, true) };
     }
     var c = opt(r, view) || opts(r).filter(function (o) { return o.main; })[0];
     var yl = c.y + '/' + (c.y + 1);
@@ -944,7 +948,7 @@ footer img{height:56px;width:auto}
   }
   function render() {
     buildSegs();
-    var RANK = { libre: 0, parcial: 1, ocupada: 2 };
+    var RANK = { libre: 0, pronto: 1, parcial: 2, ocupada: 3 };
     grid.innerHTML = active().map(function (r) { return { r: r, st: cardState(r) }; }).sort(function (a, b) {
       return (RANK[a.st.kind] - RANK[b.st.kind]) || (a.r.num - b.r.num);
     }).map(function (x) {
@@ -1059,7 +1063,7 @@ footer img{height:56px;width:auto}
     document.getElementById('res-pending').hidden = true;
     if (!c) return;
     av.className = 'avail st-' + c.o.st.kind;
-    av.innerHTML = '<i class="dot"></i>' + (c.o.st.kind === 'libre' ? 'Libre en esas fechas' :
+    av.innerHTML = '<i class="dot"></i>' + (c.o.st.kind === 'libre' || c.o.st.kind === 'pronto' ? 'Libre en esas fechas' :
       c.o.st.kind === 'ocupada' ? 'Ocupada ese curso. Escríbenos igualmente y te avisamos si queda libre.' : esc(c.o.long) + '. Escríbenos y lo vemos.');
   }
   function showReserve(id) {
@@ -1080,7 +1084,7 @@ footer img{height:56px;width:auto}
     var text = 'Hola, quiero reservar la habitación ' + c.room.nombre + ' de BSL · Boutique Student Living.\n' +
       'Periodo: ' + c.o.title + ', del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + '.\n' +
       'Precio: ' + c.room.precio + ' €/mes + ' + c.room.gastos + ' € de gastos (agua, luz, internet fibra + wifi, limpieza semanal de zonas comunes, mantenimiento y reparaciones).\nPerfil de estudiante: ' + perfil.value + '.' +
-      (c.o.st.kind !== 'libre' ? '\nHe visto que figura: ' + c.o.long.toLowerCase() + '. ¿Me avisáis si queda libre?' : '');
+      (c.o.st.kind !== 'libre' && c.o.st.kind !== 'pronto' ? '\nHe visto que figura: ' + c.o.long.toLowerCase() + '. ¿Me avisáis si queda libre?' : '');
     var link = B.waLink(text);
     if (link) { window.location.href = link; return; }
     document.getElementById('res-pending').hidden = false;

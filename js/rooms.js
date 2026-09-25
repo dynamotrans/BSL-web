@@ -103,7 +103,8 @@
         key: 'resto', y: y0, from: d, to: end,
         title: 'Resto del curso ' + courseLabel(y0),
         short: d === iso ? 'Libre ya' : 'Libre desde el ' + fmt(d, true),
-        st: { kind: 'libre' }, long: d === iso ? 'Libre desde hoy' : 'Libre desde el ' + fmt(d, true)
+        st: { kind: d === iso ? 'libre' : 'pronto' },
+        long: d === iso ? 'Libre desde hoy' : 'Libre en ' + Math.round((toDate(d) - toDate(iso)) / 864e5) + ' días · ' + fmt(d, true)
       });
     }
     visibleCourses(ajustes, iso).forEach(function (yn, i) {
