@@ -35,3 +35,4 @@ Proyecto independiente de `dynamo-web`: **no mezclar** código ni contexto entre
 - Carrusel "Pasa y mira": la primera foto ya no queda pegada al borde (`scroll-padding-inline`).
 - Quitado "Hospital Virgen del Rocío · Reina Mercedes" del panel de tiempos.
 - Botón del mapa → Google Maps de la casa (`https://maps.app.goo.gl/VNDkkathCcGhzhDj8`).
+- **"Solo chicas estudiantes" siempre visible**: etiqueta fija en la barra superior (todas las pantallas), también en la ventana de reserva, y el mensaje de WhatsApp añade "Soy estudiante".

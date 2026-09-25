@@ -79,9 +79,12 @@ a,button,select,summary,[role=button]{cursor:var(--cursor),pointer}
 /* ---------- Cabecera ---------- */
 .top{position:fixed;inset:0 0 auto 0;z-index:30;padding-top:env(safe-area-inset-top,0px);background:rgba(15,48,51,.0);transition:background .35s ease,box-shadow .35s ease}
 .top.solid{background:rgba(15,48,51,.92);backdrop-filter:blur(10px);box-shadow:0 1px 0 rgba(255,255,255,.06)}
-.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:68px}
+.top .wrap{display:flex;align-items:center;gap:16px;height:68px}
+.top .nav{margin-left:auto}
 .brand img{height:40px;width:auto;transition:opacity .35s ease,transform .35s var(--ease)}
 .top:not(.solid) .brand img{opacity:0;transform:translateY(-6px)}
+.girls{display:inline-flex;align-items:center;gap:8px;padding:8px 14px 8px 11px;border-radius:999px;background:rgba(243,239,230,.1);color:var(--cream);font:700 .82rem/1 var(--sans);white-space:nowrap;box-shadow:inset 0 0 0 1.5px rgba(240,138,108,.65)}
+.girls i{width:14px;height:14px;flex:0 0 14px;background:var(--grad);-webkit-mask:var(--star) center/contain no-repeat;mask:var(--star) center/contain no-repeat;animation:spin 8s linear infinite}
 .nav{display:flex;gap:26px;font-size:.92rem}
 .nav a{text-decoration:none;color:rgba(243,239,230,.78);position:relative}
 .nav a::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:2px;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease)}
@@ -280,6 +283,8 @@ dialog.sheet[open]{animation:sheetin .45s var(--ease)}
 dialog.sheet::backdrop{background:rgba(9,28,30,.6);backdrop-filter:blur(4px)}
 .sh-head{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--line)}
 .sh-head h3{font-size:1.6rem}
+.sh-sub{display:flex;align-items:center;gap:6px;margin:4px 0 0;font-size:.82rem;font-weight:700;color:var(--accent)}
+.sh-sub i{width:12px;height:12px;background:var(--grad);-webkit-mask:var(--star) center/contain no-repeat;mask:var(--star) center/contain no-repeat}
 .sh-x{width:40px;height:40px;border-radius:50%;border:0;background:var(--tint);color:var(--ink);font-size:1.05rem;flex:0 0 auto}
 .sh-body{padding:20px;display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
 .sh-body fieldset{min-width:0}
@@ -360,6 +365,7 @@ footer img{height:56px;width:auto}
 }
 @media (max-width:900px){
   .nav{display:none}
+  .top .btn{margin-left:auto}
   .intro{height:170vh}
   .stage .photo{inset:0;border-radius:0}
   .stage .photo::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(15,48,51,.55),rgba(15,48,51,.88));opacity:calc(1 - var(--p) * 1.6)}
@@ -397,6 +403,7 @@ footer img{height:56px;width:auto}
 }
 @media (max-width:520px){
   body{font-size:16px}
+  .girls{margin-left:auto;font-size:.78rem;padding:7px 12px 7px 10px}
   .amen{grid-template-columns:1fr;gap:10px}
   .amen li{grid-template-columns:22px 1fr;column-gap:14px;padding:16px}
   .amen li::before{grid-row:span 2;margin:3px 0 0}
@@ -423,6 +430,7 @@ footer img{height:56px;width:auto}
 <header class="top" id="top">
   <div class="wrap">
     <a class="brand" href="#inicio" aria-label="BSL · Boutique Student Living, inicio"><img src="images/logo-mark.png" alt="BSL" width="360" height="240"></a>
+    <span class="girls"><i></i>Solo chicas estudiantes</span>
     <nav class="nav" aria-label="Secciones">
       <a href="#casa">La casa</a>
       <a href="#fotos">Fotos</a>
@@ -683,7 +691,7 @@ footer img{height:56px;width:auto}
 
 <dialog class="sheet" id="res-dlg" aria-labelledby="res-title">
   <form method="dialog" id="res-form" novalidate>
-    <div class="sh-head"><h3 id="res-title">Reservar habitación</h3><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
+    <div class="sh-head"><div><h3 id="res-title">Reservar habitación</h3><p class="sh-sub"><i></i>Solo chicas estudiantes</p></div><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
     <div class="sh-body">
       <label>Habitación<select id="res-room"></select></label>
       <fieldset>
@@ -826,7 +834,7 @@ footer img{height:56px;width:auto}
     var c = chosen(); if (!c) return;
     var text = 'Hola, quiero reservar la habitación nº ' + c.room.num + ' (' + c.room.nombre + ') de BSL · Boutique Student Living.\n' +
       'Periodo: ' + c.o.title + ', del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + '.\n' +
-      'Precio: ' + c.room.precio + ' €/mes + ' + c.room.gastos + ' € de gastos.' +
+      'Precio: ' + c.room.precio + ' €/mes + ' + c.room.gastos + ' € de gastos.\nSoy estudiante.' +
       (c.o.st.kind !== 'libre' ? '\nHe visto que figura: ' + c.o.long.toLowerCase() + '. ¿Me avisáis si queda libre?' : '');
     var link = B.waLink(text);
     if (link) { window.location.href = link; return; }
