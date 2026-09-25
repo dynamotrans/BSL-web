@@ -202,9 +202,10 @@ section.block{padding-block:88px}
 .split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
 
 .spec{list-style:none;margin:0;padding:0}
-.spec li{display:grid;grid-template-columns:3.6rem 1fr;gap:14px;padding:15px 0;border-bottom:1px solid var(--line);align-items:baseline;transition:padding-left .3s var(--ease)}
+.spec li{display:grid;grid-template-columns:3rem minmax(0,1fr);gap:14px;padding:15px 0;border-bottom:1px solid var(--line);align-items:center;transition:padding-left .3s var(--ease)}
 .spec li:hover{padding-left:8px}
-.spec li b{font:400 1.7rem/1 var(--serif);font-variant-numeric:tabular-nums;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.spec li b{font:400 1.9rem/1 var(--serif);text-align:center;padding-bottom:.12em;font-variant-numeric:tabular-nums;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.spec li b.ac{font-size:1.25rem}
 .check{list-style:none;margin:0;padding:0;display:grid;gap:12px}
 .check li{padding-left:28px;position:relative}
 .check li::before{content:"";position:absolute;left:0;top:.3em;width:16px;height:16px;background:var(--grad);-webkit-mask:var(--star) center/contain no-repeat;mask:var(--star) center/contain no-repeat;transition:transform .5s var(--ease)}
@@ -618,7 +619,7 @@ footer img{height:56px;width:auto}
           <li><b>1</b><span>salón comedor con Smart TV de 50″ y salida al patio</span></li>
           <li><b>1</b><span>patio interior amueblado con mesa de comedor exterior</span></li>
           <li><b>2</b><span>azoteas, de 70 m² y 80 m²</span></li>
-          <li><b>A/C</b><span>aire acondicionado y bomba de calor en zonas comunes</span></li>
+          <li><b class="ac">A/C</b><span>aire acondicionado y bomba de calor en zonas comunes</span></li>
         </ul>
       </div>
       <div class="duo rv">
