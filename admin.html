@@ -52,6 +52,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .save-state{font-size:.82rem;opacity:.8}
 .layout{max-width:1280px;margin:0 auto;padding:20px 16px 60px;display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
 .list{display:grid;gap:8px;position:sticky;top:78px}
+.layout>*,.editor>*,.card>*,.grid>*,.add-int>*{min-width:0}
+input,select,textarea{min-width:0}
+html{overflow-x:hidden}
 .item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--line);cursor:pointer;text-align:left;width:100%}
 .item[aria-current="true"]{border-color:var(--coral);box-shadow:0 0 0 3px color-mix(in srgb,var(--coral) 22%,transparent)}
 .item .n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--teal);color:var(--cream);font-weight:700;font-size:.85rem}
@@ -130,7 +133,10 @@ textarea{min-height:90px;resize:vertical}
   .add-int .seg,.add-int .btn{grid-column:1/-1}
   .bar h1{font-size:1.1rem}
   .save-state{display:none}
+  .bar .in{gap:8px}
+  .bar .btn{padding:8px 12px;font-size:.82rem}
 }
+@media (max-width:420px){.bar h1{display:none}.bar .in{justify-content:space-between}}
 </style>
 </head>
 <body>
