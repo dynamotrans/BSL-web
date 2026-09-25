@@ -350,6 +350,8 @@ dialog.sheet{overflow-x:hidden}
 footer{padding-block:48px;background:var(--teal-deep);color:rgba(243,239,230,.7);font-size:.88rem}
 footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px}
 footer img{height:56px;width:auto}
+.admin-link{font-size:.75rem;color:rgba(243,239,230,.35);text-decoration:none}
+.admin-link:hover{color:rgba(243,239,230,.7)}
 
 @media (min-width:901px) and (max-height:920px){
   .copy .logo{width:190px;margin-bottom:16px}
@@ -569,7 +571,7 @@ footer img{height:56px;width:auto}
       </div>
       <p class="legend"><span class="st-libre"><i class="dot"></i>Libre</span><span class="st-parcial"><i class="dot"></i>Libre parte del curso</span><span class="st-ocupada"><i class="dot"></i>Ocupada</span></p>
       <div class="rooms-grid" id="rooms-grid" aria-live="polite"></div>
-      <p class="demo-note" id="r-demo" hidden>Precios, fotos y disponibilidad de ejemplo. Se cambian desde el <a href="admin.html">panel de habitaciones</a>.</p>
+      <p class="demo-note" id="r-demo" hidden>Precios, fotos y disponibilidad de ejemplo.</p>
     </div>
   </section>
 
@@ -674,6 +676,7 @@ footer img{height:56px;width:auto}
   <div class="wrap">
     <img src="images/logo-mark.png" alt="BSL" width="360" height="240">
     <span>Calle Canónigo, 41701 Dos Hermanas (Sevilla) · © <span id="y">2026</span> BSL · Boutique Student Living</span>
+    <a class="admin-link" href="admin.html" rel="nofollow">Admin</a>
   </div>
 </footer>
 
@@ -877,7 +880,10 @@ var WA_NUMBER = (window.BSL_CONFIG && window.BSL_CONFIG.whatsapp) || '';
   window.addEventListener('resize', onScroll);
   onScroll();
 
-  if (WA_NUMBER) fab.href = 'https://wa.me/' + WA_NUMBER;
+  if (WA_NUMBER) {
+    fab.href = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent('Hola, me interesa una habitación en BSL · Boutique Student Living (Dos Hermanas).');
+    fab.target = '_blank'; fab.rel = 'noopener';
+  }
 
   /* Revelado, contadores, zócalo y panel al entrar en pantalla */
   function countUp(el) {

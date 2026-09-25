@@ -13,7 +13,7 @@ Proyecto independiente de `dynamo-web`: **no mezclar** código ni contexto entre
 2. Confirmar proyecto + rama antes de tocar nada.
 3. Al terminar la sesión, añadir entrada a la Bitácora y actualizar `TODO.md`.
 4. Imágenes en JPG (≤ 900 px de ancho, calidad ~78) para que carguen rápido.
-5. El número de WhatsApp va en la constante `WA_NUMBER` del script de `index.html`.
+5. El número de WhatsApp y el hash del acceso al panel van en `BSL_CONFIG` de `js/rooms.js`. **Nunca escribir la clave en claro en el repo.**
 
 ## Bitácora
 
@@ -39,3 +39,4 @@ Proyecto independiente de `dynamo-web`: **no mezclar** código ni contexto entre
 - **"Solo chicas estudiantes" siempre visible**: etiqueta fija en la barra superior (todas las pantallas), también en la ventana de reserva, y el mensaje de WhatsApp añade "Soy estudiante".
 - Publicado en Vercel: `bsl-web.vercel.app` (proyecto creado por la propietaria desde vercel.com/new; el conector de Claude no tiene permiso para crear/editar proyectos).
 - Arreglo: la portada fija ("entrar en la casa") dejaba un hueco vacío porque `overflow-x:hidden` en `html` + `body` rompía `position:sticky`. Ahora solo en `body` con `overflow-x:clip`. **No volver a poner overflow en `html`.**
+- WhatsApp activo (+34 672 338 922) en el botón flotante, la reserva y el formulario. Enlace discreto "Admin" en el pie → `admin.html`, con usuario + clave (solo hash SHA-256 en el código; quitada la pista de la clave demo).

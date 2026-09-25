@@ -10,9 +10,9 @@
 
   var CONFIG = window.BSL_CONFIG = window.BSL_CONFIG || {
     // WhatsApp de BSL en formato internacional sin "+" (ej. 34600111222). Vacío = pendiente.
-    whatsapp: '',
-    // SHA-256 de la clave del panel en modo demo. Clave demo: bsl2026
-    adminKeyHash: '050860f16aea432dcaca4e6c2c0a72339a588aa90f8df256ab39df5f066bfd07'
+    whatsapp: '34672338922',
+    // SHA-256 de 'usuario:clave' del panel. Provisional hasta tener acceso real con Supabase.
+    adminHash: '10e13f83f1e159976fd32f265d70210c0e6baff1a783ce3c497236cfdc9aed27'
   };
 
   var KEY = 'bsl-rooms-v1';
