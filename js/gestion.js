@@ -267,7 +267,7 @@
       '<div class="rgrid">' +
         '<section class="card"><h3>Cobros atrasados</h3>' + list(venc.slice(0, 5).map(function (x) {
           return '<button type="button" class="crow" data-go="cob"><span><b>' + who(x) + '</b><small>' + esc(x.concepto) + ' · venció ' + fmt(x.vence) + '</small></span>' + chip('vencido', money(x.importe)) + '</button>';
-        }), 'Nadie debe nada.') + (venc.length > 5 ? '<button type="button" class="btn plain sm rmore" data-go="cob">Ver los ' + venc.length + ' atrasados</button>' : '') + (prox.length ? '<h4 class="rsub">Vencen en 10 días · ' + prox.length + ' · ' + money(prox.reduce(function (t2, x) { return t2 + num(x.importe); }, 0)) + '</h4>' + prox.map(function (x) {
+        }), '<span class="ok-msg">Nadie debe nada.</span>') + (venc.length > 5 ? '<button type="button" class="btn plain sm rmore" data-go="cob">Ver los ' + venc.length + ' atrasados</button>' : '') + (prox.length ? '<h4 class="rsub warn">Vencen en 10 días · ' + prox.length + ' · ' + money(prox.reduce(function (t2, x) { return t2 + num(x.importe); }, 0)) + '</h4>' + prox.map(function (x) {
           return '<button type="button" class="crow" data-go="cob"><span><b>' + who(x) + '</b><small>' + esc(x.concepto) + ' · ' + fmt(x.vence) + '</small></span>' + chip('pendiente', money(x.importe)) + '</button>';
         }).join('') : '') + '</section>' +
         '<section class="card"><h3>Incidencias</h3>' + list(incA.slice(0, 6).map(function (x) {
