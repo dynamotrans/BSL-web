@@ -226,7 +226,7 @@ textarea{min-height:90px;resize:vertical}
 .rgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .rgrid.r3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .rgrid .card{align-content:start;gap:10px}
-.rchart{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:6px;align-items:end;height:170px;padding-top:6px}
+.rchart{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;align-items:end;height:170px;padding-top:6px}
 .rcol{display:grid;grid-template-rows:auto 1fr auto;height:100%;text-align:center;gap:4px}
 .rcol small{font-size:.7rem;color:var(--muted);font-weight:600}
 .rcol.now small{color:var(--ink)}
@@ -373,7 +373,7 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
 
   /* ---------- Solo lectura (usuario comercial) ----------
    * Se bloquea todo lo que edita. Aunque alguien lo forzara, el servidor rechaza los cambios. */
-  var RO_OK = 'input[type=search], #q, #oy, #logout';
+  var RO_OK = 'input[type=search], #q, #oy, #ry, #cm, #logout';
   function lockRO() {
     function lock() {
       Array.prototype.forEach.call(document.querySelectorAll('#app input, #app select, #app textarea, #gdlg input, #gdlg select, #gdlg textarea'), function (el) {

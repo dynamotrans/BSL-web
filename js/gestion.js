@@ -179,7 +179,7 @@
   }
 
   /* ---------- Pestañas ---------- */
-  var TABS = [['res', 'Panel de control'], ['hab', 'Habitaciones'], ['inq', 'Inquilinas'], ['cob', 'Cobros'], ['inc', 'Incidencias'], ['ocu', 'Ocupación'], ['aju', 'Ajustes']];
+  var TABS = [['res', 'Panel de control'], ['ocu', 'Ocupación'], ['hab', 'Habitaciones'], ['inq', 'Inquilinas'], ['cob', 'Cobros'], ['inc', 'Incidencias'], ['aju', 'Ajustes']];
   function renderTabs() {
     $('tabs').innerHTML = TABS.map(function (t) {
       var badge = '';
@@ -202,7 +202,8 @@
   /* ---------- Panel de control: todo de un vistazo ---------- */
   function viewResumen() {
     var t = today(), ym = t.slice(0, 7), act = rooms().filter(function (r) { return r.activa; });
-    var y = B.courseOf(t); if (y === null) y = B.nextFullCourse(t);
+    var y0 = B.courseOf(t); if (y0 === null) y0 = B.nextFullCourse(t);
+    var y = +(box.dataset.ry || y0);
     // Ocupación hoy
     var occ = act.filter(function (r) { return B.dayState(r, t) === 'ocupada'; }), free = act.filter(function (r) { return occ.indexOf(r) < 0; });
     var pct = act.length ? Math.round(occ.length * 100 / act.length) : 0;
@@ -215,7 +216,8 @@
     var vencTot = venc.reduce(function (s, x) { return s + num(x.importe); }, 0);
     var incA = G.incidencias.filter(function (x) { return x.estado !== 'resuelta'; });
     // Mes a mes del curso
-    var months = []; for (var i = 0; i < 11; i++) { var mm = (8 + i) % 12 + 1, yy = mm >= 9 ? y : y + 1; months.push(yy + '-' + pad(mm)); }
+    // Curso de septiembre a agosto (agosto incluido por si alguna se queda todo el año)
+    var months = []; for (var i = 0; i < 12; i++) { var mm = (8 + i) % 12 + 1, yy = mm >= 9 ? y : y + 1; months.push(yy + '-' + pad(mm)); }
     var maxMoney = 1, mdata = months.map(function (m) {
       var mid = m + '-15', o = act.filter(function (r) { return B.dayState(r, mid) === 'ocupada'; }).length;
       var L = rent.filter(function (x) { return (x.vence || '').slice(0, 7) === m; }), d = { m: m, o: o, ok: 0, pe: 0, ve: 0 };
@@ -243,7 +245,9 @@
     function who(x) { var c = contract(x.contratoId); return esc(fullName(tenantOfCobro(x))) + (c ? ' · ' + esc(room(c.habitacionId) ? room(c.habitacionId).nombre : '') : ''); }
     function list(items, empty) { return items.length ? items.join('') : '<p class="empty">' + empty + '</p>'; }
     var circ = 2 * Math.PI * 34;
-    box.innerHTML = '<div class="ghead"><h2>Panel de control</h2><span class="hint">' + fmt(t) + ' · Curso ' + B.courseLabel(y) + '</span></div>' +
+    var ys = []; for (var k = -2; k <= 3; k++) ys.push(y0 + k);
+    box.innerHTML = '<div class="ghead"><h2>Panel de control</h2><div class="gtools"><span class="hint">Hoy ' + fmt(t) + '</span><select id="ry" aria-label="Curso">' +
+      ys.map(function (c) { return '<option value="' + c + '"' + (c === y ? ' selected' : '') + '>Curso ' + B.courseLabel(c) + (c === y0 ? ' (actual)' : '') + '</option>'; }).join('') + '</select></div></div>' +
       '<div class="kpis">' +
         '<button type="button" class="kpi" data-go="ocu"><svg class="ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34"/><circle class="on" cx="40" cy="40" r="34" style="stroke-dasharray:' + (circ * pct / 100) + ' ' + circ + '"/></svg>' +
           '<span><small>Ocupación hoy</small><b>' + occ.length + '<em>/' + act.length + '</em></b><small>' + (free.length ? 'Libre: ' + esc(free.map(function (r) { return r.nombre; }).join(', ')) : 'Casa completa') + '</small></span></button>' +
@@ -252,8 +256,8 @@
         '<button type="button" class="kpi' + (incA.length ? ' warn' : '') + '" data-go="inc"><span><small>Incidencias abiertas</small><b>' + incA.length + '</b><small>' + (incA.length ? 'Pendientes de resolver' : 'Nada pendiente') + '</small></span></button>' +
       '</div>' +
       '<div class="rgrid">' +
-        '<section class="card"><h3>Ocupación del curso</h3><p class="hint">Habitaciones ocupadas cada mes (a día 15).</p>' + occChart + '</section>' +
-        '<section class="card"><h3>Cobros del curso</h3><p class="hint">Mensualidades por mes, en miles de euros.</p>' + payChart +
+        '<section class="card"><h3>Ocupación del curso ' + B.courseLabel(y) + '</h3><p class="hint">Habitaciones ocupadas cada mes (a día 15).</p>' + occChart + '</section>' +
+        '<section class="card"><h3>Cobros del curso ' + B.courseLabel(y) + '</h3><p class="hint">Mensualidades por mes, en miles de euros.</p>' + payChart +
           '<p class="legend2"><span><i class="lg ok"></i>Cobrado</span><span><i class="lg pe"></i>Pendiente</span><span><i class="lg ve"></i>Vencido</span></p></section>' +
       '</div>' +
       '<div class="rgrid r3">' +
@@ -271,6 +275,7 @@
           return '<button type="button" class="crow" data-i="' + x.id + '"><span><b>' + esc(x.titulo) + '</b><small>' + fmt(x.fecha) + ' · ' + esc(roomName(x.habitacionId)) + '</small></span>' + chip(s[0], s[1]) + '</button>';
         }), 'Sin incidencias abiertas.') + '</section>' +
       '</div>';
+    $('ry').onchange = function () { box.dataset.ry = this.value; viewResumen(); };
     box.querySelectorAll('[data-go]').forEach(function (b) { b.onclick = function () { show(b.getAttribute('data-go')); }; });
     box.querySelectorAll('[data-ten]').forEach(function (b) { b.onclick = function () { var id = b.getAttribute('data-ten'); if (id) { detail = id; show('inq'); } }; });
     bindInc(box);
