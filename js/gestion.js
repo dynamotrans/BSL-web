@@ -11,6 +11,40 @@
   var MES_LARGO = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   var METODOS = ['Transferencia', 'Bizum', 'Efectivo', 'Tarjeta', 'Otro'];
 
+  /* ---------- Confirmar con usuario y clave antes de borrar ----------
+   * La clave se comprueba en el servidor (api/login), nunca en el navegador. */
+  function confirmKey(msg) {
+    return new Promise(function (resolve) {
+      var d = document.createElement('dialog');
+      d.className = 'gdlg keydlg';
+      var user = ''; try { user = sessionStorage.getItem('bsl-user') || ''; } catch (e) { /* nada */ }
+      d.innerHTML = '<form method="dialog" class="dform"><div class="dh"><h3>Confirmar borrado</h3><button type="button" class="dx" aria-label="Cancelar">✕</button></div>' +
+        '<div class="grid dbody"><p class="keymsg wide">' + esc(msg) + '</p>' +
+        '<label><span>Usuario</span><input id="kd-u" type="text" autocomplete="username" autocapitalize="none" value="' + esc(user) + '"></label>' +
+        '<label><span>Clave</span><input id="kd-k" type="password" autocomplete="current-password"></label>' +
+        '<p class="derr wide" id="kd-err" hidden></p></div>' +
+        '<div class="dfoot"><button type="button" class="btn plain" id="kd-no">Cancelar</button><button type="submit" class="btn danger-btn">Borrar</button></div></form>';
+      document.body.appendChild(d);
+      function close(ok) { if (d.open) d.close(); d.remove(); resolve(ok); }
+      d.querySelector('.dx').onclick = d.querySelector('#kd-no').onclick = function () { close(false); };
+      d.addEventListener('cancel', function (e) { e.preventDefault(); close(false); });
+      d.querySelector('form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var btn = d.querySelector('[type=submit]'), err = d.querySelector('#kd-err');
+        var u = d.querySelector('#kd-u').value.trim(), k = d.querySelector('#kd-k').value;
+        if (!u || !k) { err.textContent = 'Escribe usuario y clave.'; err.hidden = false; return; }
+        if (!B.store.remote) { close(true); return; } // modo local de pruebas
+        btn.disabled = true;
+        B.store.login(u, k).then(function () { close(true); }, function (x) {
+          btn.disabled = false; err.textContent = x.message || 'Usuario o clave incorrectos.'; err.hidden = false;
+          d.querySelector('#kd-k').value = ''; d.querySelector('#kd-k').focus();
+        });
+      });
+      if (d.showModal) d.showModal(); else d.setAttribute('open', '');
+      d.querySelector(user ? '#kd-k' : '#kd-u').focus();
+    });
+  }
+
   /* ---------- Utilidades ---------- */
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
   function pad(n) { return ('0' + n).slice(-2); }
@@ -132,6 +166,10 @@
       dlg.close();
     });
     if (o.onDelete) $('fx-del').onclick = function () {
+      if (o.needKey) {
+        confirmKey(o.needKey).then(function (ok) { if (ok) { o.onDelete(); dlg.close(); } });
+        return;
+      }
       if (this.dataset.sure !== '1') { this.dataset.sure = '1'; this.textContent = 'Pulsa otra vez para borrar'; return; }
       o.onDelete(); dlg.close();
     };
@@ -269,6 +307,7 @@
         if (c.fianzaEstado === 'cobrada') G.cobros.forEach(function (x) { if (x.contratoId === c.id && x.tipo === 'fianza' && !x.pagado) { x.pagado = true; x.fechaPago = today(); } });
         genCobros(c); syncRooms(); save(); refresh();
       },
+      needKey: 'Vas a borrar este contrato: la habitación quedará libre en la web y se quitarán sus cobros pendientes.',
       onDelete: isNew ? null : function () {
         G.contratos = G.contratos.filter(function (o) { return o !== c; });
         G.cobros = G.cobros.filter(function (x) { return x.contratoId !== c.id || x.pagado; });
@@ -321,13 +360,15 @@
     $('new-i').onclick = function () { incForm(null, { inquilinaId: id, habitacionId: (activeContract(id) || {}).habitacionId }); };
     bindInc(box); bindCobros(box);
     $('del-t').onclick = function () {
-      if (this.dataset.sure !== '1') { this.dataset.sure = '1'; this.textContent = 'Se borrarán también sus contratos y cobros. Pulsa otra vez'; return; }
+      confirmKey('Vas a borrar a ' + fullName(t) + ' con sus contratos y cobros. No se puede deshacer.').then(function (ok) { if (ok) delTenant(); });
+    };
+    function delTenant() {
       G.inquilinas = G.inquilinas.filter(function (x) { return x !== t; });
       G.contratos = G.contratos.filter(function (c) { return c.inquilinaId !== id; });
       G.cobros = G.cobros.filter(function (x) { return cids.indexOf(x.contratoId) < 0; });
       G.incidencias.forEach(function (x) { if (x.inquilinaId === id) x.inquilinaId = ''; });
       syncRooms(); save(); detail = null; show('inq');
-    };
+    }
   }
 
   /* ---------- Cobros ---------- */
@@ -618,6 +659,7 @@
 
   /* ---------- Arranque ---------- */
   window.BSLGestion = {
+    confirmKey: confirmKey,
     start: function (admin) {
       A = admin; box = $('tab-g'); dlg = $('gdlg');
       box.addEventListener('click', function (e) {
