@@ -248,6 +248,10 @@
     var ys = []; for (var k = -2; k <= 3; k++) ys.push(y0 + k);
     box.innerHTML = '<div class="ghead"><h2>Panel de control</h2><div class="gtools"><span class="hint">Hoy ' + fmt(t) + '</span><select id="ry" aria-label="Curso">' +
       ys.map(function (c) { return '<option value="' + c + '"' + (c === y ? ' selected' : '') + '>Curso ' + B.courseLabel(c) + (c === y0 ? ' (actual)' : '') + '</option>'; }).join('') + '</select></div></div>' +
+      '<section class="card moves"><h3>Entradas y salidas</h3><p class="hint">Próximos 70 días.</p>' + list(moves.slice(0, 8).map(function (m) {
+          var te = tenant(m.c.inquilinaId), rm = room(m.c.habitacionId);
+          return '<button type="button" class="crow" data-ten="' + (te ? te.id : '') + '"><span><b>' + esc(fullName(te)) + '</b><small>' + fmt(m.d) + ' · ' + esc(rm ? rm.nombre : '') + '</small></span>' + chip(m.k === 'Entra' ? 'pagado' : 'fin', m.k) + '</button>';
+        }), 'Sin entradas ni salidas.') + '</section>' +
       '<div class="kpis">' +
         '<button type="button" class="kpi" data-go="ocu"><svg class="ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34"/><circle class="on" cx="40" cy="40" r="34" style="stroke-dasharray:' + (circ * pct / 100) + ' ' + circ + '"/></svg>' +
           '<span><small>Ocupación hoy</small><b>' + occ.length + '<em>/' + act.length + '</em></b><small>' + (free.length ? 'Libre: ' + esc(free.map(function (r) { return r.nombre; }).join(', ')) : 'Casa completa') + '</small></span></button>' +
@@ -260,16 +264,12 @@
         '<section class="card"><h3>Cobros del curso ' + B.courseLabel(y) + '</h3><p class="hint">Mensualidades por mes, en miles de euros.</p>' + payChart +
           '<p class="legend2"><span><i class="lg ok"></i>Cobrado</span><span><i class="lg pe"></i>Pendiente</span><span><i class="lg ve"></i>Vencido</span></p></section>' +
       '</div>' +
-      '<div class="rgrid r3">' +
+      '<div class="rgrid">' +
         '<section class="card"><h3>Cobros atrasados</h3>' + list(venc.slice(0, 5).map(function (x) {
           return '<button type="button" class="crow" data-go="cob"><span><b>' + who(x) + '</b><small>' + esc(x.concepto) + ' · venció ' + fmt(x.vence) + '</small></span>' + chip('vencido', money(x.importe)) + '</button>';
         }), 'Nadie debe nada.') + (venc.length > 5 ? '<button type="button" class="btn plain sm rmore" data-go="cob">Ver los ' + venc.length + ' atrasados</button>' : '') + (prox.length ? '<h4 class="rsub">Vencen en 10 días · ' + prox.length + ' · ' + money(prox.reduce(function (t2, x) { return t2 + num(x.importe); }, 0)) + '</h4>' + prox.map(function (x) {
           return '<button type="button" class="crow" data-go="cob"><span><b>' + who(x) + '</b><small>' + esc(x.concepto) + ' · ' + fmt(x.vence) + '</small></span>' + chip('pendiente', money(x.importe)) + '</button>';
         }).join('') : '') + '</section>' +
-        '<section class="card"><h3>Entradas y salidas</h3><p class="hint">Próximos 70 días.</p>' + list(moves.slice(0, 8).map(function (m) {
-          var te = tenant(m.c.inquilinaId), rm = room(m.c.habitacionId);
-          return '<button type="button" class="crow" data-ten="' + (te ? te.id : '') + '"><span><b>' + esc(fullName(te)) + '</b><small>' + fmt(m.d) + ' · ' + esc(rm ? rm.nombre : '') + '</small></span>' + chip(m.k === 'Entra' ? 'pagado' : 'fin', m.k) + '</button>';
-        }), 'Sin entradas ni salidas.') + '</section>' +
         '<section class="card"><h3>Incidencias</h3>' + list(incA.slice(0, 6).map(function (x) {
           var s = INC_ST[x.estado] || INC_ST.abierta;
           return '<button type="button" class="crow" data-i="' + x.id + '"><span><b>' + esc(x.titulo) + '</b><small>' + fmt(x.fecha) + ' · ' + esc(roomName(x.habitacionId)) + '</small></span>' + chip(s[0], s[1]) + '</button>';
