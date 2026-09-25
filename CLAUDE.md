@@ -34,3 +34,4 @@ Proyecto independiente de `dynamo-web`: **no mezclar** código ni contexto entre
 - **Reserva simplificada** (decisión de la propietaria): fuera cuatrimestres y fechas libres ("Otro"). Solo 2 opciones: **Curso completo siguiente** (1 sep – 31 jul, principal, sale siempre aunque esté ocupada, indicando fechas libres) y **Resto del curso en marcha** (solo si queda libre desde hoy o desde una fecha hasta el 31 jul). Lógica en `BSL.options()` de `js/rooms.js`. Filtros de la web: "Curso AAAA/AA" y "Para entrar ya".
 - Carrusel "Pasa y mira": la primera foto ya no queda pegada al borde (`scroll-padding-inline`).
 - Quitado "Hospital Virgen del Rocío · Reina Mercedes" del panel de tiempos.
+- Botón del mapa → Google Maps de la casa (`https://maps.app.goo.gl/VNDkkathCcGhzhDj8`).
