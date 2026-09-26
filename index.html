@@ -1064,8 +1064,6 @@ footer img{height:56px;width:auto}
           <label>Provincia / ciudad<input id="rd-prov" placeholder="Ej.: Córdoba"></label>
           <label>Instagram<input id="rd-ig" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="@tuusuario"></label>
           <label class="full">Estudios / curso (opcional)<input id="rd-estudios" placeholder="Ej.: 2º de ADE"></label>
-          <label>Contacto familiar<input id="rd-fam" placeholder="Madre, padre…"></label>
-          <label>Teléfono familiar<input id="rd-famtel" type="tel" inputmode="tel"></label>
         </div>
         <div class="upl">
           <span class="upl-t">Fotos o PDF del DNI / pasaporte <small>(hasta 4: por ejemplo, por delante y por detrás)</small></span>
@@ -1430,8 +1428,8 @@ footer img{height:56px;width:auto}
     sending = true; footer(); $r('res-msg').hidden = true;
     var body = {
       nombre: val('rd-nombre'), apellidos: val('rd-apellidos'), email: val('rd-email'), telefono: val('rd-tel'), documento: val('rd-doc'),
-      nacimiento: val('rd-nac'), tipoDoc: val('rd-tipodoc'), pais: val('rd-pais'), provincia: val('rd-prov'), universidad: val('res-perfil'), estudios: val('rd-estudios'), instagram: val('rd-ig'), familiar: val('rd-fam'),
-      familiarTel: val('rd-famtel'), mensaje: val('rd-msg'), web: val('rd-web'), acepta: $r('rd-ok').checked,
+      nacimiento: val('rd-nac'), tipoDoc: val('rd-tipodoc'), pais: val('rd-pais'), provincia: val('rd-prov'), universidad: val('res-perfil'), estudios: val('rd-estudios'), instagram: val('rd-ig'),
+      mensaje: val('rd-msg'), web: val('rd-web'), acepta: $r('rd-ok').checked,
       habitacionId: c.room.id, habitacion: c.room.nombre, precio: c.room.precio, gastos: c.room.gastos,
       periodo: { titulo: c.o.title, desde: c.o.from, hasta: c.o.to }, docs: docFiles
     };
