@@ -429,7 +429,7 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
   -webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;width:100%;min-width:0;margin:0;
   font:inherit;font-size:16px;font-weight:500;line-height:1.25;color:var(--ink);background-color:var(--ground);
   border:1px solid var(--line);border-radius:10px;padding:0 12px;height:44px;outline:none;box-shadow:none;
-  transition:border-color .2s ease,box-shadow .2s ease}
+  caret-color:var(--coral);transition:border-color .2s ease,box-shadow .2s ease}
 .sh-body textarea{height:auto;min-height:76px;padding:10px 12px;resize:vertical}
 .sh-body select{padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235b6f6d' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
 .sh-body input[type=date]{line-height:44px;text-align:left}
@@ -455,7 +455,7 @@ dialog.sheet.legal{width:min(620px,calc(100% - 24px))}
 .sh-foot .rfoot .btn{flex:1;width:auto;min-width:0}
 .sh-foot .rfoot #res-back{flex:0 0 auto;padding-inline:16px}
 @media (max-width:420px){.rgrid2{grid-template-columns:minmax(0,1fr)}}
-dialog.sheet{overflow-x:hidden;border:0;padding:0;border-radius:18px;background:var(--surface);color:var(--ink);width:min(560px,calc(100% - 24px));max-width:none;max-height:calc(100% - 32px);max-height:calc(100dvh - 32px);margin:auto;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;box-shadow:0 40px 80px -30px rgba(0,0,0,.5)}
+dialog.sheet{overflow-x:hidden;border:0;padding:0;border-radius:18px;background:var(--surface);color:var(--ink);width:min(560px,calc(100% - 24px));max-width:none;max-height:calc(100% - 32px);max-height:calc(100dvh - 32px);margin:auto;overflow-y:auto;overscroll-behavior:contain;box-shadow:0 40px 80px -30px rgba(0,0,0,.5)}
 .res-info{display:grid;gap:12px}
 .res-info .rd-photos{margin:0;border-radius:12px}
 .res-info .rd-photos img{aspect-ratio:16/10;max-height:300px}
@@ -1268,6 +1268,11 @@ footer img{height:56px;width:auto}
   var resDown = document.getElementById('res-down');
   function downState() { resDown.classList.toggle('gone', resDlg.scrollTop + resDlg.clientHeight >= resDlg.scrollHeight - 90); }
   resDlg.addEventListener('scroll', downState, { passive: true });
+  // iPhone: al abrirse el teclado el cursor a veces se pinta desplazado; un micro-scroll lo recoloca
+  resDlg.addEventListener('focusin', function (e) {
+    if (!/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    [80, 350].forEach(function (ms) { setTimeout(function () { var y = resDlg.scrollTop; resDlg.scrollTop = y + 1; resDlg.scrollTop = y; }, ms); });
+  });
   resDown.addEventListener('click', function () { resDlg.scrollBy({ top: resDlg.clientHeight * 0.7, behavior: 'smooth' }); });
   document.getElementById('res-perfil').addEventListener('change', function () { if (this.value) document.getElementById('res-perfil-err').hidden = true; });
   /* Pasos: 1 habitación · 2 datos · 3 pago (el pago con Stripe se activa cuando la cuenta esté lista) */
