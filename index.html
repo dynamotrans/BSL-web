@@ -422,6 +422,13 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
 .upl-t{font-size:.85rem;font-weight:600;color:var(--muted)}
 .upl-btn{display:inline-flex!important;align-items:center;gap:8px;padding:11px 16px;border-radius:999px;border:1.5px dashed var(--coral);color:var(--ink)!important;font-weight:700!important;font-size:.92rem!important;cursor:pointer;background:color-mix(in srgb,var(--coral) 6%,transparent)}
 .upl-btn svg{width:18px;height:18px;color:var(--accent)}
+.upl-btn[hidden]{display:none!important}
+.upl-t small{font-weight:500;color:var(--muted)}
+.upl-list{display:grid;gap:6px;width:100%}
+.upl-item{display:flex;align-items:center;gap:8px;padding:7px 8px 7px 10px;border-radius:10px;border:1px solid var(--line);background:var(--ground);font-size:.85rem;min-width:0}
+.upl-item i{font:800 .62rem/1 var(--sans);font-style:normal;padding:5px 6px;border-radius:5px;background:var(--teal);color:#fff}
+.upl-item em{flex:1;min-width:0;font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.upl-item button{width:26px;height:26px;border-radius:50%;border:0;background:var(--tint);cursor:pointer}
 .upl small{color:var(--muted);font-size:.78rem}
 .hp{position:absolute!important;left:-9999px;width:1px;height:1px;opacity:0}
 /* Campos del formulario: todos iguales, compactos y con el texto centrado en altura */
@@ -1055,9 +1062,10 @@ footer img{height:56px;width:auto}
           <label>Teléfono familiar<input id="rd-famtel" type="tel" inputmode="tel"></label>
         </div>
         <div class="upl">
-          <span class="upl-t">Foto o PDF del DNI / pasaporte</span>
-          <label class="upl-btn"><input type="file" id="rd-file" accept="image/*,application/pdf" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg><span id="rd-file-t">Subir documento</span></label>
-          <small>Solo lo verá BSL para preparar el contrato. Máximo 3 MB.</small>
+          <span class="upl-t">Fotos o PDF del DNI / pasaporte <small>(hasta 4: por ejemplo, por delante y por detrás)</small></span>
+          <div class="upl-list" id="rd-files"></div>
+          <label class="upl-btn" id="rd-file-btn"><input type="file" id="rd-file" accept="image/*,application/pdf" multiple hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg><span id="rd-file-t">Subir documento</span></label>
+          <small>Solo lo verá BSL para preparar el contrato. Máximo 3 MB por archivo.</small>
         </div>
         <label class="full">Mensaje (opcional)<textarea id="rd-msg" rows="3" placeholder="Fecha de llegada, dudas…"></textarea></label>
         <input type="text" id="rd-web" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
@@ -1314,35 +1322,58 @@ footer img{height:56px;width:auto}
       '<dt>Cada mes</dt><dd>' + money(r.precio) + ' + ' + money(r.gastos) + ' de gastos</dd></dl>' +
       '<dt>Contacto</dt><dd>' + esc(val('rd-tel')) + '<small>' + esc(val('rd-email')) + ' · @' + esc(val('rd-ig').replace(/^@+/, '')) + '</small></dd>' +
       '<dt>Procedencia</dt><dd>' + esc([val('rd-prov'), val('rd-pais')].filter(Boolean).join(', ')) + '</dd>' +
-      '<dt>Documento</dt><dd>' + esc(val('rd-tipodoc') + ' ' + val('rd-doc')) + '<small>' + esc(docFile ? docFile.nombre : '') + '</small></dd></dl>' +
+      '<dt>Documento</dt><dd>' + esc(val('rd-tipodoc') + ' ' + val('rd-doc')) + '<small>' + docFiles.length + ' archivo' + (docFiles.length > 1 ? 's' : '') + ' adjunto' + (docFiles.length > 1 ? 's' : '') + '</small></dd></dl>' +
       '';
     $r('res-sent').hidden = !sent;
     $r('res-sum').hidden = sent; resDlg.querySelector('.nextbox').hidden = sent;
   }
-  // Documento (DNI / pasaporte): las fotos se reducen para que ocupen poco
-  var docFile = null, sending = false, sent = false;
-  $r('rd-file').addEventListener('change', function () {
-    var f = this.files && this.files[0]; this.value = ''; if (!f) return;
-    var t = $r('rd-file-t'), isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
-    if (!isPdf && !/^image\//.test(f.type)) { stepErr('rd-err', 'El documento tiene que ser una foto o un PDF.'); return; }
-    t.textContent = 'Preparando…';
-    var fr = new FileReader();
-    fr.onload = function () {
-      if (isPdf) {
-        if (f.size > 3 * 1024 * 1024) { docFile = null; t.textContent = 'Subir documento'; stepErr('rd-err', 'El PDF pesa más de 3 MB.'); return; }
-        docFile = { data: fr.result.replace(/^data:[^;]*;/, 'data:application/pdf;'), nombre: f.name }; t.textContent = '✓ ' + f.name; stepErr('rd-err', ''); return;
-      }
-      var img = new Image();
-      img.onload = function () {
-        var k = Math.min(1, 2000 / Math.max(img.width, img.height)), cv = document.createElement('canvas');
-        cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
-        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-        docFile = { data: cv.toDataURL('image/jpeg', 0.82), nombre: f.name }; t.textContent = '✓ ' + f.name; stepErr('rd-err', '');
+  // Documentos (DNI / pasaporte): hasta 4 fotos o PDF. Cada uno se sube al elegirlo;
+  // las fotos se reducen antes para que ocupen poco.
+  var docFiles = [], uploading = 0, sending = false, sent = false, MAXDOCS = 4;
+  function drawFiles() {
+    $r('rd-files').innerHTML = docFiles.map(function (d, i) {
+      return '<span class="upl-item"><i>' + (d.tipo === 'pdf' ? 'PDF' : 'FOTO') + '</i><em>' + esc(d.nombre) + '</em><button type="button" data-rmdoc="' + i + '" aria-label="Quitar">✕</button></span>';
+    }).join('');
+    $r('rd-file-btn').hidden = docFiles.length >= MAXDOCS;
+    $r('rd-file-t').textContent = uploading ? 'Subiendo…' : docFiles.length ? 'Añadir otro' : 'Subir documento';
+  }
+  $r('rd-files').addEventListener('click', function (e) { var b = e.target.closest('[data-rmdoc]'); if (b) { docFiles.splice(+b.getAttribute('data-rmdoc'), 1); drawFiles(); } });
+  function readDoc(f) {
+    return new Promise(function (res, rej) {
+      var isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+      if (!isPdf && !/^image\//.test(f.type)) return rej(new Error(f.name + ': tiene que ser una foto o un PDF.'));
+      var fr = new FileReader();
+      fr.onerror = function () { rej(new Error('No se puede leer ' + f.name)); };
+      fr.onload = function () {
+        if (isPdf) { if (f.size > 3 * 1024 * 1024) return rej(new Error(f.name + ' pesa más de 3 MB.')); return res(fr.result.replace(/^data:[^;]*;/, 'data:application/pdf;')); }
+        var img = new Image();
+        img.onload = function () {
+          var k = Math.min(1, 2000 / Math.max(img.width, img.height)), cv = document.createElement('canvas');
+          cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+          cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+          res(cv.toDataURL('image/jpeg', 0.82));
+        };
+        img.onerror = function () { rej(new Error(f.name + ': no se puede leer esa foto. Prueba con otra o con un PDF.')); };
+        img.src = fr.result;
       };
-      img.onerror = function () { docFile = null; t.textContent = 'Subir documento'; stepErr('rd-err', 'No se puede leer esa foto. Prueba con otra o con un PDF.'); };
-      img.src = fr.result;
-    };
-    fr.readAsDataURL(f);
+      fr.readAsDataURL(f);
+    });
+  }
+  $r('rd-file').addEventListener('change', function () {
+    var files = Array.prototype.slice.call(this.files || [], 0, MAXDOCS - docFiles.length); this.value = '';
+    if (!files.length) return;
+    stepErr('rd-err', '');
+    files.reduce(function (p, f) {
+      return p.then(function () {
+        uploading++; drawFiles();
+        return readDoc(f).then(function (data) {
+          return fetch('/api/solicitud-doc', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: data }) })
+            .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) throw new Error(j.error || 'No se ha podido subir ' + f.name); return j; }); });
+        }).then(function (j) { docFiles.push({ path: j.path, tipo: j.tipo, nombre: f.name }); },
+          function (err) { stepErr('rd-err', err.message); })
+          .then(function () { uploading--; drawFiles(); });
+      });
+    }, Promise.resolve());
   });
   $r('res-back').addEventListener('click', function () { goStep(rstep - 1); });
   resDlg.addEventListener('click', function (e) { if (e.target.closest('[data-legal]')) { e.preventDefault(); open(document.getElementById('legal-dlg')); } });
@@ -1352,7 +1383,8 @@ footer img{height:56px;width:auto}
     for (var i = 0; i < need.length; i++) if (!val(need[i][0])) { stepErr('rd-err', 'Falta ' + need[i][1] + '.', $r(need[i][0])); return false; }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val('rd-email'))) { stepErr('rd-err', 'Revisa el email.', $r('rd-email')); return false; }
     if (val('rd-tel').replace(/\D/g, '').length < 9) { stepErr('rd-err', 'Revisa el teléfono.', $r('rd-tel')); return false; }
-    if (!docFile) { stepErr('rd-err', 'Sube una foto o PDF de tu DNI o pasaporte.', $r('rd-file').parentNode); return false; }
+    if (uploading) { stepErr('rd-err', 'Espera a que terminen de subirse los documentos.'); return false; }
+    if (!docFiles.length) { stepErr('rd-err', 'Sube al menos una foto o PDF de tu DNI o pasaporte.', $r('rd-file-btn')); return false; }
     if (!$r('rd-ok').checked) { stepErr('rd-err', 'Tienes que aceptar las condiciones de la solicitud para seguir.', $r('rd-ok')); return false; }
     stepErr('rd-err', ''); return true;
   }
@@ -1373,7 +1405,7 @@ footer img{height:56px;width:auto}
       nacimiento: val('rd-nac'), tipoDoc: val('rd-tipodoc'), pais: val('rd-pais'), provincia: val('rd-prov'), universidad: val('res-perfil'), estudios: val('rd-estudios'), instagram: val('rd-ig'), familiar: val('rd-fam'),
       familiarTel: val('rd-famtel'), mensaje: val('rd-msg'), web: val('rd-web'), acepta: $r('rd-ok').checked,
       habitacionId: c.room.id, habitacion: c.room.nombre, precio: c.room.precio, gastos: c.room.gastos,
-      periodo: { titulo: c.o.title, desde: c.o.from, hasta: c.o.to }, doc: docFile.data, docNombre: docFile.nombre
+      periodo: { titulo: c.o.title, desde: c.o.from, hasta: c.o.to }, docs: docFiles
     };
     // Al pulsar: se guarda en el panel y se abre WhatsApp con la solicitud escrita para BSL
     var waText = 'Hola BSL 👋 Acabo de enviar mi solicitud de admisión desde la web.\n\n' +

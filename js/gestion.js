@@ -316,7 +316,7 @@
         var st = PRE_ST[x.estado] || PRE_ST.nueva, ig = String(x.instagram || '').replace(/^@+/, ''), ed = edad(x.nacimiento);
         var img = x.doc && x.doc.tipo !== 'pdf';
         return '<div class="pcard" role="button" tabindex="0" data-sol="' + esc(x.id) + '">' +
-          '<span class="pthumb' + (img ? '' : ' pdf') + '"' + (img ? ' data-thumb="' + esc(x.doc.path) + '"' : '') + '>' + (img ? '' : (x.doc ? 'PDF' : '—')) + '</span>' +
+          '<span class="pthumb' + (img ? '' : ' pdf') + '"' + (docsOf(x).length > 1 ? ' data-n="' + docsOf(x).length + '"' : '') + (img ? ' data-thumb="' + esc(x.doc.path) + '"' : '') + '>' + (img ? '' : (x.doc ? 'PDF' : '—')) + '</span>' +
           '<span class="pinfo"><b>' + esc(x.nombre + ' ' + x.apellidos) + (ed !== null ? ' <em>' + ed + ' años</em>' : '') + '</b>' +
           '<small>' + esc(x.universidad) + (x.estudios ? ' · ' + esc(x.estudios) : '') + '</small>' +
           '<small>' + esc([x.provincia, x.pais].filter(Boolean).join(', ')) + ' · ' + esc(x.tipoDoc || 'Doc.') + ' ' + esc(x.documento) + '</small>' +
@@ -334,6 +334,7 @@
     });
     loadThumbs(box);
   }
+  function docsOf(x) { return x.docs && x.docs.length ? x.docs : x.doc ? [x.doc] : []; }
   function waPhone(t) { var d = String(t || '').replace(/\D/g, ''); if (d.indexOf('00') === 0) d = d.slice(2); if (d.length === 9) d = '34' + d; return d; }
   function uniToTenant(u) { return ['Universidad Loyola Andalucía', 'Universidad Pablo de Olavide', 'Universidad de Sevilla', 'Máster'].indexOf(u) >= 0 ? u : (u ? 'Otra' : ''); }
   function solDialog(id) {
@@ -358,8 +359,10 @@
       row('Familiar', esc(x.familiar) + (x.familiarTel ? '<small>' + esc(x.familiarTel) + '</small>' : '')) +
       row('Mensaje', esc(x.mensaje)) +
       '</dl>' +
-      (x.doc && x.doc.tipo !== 'pdf' ? '<span class="sol-docimg" data-thumb="' + esc(x.doc.path) + '"></span>' : '') +
-      (x.doc ? '<button type="button" class="btn plain sm" id="sol-doc">Abrir ' + esc(x.tipoDoc || 'documento') + ' (' + (x.doc.tipo === 'pdf' ? 'PDF' : 'foto') + ')</button>' : '') +
+      (docsOf(x).length ? '<div class="sol-docs">' + docsOf(x).map(function (d, i) {
+        return d.tipo === 'pdf' ? '<button type="button" class="sol-docpdf" data-opendoc="' + i + '">PDF<small>' + esc(d.nombre || 'Documento') + '</small></button>'
+          : '<button type="button" class="sol-docimg" data-opendoc="' + i + '" data-thumb="' + esc(d.path) + '" aria-label="Abrir ' + esc(d.nombre || 'foto') + '"></button>';
+      }).join('') + '</div><small class="hint">' + esc(x.tipoDoc || 'Documento') + ': pulsa en cada archivo para abrirlo.</small>' : '') +
       (x.pago ? '<div class="sol-pay"><b>Enlace de pago · ' + money(x.pago.importe) + '</b><input type="text" readonly value="' + esc(x.pago.url) + '" id="sol-url">' +
         '<div class="sol-row"><button type="button" class="btn plain sm" id="sol-copy">Copiar enlace</button>' +
         '<a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(x.telefono) + '?text=' + encodeURIComponent(payMsg) + '">Enviar por WhatsApp</a></div></div>' : '') +
@@ -374,11 +377,11 @@
     var err = function (m) { var p = $('sol-err'); p.textContent = m; p.hidden = !m; };
     dlg.querySelector('.dx').onclick = function () { dlg.close(); };
     loadThumbs(dlg);
-    if ($('sol-doc')) $('sol-doc').onclick = function () {
-      var w = window.open('', '_blank');
-      B.store.fetchDoc(x.doc.path).then(function (blob) { var u = URL.createObjectURL(blob); if (w) w.location.href = u; else window.location.href = u; },
+    dlg.querySelectorAll('[data-opendoc]').forEach(function (b) { b.onclick = function () {
+      var d = docsOf(x)[+b.getAttribute('data-opendoc')], w = window.open('', '_blank');
+      B.store.fetchDoc(d.path).then(function (blob) { var u = URL.createObjectURL(blob); if (w) w.location.href = u; else window.location.href = u; },
         function (e) { if (w) w.close(); if (e.status === 401) return A.expired(); err(e.message); });
-    };
+    }; });
     if ($('sol-copy')) $('sol-copy').onclick = function () {
       var inp = $('sol-url'); inp.select();
       (navigator.clipboard ? navigator.clipboard.writeText(inp.value) : Promise.reject()).then(function () { $('sol-copy').textContent = '¡Copiado!'; }, function () { document.execCommand('copy'); $('sol-copy').textContent = '¡Copiado!'; });
@@ -403,7 +406,7 @@
       setEstado('aceptada', { inquilinaId: t.id }).then(function () {
         dlg.close(); detail = t.id; show('inq');
         contractForm(t.id, null, { habitacionId: x.habitacionId, desde: x.periodo && x.periodo.desde, hasta: x.periodo && x.periodo.hasta,
-          docs: x.doc ? [{ id: uid(), nombre: 'DNI / pasaporte', tipo: x.doc.tipo, path: x.doc.path, fecha: today() }] : [] });
+          docs: docsOf(x).map(function (d, i) { return { id: uid(), nombre: (x.tipoDoc || 'Documento') + (docsOf(x).length > 1 ? ' ' + (i + 1) : ''), tipo: d.tipo, path: d.path, fecha: today() }; }) });
       }, function (e) { err(e.message); });
     };
     if ($('sol-pay')) $('sol-pay').onclick = function () {

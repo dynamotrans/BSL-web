@@ -292,7 +292,12 @@ body.ro #cal{pointer-events:none}
 .pmsg{font-style:italic}
 .prow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
 .pig{font-weight:700;font-size:.82rem;color:#c13584;text-decoration:none}
-.sol-docimg{display:block;width:100%;aspect-ratio:1.6;border-radius:12px;background:var(--tint) center/contain no-repeat}
+.sol-docs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sol-docimg{display:block;width:100%;aspect-ratio:1.5;border-radius:12px;border:1px solid var(--line);background:var(--tint) center/contain no-repeat;cursor:zoom-in;padding:0}
+.sol-docpdf{display:grid;place-items:center;gap:4px;aspect-ratio:1.5;border-radius:12px;border:1px solid var(--line);background:var(--teal);color:#fff;font:800 1rem/1 var(--sans);cursor:pointer;padding:8px}
+.sol-docpdf small{font:500 .72rem/1.2 var(--sans);opacity:.85;overflow:hidden;text-overflow:ellipsis;max-width:100%;white-space:nowrap}
+.pthumb{position:relative}
+.pthumb[data-n]::after{content:"+" attr(data-n);position:absolute;right:4px;bottom:4px;font:800 .66rem/1 var(--sans);padding:3px 5px;border-radius:6px;background:rgba(0,0,0,.6);color:#fff}
 @media (max-width:520px){.plist{grid-template-columns:minmax(0,1fr)}}
 dialog.gdlg.keydlg{width:min(420px,calc(100% - 24px))}
 .keydlg .dbody{grid-template-columns:minmax(0,1fr)}

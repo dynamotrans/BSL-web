@@ -41,16 +41,22 @@ export default async function handler(req, res) {
   if (!d.universidad) faltan.push('universidad');
   if (!d.habitacionId || !d.periodo.desde || !d.periodo.hasta) faltan.push('habitación y fechas');
   if (b.acepta !== true) faltan.push('aceptar las condiciones');
-  const m = /^data:([\w/+.-]+);base64,([A-Za-z0-9+/=]+)$/.exec(b.doc || '');
-  if (!m || !TYPES[m[1]]) faltan.push('foto o PDF del DNI o pasaporte');
+  // Documentos ya subidos uno a uno (api/solicitud-doc): de 1 a 4
+  const docs = (Array.isArray(b.docs) ? b.docs : []).slice(0, 4)
+    .filter((x) => x && /^privado\/docs\/sol-[\w-]+\.(pdf|jpg|png|webp)$/.test(String(x.path || '')))
+    .map((x) => ({ path: x.path, tipo: /\.pdf$/.test(x.path) ? 'pdf' : 'img', nombre: str(x.nombre, 120) || 'Documento' }));
+  const m = !docs.length && /^data:([\w/+.-]+);base64,([A-Za-z0-9+/=]+)$/.exec(b.doc || '');
+  if (!docs.length && (!m || !TYPES[m[1]])) faltan.push('foto o PDF del DNI o pasaporte');
   if (faltan.length) return send(res, 400, { error: 'Falta: ' + faltan.join(', ') + '.' });
-  const buf = Buffer.from(m[2], 'base64');
-  if (buf.length > MAX_DOC) return send(res, 413, { error: 'El documento pesa demasiado (máximo 3 MB).' });
-
-  const doc = await put('privado/docs/sol.' + TYPES[m[1]], buf, { access: 'private', addRandomSuffix: true, contentType: m[1] });
+  if (!docs.length) {
+    const buf = Buffer.from(m[2], 'base64');
+    if (buf.length > MAX_DOC) return send(res, 413, { error: 'El documento pesa demasiado (máximo 3 MB).' });
+    const up = await put('privado/docs/sol.' + TYPES[m[1]], buf, { access: 'private', addRandomSuffix: true, contentType: m[1] });
+    docs.push({ path: up.pathname, tipo: TYPES[m[1]] === 'pdf' ? 'pdf' : 'img', nombre: str(b.docNombre, 120) || 'Documento' });
+  }
   const id = now.toString(36) + crypto.randomBytes(3).toString('hex');
   const sol = Object.assign({ id, fecha: new Date(now).toISOString(), estado: 'nueva' }, d,
-    { doc: { path: doc.pathname, tipo: TYPES[m[1]] === 'pdf' ? 'pdf' : 'img', nombre: str(b.docNombre, 120) || 'Documento' } });
+    { docs, doc: docs.filter((x) => x.tipo === 'img')[0] || docs[0] });
   await put('privado/solicitudes/' + id + '.json', JSON.stringify(sol), { access: 'private', addRandomSuffix: false, contentType: 'application/json' });
   h.push(now); hits.set(ip, h);
   await avisar(sol).catch(() => {});
