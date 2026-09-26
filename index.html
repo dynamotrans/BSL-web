@@ -404,7 +404,6 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
 .rs-intro{margin:0;color:var(--muted);font-size:.92rem}
 .rgrid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .rgrid2 .full{grid-column:1/-1}
-.sh-body input[type=text],.sh-body input:not([type]),.sh-body input[type=email],.sh-body input[type=tel]{font:inherit;font-size:1rem;color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;width:100%;min-width:0}
 .sh-body label small{font-weight:500;color:var(--muted)}
 .sh-body label.check{display:flex;align-items:flex-start;gap:10px;font-weight:500;color:var(--ink);font-size:.88rem}
 .check input{margin-top:3px;width:18px;height:18px;flex:0 0 18px;accent-color:var(--coral)}
@@ -424,8 +423,22 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
 .upl-btn{display:inline-flex!important;align-items:center;gap:8px;padding:11px 16px;border-radius:999px;border:1.5px dashed var(--coral);color:var(--ink)!important;font-weight:700!important;font-size:.92rem!important;cursor:pointer;background:color-mix(in srgb,var(--coral) 6%,transparent)}
 .upl-btn svg{width:18px;height:18px;color:var(--accent)}
 .upl small{color:var(--muted);font-size:.78rem}
-.sh-body textarea{font:inherit;font-size:1rem;color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;width:100%;resize:vertical}
 .hp{position:absolute!important;left:-9999px;width:1px;height:1px;opacity:0}
+/* Campos del formulario: todos iguales, compactos y con el texto centrado en altura */
+.sh-body input:not([type=checkbox]):not([type=radio]):not([type=file]),.sh-body select,.sh-body textarea{
+  -webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;width:100%;min-width:0;margin:0;
+  font:inherit;font-size:16px;font-weight:500;line-height:1.25;color:var(--ink);background-color:var(--ground);
+  border:1px solid var(--line);border-radius:10px;padding:0 12px;height:44px;outline:none;box-shadow:none;
+  transition:border-color .2s ease,box-shadow .2s ease}
+.sh-body textarea{height:auto;min-height:76px;padding:10px 12px;resize:vertical}
+.sh-body select{padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235b6f6d' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.sh-body input[type=date]{line-height:44px;text-align:left}
+.sh-body input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
+.sh-body input:focus,.sh-body select:focus,.sh-body textarea:focus{border-color:var(--coral);box-shadow:0 0 0 3px color-mix(in srgb,var(--coral) 22%,transparent)}
+.sh-body input::placeholder,.sh-body textarea::placeholder{color:#9aa7a6}
+.sh-body label,.sh-body legend{gap:5px!important;font-size:.8rem!important}
+.rgrid2{gap:10px 10px!important}
+.rstep{gap:13px!important}
 .linkbtn{border:0;background:none;padding:0;font:inherit;color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer;text-align:left}
 dialog.sheet.legal{width:min(620px,calc(100% - 24px))}
 .legal-body{gap:10px!important;font-size:.92rem;line-height:1.55}
@@ -458,7 +471,6 @@ dialog.sheet::backdrop{background:rgba(9,28,30,.7)}
 .sh-body fieldset{min-width:0}
 .sh-body label.opt{display:flex}
 .sh-body label,.sh-body legend{display:grid;gap:6px;font-size:.85rem;font-weight:600;color:var(--muted)}
-.sh-body select,.sh-body input[type=date]{font:inherit;font-size:1rem;color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;width:100%}
 .sh-body fieldset{border:0;padding:0;margin:0;display:grid;gap:8px}
 .opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r);font-weight:600;color:var(--ink);cursor:pointer;transition:border-color .2s ease,background .2s ease}
 .opt small{display:block;font-weight:400;color:var(--muted);font-size:.83rem}
@@ -1033,8 +1045,8 @@ footer img{height:56px;width:auto}
           <label>País de procedencia<input id="rd-pais" value="España" autocomplete="country-name"></label>
           <label>Provincia / ciudad<input id="rd-prov" placeholder="Ej.: Córdoba"></label>
           <label>Instagram<input id="rd-ig" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="@tuusuario"></label>
-          <label class="full">Estudios / curso <small>(opcional)</small><input id="rd-estudios" placeholder="Ej.: 2º de ADE"></label>
-          <label>Contacto familiar <small>(madre, padre…)</small><input id="rd-fam"></label>
+          <label class="full">Estudios / curso (opcional)<input id="rd-estudios" placeholder="Ej.: 2º de ADE"></label>
+          <label>Contacto familiar<input id="rd-fam" placeholder="Madre, padre…"></label>
           <label>Teléfono familiar<input id="rd-famtel" type="tel" inputmode="tel"></label>
         </div>
         <div class="upl">
@@ -1042,7 +1054,7 @@ footer img{height:56px;width:auto}
           <label class="upl-btn"><input type="file" id="rd-file" accept="image/*,application/pdf" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg><span id="rd-file-t">Subir documento</span></label>
           <small>Solo lo verá BSL para preparar el contrato. Máximo 3 MB.</small>
         </div>
-        <label class="full">Mensaje <small>(opcional)</small><textarea id="rd-msg" rows="3" placeholder="Fecha de llegada, dudas…"></textarea></label>
+        <label class="full">Mensaje (opcional)<textarea id="rd-msg" rows="3" placeholder="Fecha de llegada, dudas…"></textarea></label>
         <input type="text" id="rd-web" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
         <label class="check"><input type="checkbox" id="rd-ok"> <span>He leído y acepto las <button type="button" class="linkbtn" data-legal>condiciones de la solicitud y la información sobre protección de datos</button>.</span></label>
         <p class="res-err" id="rd-err" hidden></p>
