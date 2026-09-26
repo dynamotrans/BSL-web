@@ -456,6 +456,17 @@ dialog.sheet.legal{width:min(620px,calc(100% - 24px))}
 .why b{color:var(--ink)}
 .why p{margin:0;color:var(--muted)}
 .why strong{color:var(--ink)}
+.alt{display:grid;gap:8px}
+.alt-t{font-size:.9rem;color:var(--ink)}
+.alt small{color:var(--muted);font-size:.85rem}
+.alt-track{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;margin-inline:-20px;padding-inline:20px;scrollbar-width:none}
+.alt-track::-webkit-scrollbar{display:none}
+.alt-card{flex:0 0 72%;max-width:260px;scroll-snap-align:start;display:grid;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);padding:0;text-align:left;cursor:pointer;font:inherit;color:var(--ink)}
+.alt-card img,.alt-ph{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--teal)}
+.alt-b{display:grid;gap:4px;padding:10px 12px 12px}
+.alt-b strong{font:400 1.2rem/1.1 var(--serif)}
+.alt-b small{font-size:.8rem;line-height:1.35}
+.alt-b em{display:inline-flex;align-items:center;gap:6px;font-style:normal;font-weight:700;font-size:.82rem}
 .nextbox{border-radius:14px;padding:16px;background:var(--tint);display:grid;gap:8px;font-size:.92rem}
 .nextbox ol{margin:0;padding-left:20px;display:grid;gap:4px;color:var(--ink)}
 .nextbox small{color:var(--muted)}
@@ -1041,6 +1052,7 @@ footer img{height:56px;width:auto}
         <div id="res-opts" class="opts"></div>
       </fieldset>
       <p class="avail" id="res-avail"></p>
+      <div class="alt" id="res-alt" hidden></div>
       </div>
 
       <div class="rstep" data-step="2" hidden>
@@ -1263,9 +1275,31 @@ footer img{height:56px;width:auto}
     if (!c) return;
     av.className = 'avail st-' + c.o.st.kind;
     if (rstep === 1) footer();
+    drawAlt(c);
     av.innerHTML = '<i class="dot"></i>' + (c.o.st.kind === 'libre' || c.o.key === 'resto' ? 'Libre en esas fechas' :
       c.o.st.kind === 'ocupada' ? 'Ocupada ese curso. Elige otra habitación.' : esc(c.o.long) + '. Escríbenos y lo vemos.');
   }
+  // Si la habitación está ocupada en ese periodo, se proponen las que sí están libres
+  function drawAlt(c) {
+    var box = document.getElementById('res-alt');
+    if (c.o.st.kind !== 'ocupada') { box.hidden = true; box.innerHTML = ''; return; }
+    var alts = active().filter(function (r) { return r.id !== c.room.id; }).map(function (r) { return { r: r, o: opt(r, c.o.key) }; })
+      .filter(function (x) { return x.o && x.o.st.kind !== 'ocupada'; });
+    box.hidden = false;
+    box.innerHTML = alts.length ? '<b class="alt-t">Libres en ' + esc(c.o.title) + '</b><div class="alt-track">' + alts.map(function (x) {
+      var r = x.r, foto = r.fotos && r.fotos[0];
+      return '<button type="button" class="alt-card" data-alt="' + r.id + '">' +
+        (foto ? '<img src="' + esc(foto) + '" alt="" loading="lazy">' : '<span class="alt-ph"></span>') +
+        '<span class="alt-b"><strong>' + esc(r.nombre) + '</strong><small>' + esc(r.precio) + ' €/mes + ' + esc(r.gastos) + ' € de gastos · ' + B.m2(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</small>' +
+        '<em class="st-' + x.o.st.kind + '"><i class="dot"></i>' + esc(x.o.st.kind === 'libre' ? 'Libre' : x.o.long) + '</em></span></button>';
+    }).join('') + '</div>' : '<b class="alt-t">No quedan habitaciones libres en ese periodo.</b><small>Prueba con otro curso o escríbenos por WhatsApp.</small>';
+  }
+  document.getElementById('res-alt').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-alt]'); if (!b) return;
+    var key = (optsBox.querySelector('input:checked') || {}).value;
+    resRoom.value = b.getAttribute('data-alt'); drawOpts(key);
+    resDlg.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(downState, 400);
+  });
   function showReserve(id) {
     resRoom.innerHTML = active().map(function (r) { return '<option value="' + r.id + '">' + esc(r.nombre) + ' · ' + esc(r.precio) + ' €/mes</option>'; }).join('');
     if (id) resRoom.value = id;
