@@ -156,20 +156,19 @@ a,button,select,summary,[role=button]{cursor:var(--cursor),pointer}
 .half-txt h2 em{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.05em}
 .half-txt p{margin:0;color:var(--muted);font-size:1.05rem}
 .half-txt strong{color:var(--ink)}
-.hbars{display:grid;gap:6px;padding:22px;border-radius:18px;background:var(--surface);border:1px solid var(--line);box-shadow:0 24px 48px -36px rgba(16,41,42,.45)}
-.hb{display:grid;grid-template-columns:92px minmax(0,1fr);align-items:center;gap:10px;position:relative}
-.hb-k{font:700 .78rem/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.hb i{display:block;height:44px;width:var(--w);border-radius:12px;background:var(--line);grid-column:2;grid-row:1}
-.hb.bsl i{background:var(--grad)}
-.hb b{grid-column:2;grid-row:1;justify-self:start;padding-left:14px;font:400 1.7rem/1 var(--serif);color:var(--teal-deep);white-space:nowrap}
-.hb.bsl b{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.18)}
-.hb b small{font:600 .8rem var(--sans);margin-left:2px;opacity:.85}
-.hb-note{margin:0 0 12px 102px;font-size:.84rem;color:var(--muted)}
-.hb-note b{color:var(--ink)}
-.half-link{justify-self:start;margin-left:102px;font-weight:700;color:var(--accent);text-decoration:none}
-.hbars.rv i{width:0}
-.hbars.rv.in i{width:var(--w);transition:width 1.3s var(--ease) .25s}
-@media (max-width:760px){.half-in{grid-template-columns:1fr;gap:22px}.hb{grid-template-columns:minmax(0,1fr);gap:6px}.hb-k{grid-row:1}.hb i,.hb b{grid-column:1;grid-row:2}.hb.bsl i{min-width:150px}.hb-note,.half-link{margin-left:0}.hbars{padding:18px 16px}.hb b{font-size:1.5rem}}
+.pcomp{position:relative;display:grid;gap:10px;padding:26px 26px 22px;border-radius:20px;background:var(--surface);border:1px solid var(--line);box-shadow:0 24px 48px -36px rgba(16,41,42,.45)}
+.pc-old,.pc-new{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.pcomp span{font:700 .78rem/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pc-op{font-style:normal;white-space:nowrap}
+.pc-old s{font:400 1.9rem/1 var(--serif);color:#9aa7a6;text-decoration-thickness:3px;text-decoration-color:var(--occ,#c0456f)}
+.pc-new{padding-top:12px;border-top:1px dashed var(--line)}
+.pc-new b{font:400 clamp(3rem,7vw,4.2rem)/1 var(--serif);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pcomp small{font:600 .85rem var(--sans);-webkit-text-fill-color:var(--muted);margin-left:3px}
+.pc-tag{position:absolute;top:-14px;right:18px;font:800 .9rem/1 var(--sans);font-style:normal;padding:8px 12px;border-radius:999px;background:var(--grad);color:var(--teal-deep);box-shadow:0 8px 18px -8px rgba(0,0,0,.35)}
+.pc-note{margin:0;font-size:.9rem;color:var(--muted)}
+.pc-note strong{color:var(--ink)}
+.half-link{justify-self:start;font-weight:700;color:var(--accent);text-decoration:none}
+@media (max-width:760px){.half-in{grid-template-columns:1fr;gap:26px}.pcomp{padding:24px 18px 20px}}
 
 /* ---------- Para las familias ---------- */
 .families{padding-block:72px 16px}
@@ -681,15 +680,14 @@ footer img{height:56px;width:auto}
   <section class="half" aria-labelledby="half-t">
     <div class="wrap half-in">
       <div class="half-txt rv">
-        <p class="eyebrow">BSL o residencia</p>
-        <h2 id="half-t">Vivir como en casa <em>por menos de la mitad</em></h2>
+        <p class="eyebrow">Vivir como en casa</p>
+        <h2 id="half-t">Por menos de la mitad <em>que una residencia</em></h2>
         <p>Lo que pagas aquí <strong>frente a una residencia de estudiantes</strong> típica.</p>
       </div>
-      <div class="hbars rv" role="img" aria-label="BSL desde 340 euros al mes frente a residencia desde 800 euros al mes">
-        <div class="hb bsl" style="--w:42.5%"><span class="hb-k">BSL</span><i></i><b>340 €<small>/mes</small></b></div>
-        <p class="hb-note">según habitación · + 60 € de gastos, <b>todo incluido</b></p>
-        <div class="hb res" style="--w:100%"><span class="hb-k">Residencia</span><i></i><b>800 €<small>/mes</small></b></div>
-        <p class="hb-note">desde, en Sevilla y área metropolitana</p>
+      <div class="pcomp rv">
+        <div class="pc-old"><span>Residencia típica</span><em class="pc-op"><s>800 €</s><small>/mes</small></em></div>
+        <div class="pc-new"><span>En BSL, desde</span><b>340 €<small>/mes</small></b><i class="pc-tag">−57&nbsp;%</i></div>
+        <p class="pc-note">Según habitación · + 60 € de gastos, <strong>todo incluido</strong></p>
         <a class="half-link" href="#comparativa">Ver la comparativa completa →</a>
       </div>
     </div>
