@@ -150,7 +150,7 @@ a,button,select,summary,[role=button]{cursor:var(--cursor),pointer}
 .in{opacity:1;transform:none;transition:opacity .9s var(--ease),transform .9s var(--ease)}
 
 /* ---------- Menos de la mitad ---------- */
-.half{padding-block:64px 8px}
+.half{padding-block:40px 8px}
 .half-in{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:center}
 .half-txt h2{font-size:clamp(2.2rem,4.6vw,3.4rem);margin:12px 0}
 .half-txt h2 em{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.05em}
@@ -170,6 +170,7 @@ a,button,select,summary,[role=button]{cursor:var(--cursor),pointer}
 .pc-save b small{-webkit-text-fill-color:#1f7a53;opacity:.8}
 .pc-save span{font:600 .85rem/1.3 var(--sans);letter-spacing:0;text-transform:none;color:#1f7a53}
 .pc-tag{position:absolute;top:-14px;right:18px;font:800 .9rem/1 var(--sans);font-style:normal;padding:8px 12px;border-radius:999px;background:var(--grad);color:var(--teal-deep);box-shadow:0 8px 18px -8px rgba(0,0,0,.35)}
+.pcomp .pc-ori{display:block;margin-top:4px;font:500 .72rem/1 var(--sans);letter-spacing:0;text-transform:none;color:var(--muted);-webkit-text-fill-color:var(--muted);margin-left:0}
 .pc-note{margin:0;font-size:.9rem;color:var(--muted)}
 .pc-note strong{color:var(--ink)}
 .half-link{justify-self:start;font-weight:700;color:var(--accent);text-decoration:none}
@@ -716,23 +717,6 @@ footer img{height:56px;width:auto}
 
   <div class="zocalo" role="presentation"></div>
 
-  <section class="half" aria-labelledby="half-t">
-    <div class="wrap half-in">
-      <div class="half-txt rv">
-        <p class="eyebrow">Vivir como en casa</p>
-        <h2 id="half-t">Por menos de la mitad <em>que una residencia</em></h2>
-        <p>Lo que pagas aquí <strong>frente a una residencia de estudiantes</strong> típica.</p>
-      </div>
-      <div class="pcomp rv">
-        <div class="pc-old"><span>Residencia típica</span><em class="pc-op"><s>800 €</s><small>/mes</small></em></div>
-        <div class="pc-new"><span>Alquiler de habitación en BSL, desde</span><b>340 €<small>/mes</small></b></div>
-        <div class="pc-save"><b>Ahorras 460 €<small>/mes</small></b><span>unos 5.060 € en un curso completo</span></div>
-        <p class="pc-note">Según habitación · + 60 € de gastos, <strong>todo incluido</strong>. BSL no es una residencia: es <strong>alquiler de habitaciones</strong> en una casa compartida.</p>
-        <a class="half-link" href="#comparativa">Ver la comparativa completa →</a>
-      </div>
-    </div>
-  </section>
-
   <section class="families" aria-labelledby="fam-t">
     <div class="wrap">
       <div class="fam-head rv">
@@ -801,11 +785,27 @@ footer img{height:56px;width:auto}
     </div>
   </section>
 
+  <section class="half" aria-labelledby="half-t">
+    <div class="wrap half-in">
+      <div class="half-txt rv">
+        <p class="eyebrow">Vivir como en casa</p>
+        <h2 id="half-t">Todo esto, <em>por menos de la mitad</em> que una residencia</h2>
+        <p>Una casa cuidada, solo para chicas estudiantes, con todo incluido.</p>
+      </div>
+      <div class="pcomp rv">
+        <div class="pc-old"><span>Residencia de estudiantes<small class="pc-ori">orientativo</small></span><em class="pc-op"><s>desde 800 €</s><small>/mes</small></em></div>
+        <div class="pc-new"><span>Alquiler de habitación en BSL, desde</span><b>340 €<small>/mes</small></b></div>
+        <p class="pc-note">Según habitación · + 60 € de gastos, <strong>todo incluido</strong>. No somos una residencia: es <strong>tu casa compartida</strong>.</p>
+        <a class="half-link" href="#comparativa">Ver la comparativa completa →</a>
+      </div>
+    </div>
+  </section>
+
   <section class="vs" id="comparativa" aria-labelledby="vs-t">
     <div class="wrap">
       <div class="head rv">
-        <p class="eyebrow">BSL o residencia</p>
-        <h2 id="vs-t">Vivir como en casa <em>por menos de la mitad</em></h2>
+        <p class="eyebrow">Casa compartida o residencia</p>
+        <h2 id="vs-t">En qué se <em>diferencia</em></h2>
         <p>Lo que tienes aquí <strong>frente a una residencia de estudiantes</strong> típica.</p>
       </div>
       <div class="vs-table rv" role="table" aria-label="Comparativa BSL y residencia">
