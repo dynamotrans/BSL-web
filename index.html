@@ -1056,7 +1056,7 @@ footer img{height:56px;width:auto}
     if (!c) return;
     av.className = 'avail st-' + c.o.st.kind;
     av.innerHTML = '<i class="dot"></i>' + (c.o.st.kind === 'libre' || c.o.key === 'resto' ? 'Libre en esas fechas' :
-      c.o.st.kind === 'ocupada' ? 'Ocupada ese curso. Escríbenos igualmente y te avisamos si queda libre.' : esc(c.o.long) + '. Escríbenos y lo vemos.');
+      c.o.st.kind === 'ocupada' ? 'Ocupada ese curso. Elige otra habitación.' : esc(c.o.long) + '. Escríbenos y lo vemos.');
   }
   function showReserve(id) {
     resRoom.innerHTML = active().map(function (r) { return '<option value="' + r.id + '">' + esc(r.nombre) + ' · ' + esc(r.precio) + ' €/mes</option>'; }).join('');
