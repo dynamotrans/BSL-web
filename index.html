@@ -149,6 +149,28 @@ a,button,select,summary,[role=button]{cursor:var(--cursor),pointer}
 .rv{opacity:0;transform:translateY(28px)}
 .in{opacity:1;transform:none;transition:opacity .9s var(--ease),transform .9s var(--ease)}
 
+/* ---------- Menos de la mitad ---------- */
+.half{padding-block:64px 8px}
+.half-in{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:center}
+.half-txt h2{font-size:clamp(2.2rem,4.6vw,3.4rem);margin:12px 0}
+.half-txt h2 em{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.05em}
+.half-txt p{margin:0;color:var(--muted);font-size:1.05rem}
+.half-txt strong{color:var(--ink)}
+.hbars{display:grid;gap:6px;padding:22px;border-radius:18px;background:var(--surface);border:1px solid var(--line);box-shadow:0 24px 48px -36px rgba(16,41,42,.45)}
+.hb{display:grid;grid-template-columns:92px minmax(0,1fr);align-items:center;gap:10px;position:relative}
+.hb-k{font:700 .78rem/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.hb i{display:block;height:44px;width:var(--w);border-radius:12px;background:var(--line);grid-column:2;grid-row:1}
+.hb.bsl i{background:var(--grad)}
+.hb b{grid-column:2;grid-row:1;justify-self:start;padding-left:14px;font:400 1.7rem/1 var(--serif);color:var(--teal-deep);white-space:nowrap}
+.hb.bsl b{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.18)}
+.hb b small{font:600 .8rem var(--sans);margin-left:2px;opacity:.85}
+.hb-note{margin:0 0 12px 102px;font-size:.84rem;color:var(--muted)}
+.hb-note b{color:var(--ink)}
+.half-link{justify-self:start;margin-left:102px;font-weight:700;color:var(--accent);text-decoration:none}
+.hbars.rv i{width:0}
+.hbars.rv.in i{width:var(--w);transition:width 1.3s var(--ease) .25s}
+@media (max-width:760px){.half-in{grid-template-columns:1fr;gap:22px}.hb{grid-template-columns:minmax(0,1fr);gap:6px}.hb-k{grid-row:1}.hb i,.hb b{grid-column:1;grid-row:2}.hb.bsl i{min-width:150px}.hb-note,.half-link{margin-left:0}.hbars{padding:18px 16px}.hb b{font-size:1.5rem}}
+
 /* ---------- Para las familias ---------- */
 .families{padding-block:72px 16px}
 .fam-head{display:grid;gap:14px;max-width:44em;margin-bottom:32px}
@@ -656,6 +678,23 @@ footer img{height:56px;width:auto}
 
   <div class="zocalo" role="presentation"></div>
 
+  <section class="half" aria-labelledby="half-t">
+    <div class="wrap half-in">
+      <div class="half-txt rv">
+        <p class="eyebrow">BSL o residencia</p>
+        <h2 id="half-t">Vivir como en casa <em>por menos de la mitad</em></h2>
+        <p>Lo que pagas aquí <strong>frente a una residencia de estudiantes</strong> típica.</p>
+      </div>
+      <div class="hbars rv" role="img" aria-label="BSL desde 340 euros al mes frente a residencia desde 800 euros al mes">
+        <div class="hb bsl" style="--w:42.5%"><span class="hb-k">BSL</span><i></i><b>340 €<small>/mes</small></b></div>
+        <p class="hb-note">según habitación · + 60 € de gastos, <b>todo incluido</b></p>
+        <div class="hb res" style="--w:100%"><span class="hb-k">Residencia</span><i></i><b>800 €<small>/mes</small></b></div>
+        <p class="hb-note">desde, en Sevilla y área metropolitana</p>
+        <a class="half-link" href="#comparativa">Ver la comparativa completa →</a>
+      </div>
+    </div>
+  </section>
+
   <section class="families" aria-labelledby="fam-t">
     <div class="wrap">
       <div class="fam-head rv">
@@ -724,7 +763,7 @@ footer img{height:56px;width:auto}
     </div>
   </section>
 
-  <section class="vs" aria-labelledby="vs-t">
+  <section class="vs" id="comparativa" aria-labelledby="vs-t">
     <div class="wrap">
       <div class="head rv">
         <p class="eyebrow">BSL o residencia</p>
