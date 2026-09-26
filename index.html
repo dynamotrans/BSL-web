@@ -392,6 +392,7 @@ dialog.sheet::backdrop{background:rgba(9,28,30,.7)}
 .avail{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);background:color-mix(in srgb,var(--st) 12%,transparent);color:var(--ink);font-size:.92rem;font-weight:600}
 .sh-foot{position:sticky;bottom:0;padding:14px 20px calc(14px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);display:grid;gap:10px}
 .sh-foot .btn{width:100%}
+.sh-foot .btn:disabled{background:var(--line);color:var(--muted);box-shadow:none;cursor:not-allowed}
 .wa-btn{background:#25d366;color:#fff;box-shadow:0 10px 24px -12px rgba(37,211,102,.8)}
 .rd-photos{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:-20px -20px 0;padding:0}
 .rd-photos img{flex:0 0 100%;width:100%;aspect-ratio:4/3;object-fit:cover;scroll-snap-align:start}
@@ -1055,6 +1056,8 @@ footer img{height:56px;width:auto}
     document.getElementById('res-pending').hidden = true;
     if (!c) return;
     av.className = 'avail st-' + c.o.st.kind;
+    var send = document.getElementById('res-send'), busy = c.o.st.kind === 'ocupada';
+    send.disabled = busy; send.textContent = busy ? 'No disponible en esas fechas' : 'Enviar WhatsApp';
     av.innerHTML = '<i class="dot"></i>' + (c.o.st.kind === 'libre' || c.o.key === 'resto' ? 'Libre en esas fechas' :
       c.o.st.kind === 'ocupada' ? 'Ocupada ese curso. Elige otra habitación.' : esc(c.o.long) + '. Escríbenos y lo vemos.');
   }
@@ -1069,7 +1072,7 @@ footer img{height:56px;width:auto}
   document.getElementById('res-perfil').addEventListener('change', function () { if (this.value) document.getElementById('res-perfil-err').hidden = true; });
   document.getElementById('res-form').addEventListener('submit', function (e) {
     e.preventDefault();
-    var c = chosen(); if (!c) return;
+    var c = chosen(); if (!c || c.o.st.kind === 'ocupada') return;
     var perfil = document.getElementById('res-perfil'), pErr = document.getElementById('res-perfil-err');
     if (!perfil.value) { pErr.hidden = false; perfil.focus(); perfil.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
     pErr.hidden = true;
