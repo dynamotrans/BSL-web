@@ -9,7 +9,7 @@
 
   var CONFIG = window.BSL_CONFIG = window.BSL_CONFIG || {
     // WhatsApp de BSL en formato internacional sin "+" (ej. 34600111222). Vacío = pendiente.
-    whatsapp: '34672338922'
+    whatsapp: '34667656708'
   };
 
   var KEY = 'bsl-rooms-v1';

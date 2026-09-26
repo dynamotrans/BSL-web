@@ -342,7 +342,7 @@
     var st = PRE_ST[x.estado] || PRE_ST.nueva, ig = String(x.instagram || '').replace(/^@+/, '');
     var fianza = +x.precio || (room(x.habitacionId) || {}).precio || 0;
     var row = function (k, v) { return v ? '<dt>' + k + '</dt><dd>' + v + '</dd>' : ''; };
-    var payMsg = x.pago ? 'Hola ' + x.nombre + ', soy María de BSL. Te hemos admitido para la habitación ' + x.habitacion + ' (' + (x.periodo && x.periodo.titulo || '') + '). Para confirmarla, paga la fianza de ' + money(x.pago.importe) + ' (equivalente a 1 mes de alquiler) en este enlace seguro: ' + x.pago.url : '';
+    var payMsg = x.pago ? 'Hola ' + x.nombre + ', soy Natasha de BSL. Te hemos admitido para la habitación ' + x.habitacion + ' (' + (x.periodo && x.periodo.titulo || '') + '). Para confirmarla, paga la fianza de ' + money(x.pago.importe) + ' (equivalente a 1 mes de alquiler) en este enlace seguro: ' + x.pago.url : '';
     dlg.innerHTML = '<form method="dialog" class="dform"><div class="dh"><h3>Solicitud de admisión</h3><button type="button" class="dx" aria-label="Cerrar">✕</button></div>' +
       '<div class="dbody sol">' +
       '<div class="sol-top"><div><b>' + esc(x.nombre + ' ' + x.apellidos) + '</b><small>Recibida el ' + fmt((x.fecha || '').slice(0, 10)) + '</small></div>' + chip(st[0], st[1]) + '</div>' +
@@ -370,7 +370,7 @@
       '</div><div class="dfoot sol-actions edit-only">' +
       (x.estado !== 'descartada' ? '<button type="button" class="btn plain danger" id="sol-no">Descartar</button>' : '<button type="button" class="btn plain" id="sol-re">Recuperar</button>') +
       '<div class="sol-row">' +
-      '<a class="btn plain sm" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(x.telefono) + '?text=' + encodeURIComponent('Hola ' + x.nombre + ', soy María de BSL. Hemos recibido tu solicitud de admisión para la habitación ' + x.habitacion + '.') + '">WhatsApp</a>' +
+      '<a class="btn plain sm" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(x.telefono) + '?text=' + encodeURIComponent('Hola ' + x.nombre + ', soy Natasha de BSL. Hemos recibido tu solicitud de admisión para la habitación ' + x.habitacion + '.') + '">WhatsApp</a>' +
       (x.estado !== 'aceptada' ? '<button type="button" class="btn sm" id="sol-ok">Admitir como inquilina</button>' : '') +
       (x.estado === 'aceptada' ? '<button type="button" class="btn sm" id="sol-pay">' + (x.pago ? 'Nuevo enlace de pago' : 'Generar enlace de pago (' + money(fianza) + ')') + '</button>' : '') +
       '</div></div></form>';
