@@ -1089,7 +1089,7 @@ footer img{height:56px;width:auto}
     pErr.hidden = true;
     var text = 'Hola, quiero reservar la habitación ' + c.room.nombre + ' de BSL · Boutique Student Living.\n' +
       'Periodo: ' + c.o.title + ', del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + '.\n' +
-      'Precio: ' + c.room.precio + ' €/mes + ' + c.room.gastos + ' € de gastos (agua, luz, internet fibra + wifi, limpieza semanal de zonas comunes, mantenimiento y reparaciones).\nPerfil de estudiante: ' + perfil.value + '.' +
+      'Precio: ' + c.room.precio + ' €/mes + ' + c.room.gastos + ' € de gastos (agua, luz, internet fibra + wifi, limpieza semanal de zonas comunes, mantenimiento y reparaciones).\nFianza: equivalente a 1 mes de alquiler.\nPerfil de estudiante: ' + perfil.value + '.' +
       (c.o.st.kind !== 'libre' && c.o.key !== 'resto' ? '\nHe visto que figura: ' + c.o.long.toLowerCase() + '. ¿Me avisáis si queda libre?' : '');
     var link = B.waLink(text);
     if (link) { window.location.href = link; return; }
