@@ -445,6 +445,10 @@ dialog.sheet.legal{width:min(620px,calc(100% - 24px))}
 .legal-body h4{margin:8px 0 0;font:700 .95rem/1.2 var(--sans);color:var(--ink)}
 .legal-body p{margin:0;color:var(--muted)}
 .legal-body b{color:var(--ink)}
+.why{border-radius:12px;padding:12px 14px;background:color-mix(in srgb,var(--coral) 9%,var(--surface));border:1px solid color-mix(in srgb,var(--coral) 30%,transparent);display:grid;gap:4px;font-size:.88rem;line-height:1.5}
+.why b{color:var(--ink)}
+.why p{margin:0;color:var(--muted)}
+.why strong{color:var(--ink)}
 .nextbox{border-radius:14px;padding:16px;background:var(--tint);display:grid;gap:8px;font-size:.92rem}
 .nextbox ol{margin:0;padding-left:20px;display:grid;gap:4px;color:var(--ink)}
 .nextbox small{color:var(--muted)}
@@ -1034,6 +1038,7 @@ footer img{height:56px;width:auto}
 
       <div class="rstep" data-step="2" hidden>
         <p class="rs-intro">Los datos de la estudiante que se va a alojar.</p>
+        <div class="why"><b>¿Por qué te pedimos estos datos?</b><p>En BSL cuidamos la convivencia. Tu universidad, edad, procedencia e Instagram nos ayudan a conocerte y a reunir en la casa a <strong>chicas con un perfil afín</strong>: edades parecidas, estilo de vida y ambiente de estudio compatibles. Así la convivencia es buena para todas.</p></div>
         <div class="rgrid2">
           <label>Nombre<input id="rd-nombre" autocomplete="given-name"></label>
           <label>Apellidos<input id="rd-apellidos" autocomplete="family-name"></label>
