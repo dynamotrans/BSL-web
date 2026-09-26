@@ -390,8 +390,12 @@ dialog.sheet::backdrop{background:rgba(9,28,30,.7)}
 .opt.main{border-width:2px}
 .tag{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:999px;background:var(--grad);color:#1a1414;font-size:.68rem;font-weight:700;vertical-align:2px}
 .avail{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);background:color-mix(in srgb,var(--st) 12%,transparent);color:var(--ink);font-size:.92rem;font-weight:600}
-.sh-foot{position:sticky;bottom:0;padding:14px 20px calc(14px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);display:grid;gap:10px}
+.sh-foot{position:static;padding:14px 20px calc(14px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);display:grid;gap:10px}
 .sh-foot .btn{width:100%}
+.sh-downwrap{position:sticky;bottom:18px;height:0;display:flex;justify-content:center;pointer-events:none;z-index:3}
+.sh-down{transform:translateY(-100%);pointer-events:auto;width:48px;height:48px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--teal);color:var(--cream);box-shadow:0 10px 24px -8px rgba(0,0,0,.45),inset 0 0 0 1.5px rgba(240,138,108,.6);cursor:pointer;transition:opacity .25s ease}
+.sh-down svg{width:22px;height:22px}
+.sh-down.gone{opacity:0;pointer-events:none}
 .sh-foot .btn:disabled{background:var(--line);color:var(--muted);box-shadow:none;cursor:not-allowed}
 .wa-btn{background:#25d366;color:#fff;box-shadow:0 10px 24px -12px rgba(37,211,102,.8)}
 .rd-photos{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:-20px -20px 0;padding:0}
@@ -883,6 +887,7 @@ footer img{height:56px;width:auto}
       <p class="avail" id="res-avail"></p>
       <div class="msg" id="res-msg" hidden></div>
     </div>
+    <div class="sh-downwrap"><button type="button" class="sh-down" id="res-down" aria-label="Bajar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button></div>
     <div class="sh-foot">
       <button class="btn wa-btn" type="submit" id="res-send">Enviar WhatsApp</button>
       <span class="pending" id="res-pending" hidden>Falta añadir el número de WhatsApp de BSL. Mientras tanto, este es el mensaje que se enviaría:</span>
@@ -1066,9 +1071,15 @@ footer img{height:56px;width:auto}
     if (id) resRoom.value = id;
     drawOpts(view);
     open(resDlg);
+    setTimeout(downState, 50);
   }
-  resRoom.addEventListener('change', function () { var i = optsBox.querySelector('input:checked'); drawOpts(i ? i.value : view); });
+  resRoom.addEventListener('change', function () { var i = optsBox.querySelector('input:checked'); drawOpts(i ? i.value : view); downState(); });
   optsBox.addEventListener('change', updateAvail);
+  // Flecha para ir bajando por la ficha; el botón de enviar queda al final
+  var resDown = document.getElementById('res-down');
+  function downState() { resDown.classList.toggle('gone', resDlg.scrollTop + resDlg.clientHeight >= resDlg.scrollHeight - 90); }
+  resDlg.addEventListener('scroll', downState, { passive: true });
+  resDown.addEventListener('click', function () { resDlg.scrollBy({ top: resDlg.clientHeight * 0.7, behavior: 'smooth' }); });
   document.getElementById('res-perfil').addEventListener('change', function () { if (this.value) document.getElementById('res-perfil-err').hidden = true; });
   document.getElementById('res-form').addEventListener('submit', function (e) {
     e.preventDefault();
