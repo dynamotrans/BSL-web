@@ -1,6 +1,7 @@
 import { put } from '@vercel/blob';
 import crypto from 'node:crypto';
 import { blobReady, send } from './_lib.js';
+import { avisar } from './_aviso.js';
 
 // Pre-reservas enviadas desde la web (sin sesión). Se guardan en privado, una por archivo,
 // y solo se leen desde el panel (api/solicitudes). Nada de esto se publica.
@@ -52,5 +53,6 @@ export default async function handler(req, res) {
     { doc: { path: doc.pathname, tipo: TYPES[m[1]] === 'pdf' ? 'pdf' : 'img', nombre: str(b.docNombre, 120) || 'Documento' } });
   await put('privado/solicitudes/' + id + '.json', JSON.stringify(sol), { access: 'private', addRandomSuffix: false, contentType: 'application/json' });
   h.push(now); hits.set(ip, h);
+  await avisar(sol).catch(() => {});
   return send(res, 200, { ok: true });
 }
