@@ -259,7 +259,7 @@ body.ro #cal{pointer-events:none}
 .doc-open small{display:block;font-weight:500;color:var(--muted);font-size:.75rem}
 .doc-del{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:0;background:var(--tint);cursor:pointer}
 .doc-add{justify-self:start;cursor:pointer}
-/* Pre-reservas */
+/* Solicitudes de admisión */
 .prer-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .prer-h h3{display:flex;align-items:center;gap:8px}
 .tcard.pre{border-left:4px solid #e0a43a}
@@ -280,6 +280,20 @@ body.ro #cal{pointer-events:none}
 .sol-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .btn.wa{background:#25d366!important;color:#fff!important}
 .sol-actions{flex-wrap:wrap}
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.pcard{display:flex;gap:12px;padding:12px;border:1px solid var(--line);border-left:4px solid #e0a43a;border-radius:12px;background:var(--surface);cursor:pointer;text-align:left}
+.pcard:hover{box-shadow:0 10px 24px -18px rgba(0,0,0,.4)}
+.pthumb{flex:0 0 76px;height:96px;border-radius:10px;background:var(--tint) center/cover no-repeat;background-position:15% 45%;display:grid;place-items:center;font:800 .75rem/1 var(--sans);color:var(--muted)}
+.pthumb.pdf{background:var(--teal);color:#fff}
+.pinfo{display:grid;gap:3px;min-width:0}
+.pinfo b{font-size:1rem}
+.pinfo b em{font-style:normal;font-weight:600;color:var(--accent);font-size:.9rem}
+.pinfo small{color:var(--muted);font-size:.8rem;overflow-wrap:anywhere}
+.pmsg{font-style:italic}
+.prow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.pig{font-weight:700;font-size:.82rem;color:#c13584;text-decoration:none}
+.sol-docimg{display:block;width:100%;aspect-ratio:1.6;border-radius:12px;background:var(--tint) center/contain no-repeat}
+@media (max-width:520px){.plist{grid-template-columns:minmax(0,1fr)}}
 dialog.gdlg.keydlg{width:min(420px,calc(100% - 24px))}
 .keydlg .dbody{grid-template-columns:minmax(0,1fr)}
 .keymsg{margin:0;color:var(--muted);font-size:.92rem}

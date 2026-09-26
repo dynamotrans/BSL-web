@@ -249,7 +249,7 @@
     var ys = []; for (var k = -2; k <= 3; k++) ys.push(y0 + k);
     box.innerHTML = '<div class="ghead"><h2>Panel de control</h2><div class="gtools"><span class="hint">Hoy ' + fmt(t) + '</span><select id="ry" aria-label="Curso">' +
       ys.map(function (c) { return '<option value="' + c + '"' + (c === y ? ' selected' : '') + '>Curso ' + B.courseLabel(c) + (c === y0 ? ' (actual)' : '') + '</option>'; }).join('') + '</select></div></div>' +
-      (SOL && SOL.some(function (x) { return x.estado === 'nueva'; }) ? '<button type="button" class="pre-alert" data-go="inq"><b>' + SOL.filter(function (x) { return x.estado === 'nueva'; }).length + '</b> pre-reserva(s) nueva(s) esperando tu revisión <span>Ver →</span></button>' : '') +
+      (SOL && SOL.some(function (x) { return x.estado === 'nueva'; }) ? '<button type="button" class="pre-alert" data-go="inq"><b>' + SOL.filter(function (x) { return x.estado === 'nueva'; }).length + '</b> solicitud(es) de admisión nueva(s) esperando tu revisión <span>Ver →</span></button>' : '') +
       '<section class="card moves"><h3>Entradas y salidas</h3><p class="hint">Próximos 70 días.</p>' + list(moves.slice(0, 8).map(function (m) {
           var te = tenant(m.c.inquilinaId), rm = room(m.c.habitacionId);
           return '<button type="button" class="crow" data-ten="' + (te ? te.id : '') + '"><span><b>' + esc(fullName(te)) + '</b><small>' + fmt(m.d) + ' · ' + esc(rm ? rm.nombre : '') + '</small></span>' + chip(m.k === 'Entra' ? 'pagado' : 'fin', m.k) + '</button>';
@@ -283,30 +283,56 @@
     bindInc(box);
   }
 
-  /* ---------- Pre-reservas (enviadas desde la web) ---------- */
+  /* ---------- Solicitudes de admisión (enviadas desde la web) ---------- */
   var SOL = null, preAll = false;
   function loadSol() {
     return B.store.loadSolicitudes().then(function (list) { SOL = list; renderTabs(); if (tab === 'inq' && !detail) viewTenants(); if (tab === 'res') viewResumen(); }, function (err) {
       if (err.status === 401) return A.expired(); SOL = SOL || [];
     });
   }
-  var PRE_ST = { nueva: ['pendiente', 'Nueva'], aceptada: ['pagado', 'Aceptada'], descartada: ['fin', 'Descartada'] };
+  var PRE_ST = { nueva: ['pendiente', 'Nueva'], aceptada: ['pagado', 'Admitida'], descartada: ['fin', 'Descartada'] };
+  function edad(iso) {
+    if (!iso) return null;
+    var t = today(), y = +t.slice(0, 4) - +iso.slice(0, 4);
+    if (t.slice(5) < iso.slice(5)) y--;
+    return y >= 0 && y < 120 ? y : null;
+  }
+  var THUMBS = {};
+  function loadThumbs(root) {
+    root.querySelectorAll('[data-thumb]').forEach(function (el) {
+      var path = el.getAttribute('data-thumb');
+      function put(u) { el.style.backgroundImage = 'url(' + u + ')'; el.classList.add('ok'); }
+      if (THUMBS[path]) return put(THUMBS[path]);
+      B.store.fetchDoc(path).then(function (blob) { THUMBS[path] = URL.createObjectURL(blob); put(THUMBS[path]); }, function () { /* sin miniatura */ });
+    });
+  }
   function preHtml() {
-    if (!SOL) return '<section class="card prer"><h3>Pre-reservas</h3><p class="hint">Cargando…</p></section>';
+    if (!SOL) return '<section class="card prer"><h3>Solicitudes de admisión</h3><p class="hint">Cargando…</p></section>';
     var list = SOL.filter(function (x) { return preAll || x.estado !== 'descartada'; });
     var nuevas = SOL.filter(function (x) { return x.estado === 'nueva'; }).length;
-    return '<section class="card prer"><div class="prer-h"><h3>Pre-reservas' + (nuevas ? ' <span class="chip2 k-pendiente">' + nuevas + ' nueva' + (nuevas > 1 ? 's' : '') + '</span>' : '') + '</h3>' +
+    return '<section class="card prer"><div class="prer-h"><h3>Solicitudes de admisión' + (nuevas ? ' <span class="chip2 k-pendiente">' + nuevas + ' nueva' + (nuevas > 1 ? 's' : '') + '</span>' : '') + '</h3>' +
       '<button type="button" class="mini" id="pre-all">' + (preAll ? 'Ocultar descartadas' : 'Ver también descartadas') + '</button></div>' +
-      (list.length ? '<div class="tlist">' + list.map(function (x) {
-        var st = PRE_ST[x.estado] || PRE_ST.nueva;
-        return '<button type="button" class="tcard pre" data-sol="' + esc(x.id) + '"><b>' + esc(x.nombre + ' ' + x.apellidos) + '</b>' +
-          '<small>' + esc(x.habitacion) + ' · ' + esc(x.periodo && x.periodo.titulo || '') + '</small><small>' + esc(x.universidad) + ' · ' + fmt((x.fecha || '').slice(0, 10)) + '</small>' +
-          chip(st[0], st[1] + (x.pago ? ' · enlace enviado' : '')) + '</button>';
-      }).join('') + '</div>' : '<p class="empty">Todavía no hay pre-reservas. Llegan aquí cuando una chica rellena «Reservar» en la web.</p>') + '</section>';
+      (list.length ? '<div class="plist">' + list.map(function (x) {
+        var st = PRE_ST[x.estado] || PRE_ST.nueva, ig = String(x.instagram || '').replace(/^@+/, ''), ed = edad(x.nacimiento);
+        var img = x.doc && x.doc.tipo !== 'pdf';
+        return '<div class="pcard" role="button" tabindex="0" data-sol="' + esc(x.id) + '">' +
+          '<span class="pthumb' + (img ? '' : ' pdf') + '"' + (img ? ' data-thumb="' + esc(x.doc.path) + '"' : '') + '>' + (img ? '' : (x.doc ? 'PDF' : '—')) + '</span>' +
+          '<span class="pinfo"><b>' + esc(x.nombre + ' ' + x.apellidos) + (ed !== null ? ' <em>' + ed + ' años</em>' : '') + '</b>' +
+          '<small>' + esc(x.universidad) + (x.estudios ? ' · ' + esc(x.estudios) : '') + '</small>' +
+          '<small>' + esc([x.provincia, x.pais].filter(Boolean).join(', ')) + ' · ' + esc(x.tipoDoc || 'Doc.') + ' ' + esc(x.documento) + '</small>' +
+          '<small>' + esc(x.habitacion) + ' · ' + esc(x.periodo && x.periodo.titulo || '') + '</small>' +
+          (x.mensaje ? '<small class="pmsg">«' + esc(x.mensaje.slice(0, 120)) + (x.mensaje.length > 120 ? '…' : '') + '»</small>' : '') +
+          '<span class="prow">' + chip(st[0], st[1] + (x.pago ? ' · enlace enviado' : '')) +
+          (ig ? '<a class="pig" href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank" rel="noopener">@' + esc(ig) + '</a>' : '') + '</span></span></div>';
+      }).join('') + '</div>' : '<p class="empty">Todavía no hay solicitudes. Llegan aquí cuando una chica envía su solicitud de admisión desde la web.</p>') + '</section>';
   }
   function bindPre() {
     var all = $('pre-all'); if (all) all.onclick = function () { preAll = !preAll; viewTenants(); };
-    box.querySelectorAll('[data-sol]').forEach(function (b) { b.onclick = function () { solDialog(b.getAttribute('data-sol')); }; });
+    box.querySelectorAll('[data-sol]').forEach(function (b) {
+      b.onclick = function (e) { if (e.target.closest('a')) return; solDialog(b.getAttribute('data-sol')); };
+      b.onkeydown = function (e) { if (e.key === 'Enter') solDialog(b.getAttribute('data-sol')); };
+    });
+    loadThumbs(box);
   }
   function waPhone(t) { var d = String(t || '').replace(/\D/g, ''); if (d.indexOf('00') === 0) d = d.slice(2); if (d.length === 9) d = '34' + d; return d; }
   function uniToTenant(u) { return ['Universidad Loyola Andalucía', 'Universidad Pablo de Olavide', 'Universidad de Sevilla', 'Máster'].indexOf(u) >= 0 ? u : (u ? 'Otra' : ''); }
@@ -315,8 +341,8 @@
     var st = PRE_ST[x.estado] || PRE_ST.nueva, ig = String(x.instagram || '').replace(/^@+/, '');
     var fianza = +x.precio || (room(x.habitacionId) || {}).precio || 0;
     var row = function (k, v) { return v ? '<dt>' + k + '</dt><dd>' + v + '</dd>' : ''; };
-    var payMsg = x.pago ? 'Hola ' + x.nombre + ', soy María de BSL. Tu pre-reserva de la habitación ' + x.habitacion + ' (' + (x.periodo && x.periodo.titulo || '') + ') está aceptada. Para confirmarla, paga la fianza de ' + money(x.pago.importe) + ' (equivalente a 1 mes de alquiler) en este enlace seguro: ' + x.pago.url : '';
-    dlg.innerHTML = '<form method="dialog" class="dform"><div class="dh"><h3>Pre-reserva</h3><button type="button" class="dx" aria-label="Cerrar">✕</button></div>' +
+    var payMsg = x.pago ? 'Hola ' + x.nombre + ', soy María de BSL. Te hemos admitido para la habitación ' + x.habitacion + ' (' + (x.periodo && x.periodo.titulo || '') + '). Para confirmarla, paga la fianza de ' + money(x.pago.importe) + ' (equivalente a 1 mes de alquiler) en este enlace seguro: ' + x.pago.url : '';
+    dlg.innerHTML = '<form method="dialog" class="dform"><div class="dh"><h3>Solicitud de admisión</h3><button type="button" class="dx" aria-label="Cerrar">✕</button></div>' +
       '<div class="dbody sol">' +
       '<div class="sol-top"><div><b>' + esc(x.nombre + ' ' + x.apellidos) + '</b><small>Recibida el ' + fmt((x.fecha || '').slice(0, 10)) + '</small></div>' + chip(st[0], st[1]) + '</div>' +
       '<dl class="sol-dl">' +
@@ -326,11 +352,14 @@
       row('Teléfono', '<a href="tel:' + esc(x.telefono) + '">' + esc(x.telefono) + '</a>') +
       row('Email', '<a href="mailto:' + esc(x.email) + '">' + esc(x.email) + '</a>') +
       row('Instagram', ig ? '<a href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank" rel="noopener">@' + esc(ig) + '</a>' : '') +
-      row('Documento', esc(x.documento) + (x.nacimiento ? '<small>Nacida el ' + fmt(x.nacimiento) + '</small>' : '')) +
+      row('Edad', edad(x.nacimiento) !== null ? edad(x.nacimiento) + ' años<small>Nacida el ' + fmt(x.nacimiento) + '</small>' : '') +
+      row('Procedencia', esc([x.provincia, x.pais].filter(Boolean).join(', '))) +
+      row('Documento', esc((x.tipoDoc || '') + ' ' + x.documento)) +
       row('Familiar', esc(x.familiar) + (x.familiarTel ? '<small>' + esc(x.familiarTel) + '</small>' : '')) +
       row('Mensaje', esc(x.mensaje)) +
       '</dl>' +
-      (x.doc ? '<button type="button" class="btn plain sm" id="sol-doc">Ver DNI / pasaporte (' + (x.doc.tipo === 'pdf' ? 'PDF' : 'foto') + ')</button>' : '') +
+      (x.doc && x.doc.tipo !== 'pdf' ? '<span class="sol-docimg" data-thumb="' + esc(x.doc.path) + '"></span>' : '') +
+      (x.doc ? '<button type="button" class="btn plain sm" id="sol-doc">Abrir ' + esc(x.tipoDoc || 'documento') + ' (' + (x.doc.tipo === 'pdf' ? 'PDF' : 'foto') + ')</button>' : '') +
       (x.pago ? '<div class="sol-pay"><b>Enlace de pago · ' + money(x.pago.importe) + '</b><input type="text" readonly value="' + esc(x.pago.url) + '" id="sol-url">' +
         '<div class="sol-row"><button type="button" class="btn plain sm" id="sol-copy">Copiar enlace</button>' +
         '<a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(x.telefono) + '?text=' + encodeURIComponent(payMsg) + '">Enviar por WhatsApp</a></div></div>' : '') +
@@ -338,12 +367,13 @@
       '</div><div class="dfoot sol-actions edit-only">' +
       (x.estado !== 'descartada' ? '<button type="button" class="btn plain danger" id="sol-no">Descartar</button>' : '<button type="button" class="btn plain" id="sol-re">Recuperar</button>') +
       '<div class="sol-row">' +
-      '<a class="btn plain sm" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(x.telefono) + '?text=' + encodeURIComponent('Hola ' + x.nombre + ', soy María de BSL. Hemos recibido tu pre-reserva de la habitación ' + x.habitacion + '.') + '">WhatsApp</a>' +
-      (x.estado !== 'aceptada' ? '<button type="button" class="btn sm" id="sol-ok">Aceptar como inquilina</button>' : '') +
+      '<a class="btn plain sm" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(x.telefono) + '?text=' + encodeURIComponent('Hola ' + x.nombre + ', soy María de BSL. Hemos recibido tu solicitud de admisión para la habitación ' + x.habitacion + '.') + '">WhatsApp</a>' +
+      (x.estado !== 'aceptada' ? '<button type="button" class="btn sm" id="sol-ok">Admitir como inquilina</button>' : '') +
       (x.estado === 'aceptada' ? '<button type="button" class="btn sm" id="sol-pay">' + (x.pago ? 'Nuevo enlace de pago' : 'Generar enlace de pago (' + money(fianza) + ')') + '</button>' : '') +
       '</div></div></form>';
     var err = function (m) { var p = $('sol-err'); p.textContent = m; p.hidden = !m; };
     dlg.querySelector('.dx').onclick = function () { dlg.close(); };
+    loadThumbs(dlg);
     if ($('sol-doc')) $('sol-doc').onclick = function () {
       var w = window.open('', '_blank');
       B.store.fetchDoc(x.doc.path).then(function (blob) { var u = URL.createObjectURL(blob); if (w) w.location.href = u; else window.location.href = u; },
@@ -359,7 +389,7 @@
       });
     }
     if ($('sol-no')) $('sol-no').onclick = function () {
-      if (!window.confirm('¿Descartar esta pre-reserva?')) return;
+      if (!window.confirm('¿Descartar esta solicitud?')) return;
       setEstado('descartada').then(function () { dlg.close(); viewTenants(); }, function (e) { err(e.message); });
     };
     if ($('sol-re')) $('sol-re').onclick = function () { setEstado('nueva').then(function () { solDialog(x.id); }, function (e) { err(e.message); }); };
@@ -367,6 +397,7 @@
       // Crea la inquilina con sus datos y abre el contrato con la habitación, fechas y el DNI adjunto
       var t = { id: uid(), creada: today(), nombre: x.nombre, apellidos: x.apellidos, doc: x.documento, nacimiento: x.nacimiento, telefono: x.telefono, email: x.email,
         universidad: uniToTenant(x.universidad), estudios: [x.universidad !== uniToTenant(x.universidad) ? x.universidad : '', x.estudios].filter(Boolean).join(' · '),
+        nacionalidad: x.pais, direccion: [x.provincia, x.pais].filter(Boolean).join(', '),
         emergNombre: x.familiar, emergTelefono: x.familiarTel, notas: ['Instagram: @' + ig, x.mensaje ? 'Mensaje: ' + x.mensaje : ''].filter(Boolean).join('\n') };
       G.inquilinas.push(t); save();
       setEstado('aceptada', { inquilinaId: t.id }).then(function () {

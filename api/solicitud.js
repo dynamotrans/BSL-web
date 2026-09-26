@@ -11,11 +11,11 @@ const hits = new Map(); // envíos por IP (por instancia)
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'POST') return send(res, 405, { error: 'Método no permitido' });
-  if (!blobReady()) return send(res, 503, { error: 'Ahora mismo no podemos recibir pre-reservas. Escríbenos por WhatsApp.' });
+  if (!blobReady()) return send(res, 503, { error: 'Ahora mismo no podemos recibir solicitudes. Escríbenos por WhatsApp.' });
 
   const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0] || 'x';
   const now = Date.now(), h = (hits.get(ip) || []).filter((t) => now - t < 3600e3);
-  if (h.length >= 6) return send(res, 429, { error: 'Has enviado varias pre-reservas seguidas. Espera un rato o escríbenos por WhatsApp.' });
+  if (h.length >= 6) return send(res, 429, { error: 'Has enviado varias solicitudes seguidas. Espera un rato o escríbenos por WhatsApp.' });
 
   const b = req.body || {};
   if (b.web) return send(res, 200, { ok: true }); // campo trampa para robots
@@ -23,7 +23,8 @@ export default async function handler(req, res) {
   const iso = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '');
   const d = {
     nombre: str(b.nombre, 80), apellidos: str(b.apellidos, 120), email: str(b.email, 120), telefono: str(b.telefono, 30),
-    documento: str(b.documento, 30), nacimiento: iso(b.nacimiento), universidad: str(b.universidad, 80), estudios: str(b.estudios, 120),
+    documento: str(b.documento, 30), tipoDoc: ['DNI', 'NIE', 'Pasaporte'].includes(b.tipoDoc) ? b.tipoDoc : 'DNI', nacimiento: iso(b.nacimiento),
+    pais: str(b.pais, 60), provincia: str(b.provincia, 80), universidad: str(b.universidad, 80), estudios: str(b.estudios, 120),
     instagram: str(b.instagram, 60).replace(/^@+/, ''), familiar: str(b.familiar, 100), familiarTel: str(b.familiarTel, 30), mensaje: str(b.mensaje, 1000),
     habitacionId: str(b.habitacionId, 20), habitacion: str(b.habitacion, 80), precio: Number(b.precio) || 0, gastos: Number(b.gastos) || 0,
     periodo: { titulo: str(b.periodo && b.periodo.titulo, 80), desde: iso(b.periodo && b.periodo.desde), hasta: iso(b.periodo && b.periodo.hasta) }
@@ -32,7 +33,9 @@ export default async function handler(req, res) {
   if (!d.nombre || !d.apellidos) faltan.push('nombre y apellidos');
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) faltan.push('email');
   if (d.telefono.replace(/\D/g, '').length < 9) faltan.push('teléfono');
-  if (!d.documento) faltan.push('DNI, NIE o pasaporte');
+  if (!d.documento) faltan.push('número de documento');
+  if (!d.nacimiento) faltan.push('fecha de nacimiento');
+  if (!d.pais || !d.provincia) faltan.push('país y provincia de procedencia');
   if (!d.instagram) faltan.push('Instagram');
   if (!d.universidad) faltan.push('universidad');
   if (!d.habitacionId || !d.periodo.desde || !d.periodo.hasta) faltan.push('habitación y fechas');

@@ -400,6 +400,12 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
 .upl small{color:var(--muted);font-size:.78rem}
 .sh-body textarea{font:inherit;font-size:1rem;color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;width:100%;resize:vertical}
 .hp{position:absolute!important;left:-9999px;width:1px;height:1px;opacity:0}
+.linkbtn{border:0;background:none;padding:0;font:inherit;color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer;text-align:left}
+dialog.sheet.legal{width:min(620px,calc(100% - 24px))}
+.legal-body{gap:10px!important;font-size:.92rem;line-height:1.55}
+.legal-body h4{margin:8px 0 0;font:700 .95rem/1.2 var(--sans);color:var(--ink)}
+.legal-body p{margin:0;color:var(--muted)}
+.legal-body b{color:var(--ink)}
 .nextbox{border-radius:14px;padding:16px;background:var(--tint);display:grid;gap:8px;font-size:.92rem}
 .nextbox ol{margin:0;padding-left:20px;display:grid;gap:4px;color:var(--ink)}
 .nextbox small{color:var(--muted)}
@@ -616,7 +622,7 @@ footer img{height:56px;width:auto}
   <div class="wrap">
     <a class="brand" href="#inicio" aria-label="BSL · Boutique Student Living, inicio"><img src="images/logo-mark.png" alt="BSL" width="360" height="240"></a>
     <span class="girls"><i></i>Solo chicas estudiantes</span>
-    <a class="top-res" href="#habitaciones" aria-label="Reservar habitación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 3v3M16 3v3M9 15l2 2 4-4"/></svg></a>
+    <a class="top-res" href="#habitaciones" aria-label="Solicitar plaza"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 3v3M16 3v3M9 15l2 2 4-4"/></svg></a>
     <nav class="nav" aria-label="Secciones">
       <a href="#casa">La casa</a>
       <a href="#fotos">Fotos</a>
@@ -624,7 +630,7 @@ footer img{height:56px;width:auto}
       <a href="#ubicacion">Ubicación</a>
       <a href="#condiciones">Condiciones</a>
     </nav>
-    <a class="btn" href="#habitaciones">Reservar</a>
+    <a class="btn" href="#habitaciones">Solicitar plaza</a>
   </div>
 </header>
 
@@ -865,7 +871,7 @@ footer img{height:56px;width:auto}
         <div class="head rv">
           <p class="eyebrow">Disponibilidad</p>
           <h2>Elige tu <em>habitación</em></h2>
-          <p>Mira qué habitaciones quedan libres para el próximo curso o durante este curso. Pulsa en la habitación que te guste y envía tu pre-reserva: la revisamos y te escribimos.</p>
+          <p>Mira qué habitaciones quedan libres para el próximo curso o durante este curso. Pulsa en la habitación que te guste y envía tu solicitud de admisión: la revisamos y te escribimos.</p>
         </div>
         <div class="filters">
           <div class="seg" role="radiogroup" aria-label="Periodo" id="r-seg"></div>
@@ -901,7 +907,7 @@ footer img{height:56px;width:auto}
 </button>
 <div class="fab" id="fab">
   <div class="fab-acts" id="fab-acts" role="menu" aria-label="Contacto">
-    <button type="button" class="fab-act a-res" role="menuitem" id="fab-res" data-label="Reservar habitación" aria-label="Reservar habitación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 3v3M16 3v3M9 15l2 2 4-4"/></svg></button>
+    <button type="button" class="fab-act a-res" role="menuitem" id="fab-res" data-label="Solicitar plaza" aria-label="Solicitar plaza"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 3v3M16 3v3M9 15l2 2 4-4"/></svg></button>
     <a class="fab-act a-call" role="menuitem" href="tel:+34672338922" data-label="Llamar" aria-label="Llamar"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.18z"/></svg></a>
     <a class="fab-act a-wa" role="menuitem" id="fab-wa" href="#habitaciones" data-label="WhatsApp" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.8-1.2.2-.6.2-1.1.1-1.2l-.4-.2Z"/></svg></a>
   </div>
@@ -922,9 +928,31 @@ footer img{height:56px;width:auto}
 
 
 
+<dialog class="sheet legal" id="legal-dlg" aria-labelledby="legal-t">
+  <div class="sh-head"><h3 id="legal-t">Condiciones de la solicitud</h3><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
+  <div class="sh-body legal-body">
+    <h4>1. Qué es esta solicitud</h4>
+    <p>Enviar este formulario es una <b>solicitud de admisión</b>, no una reserva. No tiene coste y no obliga a ninguna de las partes. BSL · Boutique Student Living revisa cada solicitud y decide libremente si ofrece plaza, según la disponibilidad y el perfil de convivencia de la casa.</p>
+    <h4>2. A quién va dirigida</h4>
+    <p>La vivienda es exclusivamente para <b>chicas estudiantes</b> (universidad, máster, otros centros docentes o prácticas). Si eres menor de 18 años, la solicitud debe hacerla o autorizarla tu madre, padre o tutor legal.</p>
+    <h4>3. Si se te ofrece plaza</h4>
+    <p>La plaza solo queda confirmada cuando se firma el contrato de arrendamiento de habitación y se abona la fianza, equivalente a una mensualidad de alquiler. Hasta entonces, la habitación puede ofrecerse a otras solicitantes.</p>
+    <h4>4. Veracidad de los datos</h4>
+    <p>Declaras que los datos y el documento que envías son ciertos y te pertenecen. Una información falsa es motivo para no admitir la solicitud o resolver el contrato.</p>
+    <h4>5. Protección de datos</h4>
+    <p><b>Responsable:</b> BSL · Boutique Student Living, Calle Canónigo, 41701 Dos Hermanas (Sevilla). Contacto: WhatsApp +34 672 338 922.</p>
+    <p><b>Finalidad:</b> estudiar tu solicitud de admisión, contactarte y, si se te ofrece plaza, preparar el contrato. El documento de identidad se usa solo para verificar tu identidad y redactar el contrato. Tu perfil de Instagram, si lo indicas, se consulta únicamente para conocer tu perfil como posible compañera de piso.</p>
+    <p><b>Base legal:</b> tu consentimiento y la aplicación de medidas precontractuales a petición tuya (art. 6.1.a y 6.1.b del Reglamento General de Protección de Datos).</p>
+    <p><b>Conservación:</b> si no se formaliza el contrato, tus datos y tu documento se eliminan en un plazo máximo de 6 meses. Si se formaliza, se conservan durante la relación contractual y los plazos legales posteriores.</p>
+    <p><b>Destinatarios:</b> no se ceden a terceros salvo obligación legal. Se guardan en servidores de proveedores tecnológicos con garantías adecuadas.</p>
+    <p><b>Derechos:</b> puedes pedir el acceso, rectificación, supresión, oposición, limitación y portabilidad de tus datos, o retirar tu consentimiento, escribiendo al contacto indicado. También puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es).</p>
+  </div>
+  <div class="sh-foot"><button class="btn" type="button" data-close>Entendido</button></div>
+</dialog>
+
 <dialog class="sheet" id="res-dlg" aria-labelledby="res-title">
   <form method="dialog" id="res-form" novalidate>
-    <div class="sh-head"><div><h3 id="res-title">Reservar habitación</h3><p class="sh-sub"><i></i>Solo chicas estudiantes</p></div><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
+    <div class="sh-head"><div><h3 id="res-title">Solicitud de admisión</h3><p class="sh-sub"><i></i>Solo chicas estudiantes</p></div><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
     <div class="sh-body">
       <ol class="rsteps" aria-label="Pasos de la reserva"><li data-s="1"><b>1</b>Habitación</li><li data-s="2"><b>2</b>Tus datos</li><li data-s="3"><b>3</b>Enviar</li></ol>
 
@@ -956,8 +984,11 @@ footer img{height:56px;width:auto}
           <label>Apellidos<input id="rd-apellidos" autocomplete="family-name"></label>
           <label>Email<input id="rd-email" type="email" autocomplete="email" inputmode="email"></label>
           <label>Teléfono<input id="rd-tel" type="tel" autocomplete="tel" inputmode="tel"></label>
-          <label>Nº de DNI / NIE / Pasaporte<input id="rd-doc" autocapitalize="characters"></label>
+          <label>Tipo de documento<select id="rd-tipodoc"><option>DNI</option><option>NIE</option><option>Pasaporte</option></select></label>
+          <label>Número de documento<input id="rd-doc" autocapitalize="characters"></label>
           <label>Fecha de nacimiento<input id="rd-nac" type="date"></label>
+          <label>País de procedencia<input id="rd-pais" value="España" autocomplete="country-name"></label>
+          <label>Provincia / ciudad<input id="rd-prov" placeholder="Ej.: Córdoba"></label>
           <label>Instagram<input id="rd-ig" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="@tuusuario"></label>
           <label class="full">Estudios / curso <small>(opcional)</small><input id="rd-estudios" placeholder="Ej.: 2º de ADE"></label>
           <label>Contacto familiar <small>(madre, padre…)</small><input id="rd-fam"></label>
@@ -970,7 +1001,7 @@ footer img{height:56px;width:auto}
         </div>
         <label class="full">Mensaje <small>(opcional)</small><textarea id="rd-msg" rows="3" placeholder="Fecha de llegada, dudas…"></textarea></label>
         <input type="text" id="rd-web" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
-        <label class="check"><input type="checkbox" id="rd-ok"> <span>He leído y acepto las <a href="#condiciones" data-close>condiciones de la reserva</a> y el tratamiento de mis datos para gestionarla.</span></label>
+        <label class="check"><input type="checkbox" id="rd-ok"> <span>He leído y acepto las <button type="button" class="linkbtn" data-legal>condiciones de la solicitud y la información sobre protección de datos</button>.</span></label>
         <p class="res-err" id="rd-err" hidden></p>
       </div>
 
@@ -978,10 +1009,10 @@ footer img{height:56px;width:auto}
         <div class="rsum" id="res-sum"></div>
         <div class="nextbox">
           <b>¿Qué pasa después?</b>
-          <ol><li>Revisamos tu pre-reserva y tu documento.</li><li>Te escribimos por WhatsApp o email para confirmarte la habitación.</li><li>Te enviamos el enlace para pagar la fianza (1 mes de alquiler) y el contrato.</li></ol>
-          <small>Enviar la pre-reserva no tiene coste ni te compromete a nada.</small>
+          <ol><li>Revisamos tu solicitud de admisión y tu perfil.</li><li>Si hay plaza para ti, te escribimos por WhatsApp o email.</li><li>Entonces te enviamos el contrato y los pasos para formalizarlo.</li></ol>
+          <small>Enviar la solicitud no es una reserva: no tiene coste ni te compromete a nada.</small>
         </div>
-        <div class="sent" id="res-sent" hidden><b>¡Pre-reserva enviada!</b><p>Gracias. La revisamos y te escribimos muy pronto a tu WhatsApp o email.</p></div>
+        <div class="sent" id="res-sent" hidden><b>¡Solicitud enviada!</b><p>Gracias. Revisamos tu solicitud de admisión y te escribimos muy pronto a tu WhatsApp o email.</p></div>
       </div>
 
       <div class="msg" id="res-msg" hidden></div>
@@ -1061,7 +1092,7 @@ footer img{height:56px;width:auto}
       return (RANK[a.st.kind] - RANK[b.st.kind]) || (a.r.num - b.r.num);
     }).map(function (x) {
       var r = x.r, st = x.st;
-      return '<article class="room-card st-' + st.kind + '" data-reserve="' + r.id + '" role="button" tabindex="0" aria-label="Reservar ' + esc(r.nombre) + '">' +
+      return '<article class="room-card st-' + st.kind + '" data-reserve="' + r.id + '" role="button" tabindex="0" aria-label="Solicitar plaza en ' + esc(r.nombre) + '">' +
         '<div class="rc-photo">' +
         (r.fotos && r.fotos.length ? '<img src="' + esc(r.fotos[0]) + '" alt="' + esc(r.nombre) + '" loading="lazy">' : '<div class="rc-ph"><span>Fotos próximamente</span></div>') +
         '<span class="badge"><i class="dot"></i>' + esc(st.text) + '</span></div>' +
@@ -1069,7 +1100,7 @@ footer img{height:56px;width:auto}
         '<p class="rc-meta">' + B.m2(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
         '<p class="rc-price"><b>' + esc(r.precio) + ' €</b>/mes + ' + esc(r.gastos) + ' € de gastos</p>' +
         '<p class="rc-inc">Agua, luz, fibra + wifi, limpieza y mantenimiento incluidos</p>' +
-        '<div class="rc-actions"><span class="btn sm">' + (st.kind === 'ocupada' ? 'Consultar' : 'Reservar') + '</span></div></div></article>';
+        '<div class="rc-actions"><span class="btn sm">' + (st.kind === 'ocupada' ? 'Ocupada' : 'Solicitar plaza') + '</span></div></div></article>';
     }).join('') || '<p>No hay habitaciones publicadas ahora mismo.</p>';
     document.getElementById('r-demo').hidden = !data.demo;
     grid.scrollLeft = 0;
@@ -1127,7 +1158,7 @@ footer img{height:56px;width:auto}
   }
   Array.prototype.forEach.call(document.querySelectorAll('dialog.sheet'), function (dlg) {
     dlg.addEventListener('click', function (e) { if (e.target === dlg || e.target.closest('[data-close]')) dlg.close(); });
-    dlg.addEventListener('close', function () { document.body.style.overflow = ''; });
+    dlg.addEventListener('close', function () { if (!document.querySelector('dialog.sheet[open]')) document.body.style.overflow = ''; });
   });
 
   /* Ficha */
@@ -1202,7 +1233,7 @@ footer img{height:56px;width:auto}
     var send = $r('res-send'), back = $r('res-back'), c = chosen(), busy = c && c.o.st.kind === 'ocupada';
     back.hidden = rstep === 1;
     send.disabled = (rstep === 1 && !!busy) || sending;
-    send.textContent = sent ? 'Cerrar' : rstep === 1 ? (busy ? 'No disponible en esas fechas' : 'Continuar') : rstep === 2 ? 'Continuar' : (sending ? 'Enviando…' : 'Enviar pre-reserva');
+    send.textContent = sent ? 'Cerrar' : rstep === 1 ? (busy ? 'No disponible en esas fechas' : 'Continuar') : rstep === 2 ? 'Continuar' : (sending ? 'Enviando…' : 'Enviar solicitud');
     back.hidden = rstep === 1 || sent;
   }
   function money(n) { return (+n || 0).toLocaleString('es-ES') + ' €'; }
@@ -1216,8 +1247,9 @@ footer img{height:56px;width:auto}
       '<dt>Estudiante</dt><dd>' + esc(val('rd-nombre') + ' ' + val('rd-apellidos')) + '<small>' + esc(val('res-perfil')) + '</small></dd>' +
       '<dt>Cada mes</dt><dd>' + money(r.precio) + ' + ' + money(r.gastos) + ' de gastos</dd></dl>' +
       '<dt>Contacto</dt><dd>' + esc(val('rd-tel')) + '<small>' + esc(val('rd-email')) + ' · @' + esc(val('rd-ig').replace(/^@+/, '')) + '</small></dd>' +
-      '<dt>Documento</dt><dd>' + esc(val('rd-doc')) + '<small>' + esc(docFile ? docFile.nombre : '') + '</small></dd></dl>' +
-      '<div class="rsum-total"><span>Fianza al confirmar<small>Equivalente a 1 mes de alquiler</small></span><b>' + money(fianza) + '</b></div>';
+      '<dt>Procedencia</dt><dd>' + esc([val('rd-prov'), val('rd-pais')].filter(Boolean).join(', ')) + '</dd>' +
+      '<dt>Documento</dt><dd>' + esc(val('rd-tipodoc') + ' ' + val('rd-doc')) + '<small>' + esc(docFile ? docFile.nombre : '') + '</small></dd></dl>' +
+      '';
     $r('res-sent').hidden = !sent;
     $r('res-sum').hidden = sent; resDlg.querySelector('.nextbox').hidden = sent;
   }
@@ -1247,14 +1279,15 @@ footer img{height:56px;width:auto}
     fr.readAsDataURL(f);
   });
   $r('res-back').addEventListener('click', function () { goStep(rstep - 1); });
+  resDlg.addEventListener('click', function (e) { if (e.target.closest('[data-legal]')) { e.preventDefault(); open(document.getElementById('legal-dlg')); } });
   function stepErr(id, msg, focus) { var p = $r(id); p.textContent = msg; p.hidden = !msg; if (focus) { focus.focus(); focus.scrollIntoView({ block: 'center', behavior: 'smooth' }); } }
   function checkDatos() {
-    var need = [['rd-nombre', 'el nombre'], ['rd-apellidos', 'los apellidos'], ['rd-email', 'el email'], ['rd-tel', 'el teléfono'], ['rd-doc', 'el número de DNI, NIE o pasaporte'], ['rd-ig', 'tu Instagram']];
+    var need = [['rd-nombre', 'el nombre'], ['rd-apellidos', 'los apellidos'], ['rd-email', 'el email'], ['rd-tel', 'el teléfono'], ['rd-doc', 'el número de documento'], ['rd-nac', 'la fecha de nacimiento'], ['rd-pais', 'el país de procedencia'], ['rd-prov', 'la provincia o ciudad'], ['rd-ig', 'tu Instagram']];
     for (var i = 0; i < need.length; i++) if (!val(need[i][0])) { stepErr('rd-err', 'Falta ' + need[i][1] + '.', $r(need[i][0])); return false; }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val('rd-email'))) { stepErr('rd-err', 'Revisa el email.', $r('rd-email')); return false; }
     if (val('rd-tel').replace(/\D/g, '').length < 9) { stepErr('rd-err', 'Revisa el teléfono.', $r('rd-tel')); return false; }
     if (!docFile) { stepErr('rd-err', 'Sube una foto o PDF de tu DNI o pasaporte.', $r('rd-file').parentNode); return false; }
-    if (!$r('rd-ok').checked) { stepErr('rd-err', 'Tienes que aceptar las condiciones para seguir.', $r('rd-ok')); return false; }
+    if (!$r('rd-ok').checked) { stepErr('rd-err', 'Tienes que aceptar las condiciones de la solicitud para seguir.', $r('rd-ok')); return false; }
     stepErr('rd-err', ''); return true;
   }
   document.getElementById('res-form').addEventListener('submit', function (e) {
@@ -1271,7 +1304,7 @@ footer img{height:56px;width:auto}
     sending = true; footer(); $r('res-msg').hidden = true;
     var body = {
       nombre: val('rd-nombre'), apellidos: val('rd-apellidos'), email: val('rd-email'), telefono: val('rd-tel'), documento: val('rd-doc'),
-      nacimiento: val('rd-nac'), universidad: val('res-perfil'), estudios: val('rd-estudios'), instagram: val('rd-ig'), familiar: val('rd-fam'),
+      nacimiento: val('rd-nac'), tipoDoc: val('rd-tipodoc'), pais: val('rd-pais'), provincia: val('rd-prov'), universidad: val('res-perfil'), estudios: val('rd-estudios'), instagram: val('rd-ig'), familiar: val('rd-fam'),
       familiarTel: val('rd-famtel'), mensaje: val('rd-msg'), web: val('rd-web'), acepta: $r('rd-ok').checked,
       habitacionId: c.room.id, habitacion: c.room.nombre, precio: c.room.precio, gastos: c.room.gastos,
       periodo: { titulo: c.o.title, desde: c.o.from, hasta: c.o.to }, doc: docFile.data, docNombre: docFile.nombre
@@ -1281,7 +1314,7 @@ footer img{height:56px;width:auto}
       .then(function () { sending = false; sent = true; drawSum(); footer(); resDlg.scrollTop = 0; setTimeout(downState, 30); },
         function (err) {
           sending = false; footer();
-          var m = $r('res-msg'), link = B.waLink('Hola, quiero hacer una pre-reserva de la habitación ' + c.room.nombre + ' (' + c.o.title + '). Soy ' + body.nombre + ' ' + body.apellidos + ', ' + body.universidad + '.');
+          var m = $r('res-msg'), link = B.waLink('Hola, quiero enviar una solicitud de admisión para la habitación ' + c.room.nombre + ' (' + c.o.title + '). Soy ' + body.nombre + ' ' + body.apellidos + ', ' + body.universidad + '.');
           m.innerHTML = esc(err.message) + (link ? ' <a href="' + esc(link) + '" target="_blank" rel="noopener">Escríbenos por WhatsApp</a>.' : '');
           m.hidden = false; m.scrollIntoView({ block: 'center', behavior: 'smooth' });
         });
