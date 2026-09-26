@@ -222,6 +222,18 @@
       if (!BSLStore.remote) return Promise.resolve(dataUrl);
       return post('/api/subir', { foto: dataUrl }, true).then(function (j) { return j.url; });
     },
+    // Pre-reservas enviadas desde la web
+    loadSolicitudes: function () {
+      if (!BSLStore.remote) return Promise.resolve([]);
+      return fetch('/api/solicitudes', { headers: { Authorization: 'Bearer ' + getToken() }, cache: 'no-store' }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (!r.ok) { var e = new Error(j.error || 'No se han podido cargar las pre-reservas'); e.status = r.status; throw e; }
+          return j.solicitudes || [];
+        });
+      });
+    },
+    updateSolicitud: function (data) { return post('/api/solicitudes', data, true).then(function (j) { return j.solicitud; }); },
+    crearPago: function (data) { return post('/api/pago', data, true).then(function (j) { return j.url; }); },
     // Documentos privados de los contratos (PDF o fotos)
     uploadDoc: function (dataUrl) {
       if (!BSLStore.remote) return Promise.resolve(dataUrl);

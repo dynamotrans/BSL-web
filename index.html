@@ -393,30 +393,23 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
 .rsum-total span{font-weight:700}
 .rsum-total small{display:block;font-weight:500;color:var(--muted);font-size:.8rem}
 .rsum-total b{font:400 1.9rem/1 var(--serif);white-space:nowrap}
-.paybox .rgrid2{grid-template-columns:1fr 1fr}
-.paybox{border-radius:14px;padding:16px;background:#f7f8fb;border:1px solid #e3e6ee;display:grid;gap:12px;color:#1a1f36}
-.pay-h{display:flex;justify-content:space-between;align-items:center}
-.pay-by{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:700;color:#635bff}
-.pay-by svg{width:14px;height:14px}
-.pay-methods{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.pm{display:grid;justify-items:center;gap:5px;padding:10px 4px;border-radius:10px;border:1.5px solid #e3e6ee;background:#fff;font:600 .72rem/1.1 var(--sans);color:#1a1f36;cursor:pointer}
-.pm svg{width:20px;height:20px}
-.pm b{height:20px;display:grid;place-items:center;font-size:.8rem}
-.pm[data-pm="apple"] b{font-size:.85rem;color:#000;font-weight:800}
-.pm[data-pm="google"] b{font-size:1rem;color:#4285f4}
-.pm[data-pm="bizum"] b{font-size:.78rem;color:#05c3dd;letter-spacing:-.02em}
-.pm.on{border-color:#635bff;box-shadow:0 0 0 3px rgba(99,91,255,.15)}
-.pay-fields{display:grid;gap:10px}
-.paybox label{display:grid;gap:5px;font-size:.8rem;font-weight:600;color:#6b7185}
-.fake{display:block;padding:11px 12px;border-radius:8px;border:1px solid #e3e6ee;background:#fff;color:#a3acb9;font-size:1rem;font-weight:500}
-.pay-alt{margin:0;font-size:.88rem;color:#3c4257;background:#fff;border:1px solid #e3e6ee;border-radius:8px;padding:12px}
-.pay-btn{width:100%;background:#635bff!important;color:#fff!important;box-shadow:none!important}
-.pay-btn:disabled{opacity:.55;cursor:not-allowed}
-.pay-note{margin:0;font-size:.8rem;color:#6b7185;text-align:center}
+.upl{display:grid;gap:6px;justify-items:start}
+.upl-t{font-size:.85rem;font-weight:600;color:var(--muted)}
+.upl-btn{display:inline-flex!important;align-items:center;gap:8px;padding:11px 16px;border-radius:999px;border:1.5px dashed var(--coral);color:var(--ink)!important;font-weight:700!important;font-size:.92rem!important;cursor:pointer;background:color-mix(in srgb,var(--coral) 6%,transparent)}
+.upl-btn svg{width:18px;height:18px;color:var(--accent)}
+.upl small{color:var(--muted);font-size:.78rem}
+.sh-body textarea{font:inherit;font-size:1rem;color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;width:100%;resize:vertical}
+.hp{position:absolute!important;left:-9999px;width:1px;height:1px;opacity:0}
+.nextbox{border-radius:14px;padding:16px;background:var(--tint);display:grid;gap:8px;font-size:.92rem}
+.nextbox ol{margin:0;padding-left:20px;display:grid;gap:4px;color:var(--ink)}
+.nextbox small{color:var(--muted)}
+.sent{border-radius:14px;padding:22px 18px;background:color-mix(in srgb,var(--free,#2c9a6a) 12%,var(--surface));text-align:center;display:grid;gap:6px}
+.sent b{font:400 1.6rem/1.1 var(--serif);color:#1f7a53}
+.sent p{margin:0;color:var(--ink)}
 .rfoot{display:flex;gap:10px}
 .sh-foot .rfoot .btn{flex:1;width:auto;min-width:0}
 .sh-foot .rfoot #res-back{flex:0 0 auto;padding-inline:16px}
-@media (max-width:420px){.rgrid2{grid-template-columns:minmax(0,1fr)}.pay-methods{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:420px){.rgrid2{grid-template-columns:minmax(0,1fr)}}
 dialog.sheet{overflow-x:hidden;border:0;padding:0;border-radius:18px;background:var(--surface);color:var(--ink);width:min(560px,calc(100% - 24px));max-width:none;max-height:calc(100% - 32px);max-height:calc(100dvh - 32px);margin:auto;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;box-shadow:0 40px 80px -30px rgba(0,0,0,.5)}
 .res-info{display:grid;gap:12px}
 .res-info .rd-photos{margin:0;border-radius:12px}
@@ -872,7 +865,7 @@ footer img{height:56px;width:auto}
         <div class="head rv">
           <p class="eyebrow">Disponibilidad</p>
           <h2>Elige tu <em>habitación</em></h2>
-          <p>Mira qué habitaciones quedan libres para el próximo curso o durante este curso. Pulsa en reservar y te preparamos el mensaje de WhatsApp.</p>
+          <p>Mira qué habitaciones quedan libres para el próximo curso o durante este curso. Pulsa en la habitación que te guste y envía tu pre-reserva: la revisamos y te escribimos.</p>
         </div>
         <div class="filters">
           <div class="seg" role="radiogroup" aria-label="Periodo" id="r-seg"></div>
@@ -933,7 +926,7 @@ footer img{height:56px;width:auto}
   <form method="dialog" id="res-form" novalidate>
     <div class="sh-head"><div><h3 id="res-title">Reservar habitación</h3><p class="sh-sub"><i></i>Solo chicas estudiantes</p></div><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
     <div class="sh-body">
-      <ol class="rsteps" aria-label="Pasos de la reserva"><li data-s="1"><b>1</b>Habitación</li><li data-s="2"><b>2</b>Tus datos</li><li data-s="3"><b>3</b>Pago</li></ol>
+      <ol class="rsteps" aria-label="Pasos de la reserva"><li data-s="1"><b>1</b>Habitación</li><li data-s="2"><b>2</b>Tus datos</li><li data-s="3"><b>3</b>Enviar</li></ol>
 
       <div class="rstep" data-step="1">
       <label>Habitación<select id="res-room"></select></label>
@@ -963,34 +956,32 @@ footer img{height:56px;width:auto}
           <label>Apellidos<input id="rd-apellidos" autocomplete="family-name"></label>
           <label>Email<input id="rd-email" type="email" autocomplete="email" inputmode="email"></label>
           <label>Teléfono<input id="rd-tel" type="tel" autocomplete="tel" inputmode="tel"></label>
-          <label>DNI / NIE / Pasaporte<input id="rd-doc" autocapitalize="characters"></label>
+          <label>Nº de DNI / NIE / Pasaporte<input id="rd-doc" autocapitalize="characters"></label>
           <label>Fecha de nacimiento<input id="rd-nac" type="date"></label>
+          <label>Instagram<input id="rd-ig" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="@tuusuario"></label>
           <label class="full">Estudios / curso <small>(opcional)</small><input id="rd-estudios" placeholder="Ej.: 2º de ADE"></label>
           <label>Contacto familiar <small>(madre, padre…)</small><input id="rd-fam"></label>
           <label>Teléfono familiar<input id="rd-famtel" type="tel" inputmode="tel"></label>
         </div>
+        <div class="upl">
+          <span class="upl-t">Foto o PDF del DNI / pasaporte</span>
+          <label class="upl-btn"><input type="file" id="rd-file" accept="image/*,application/pdf" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg><span id="rd-file-t">Subir documento</span></label>
+          <small>Solo lo verá BSL para preparar el contrato. Máximo 3 MB.</small>
+        </div>
+        <label class="full">Mensaje <small>(opcional)</small><textarea id="rd-msg" rows="3" placeholder="Fecha de llegada, dudas…"></textarea></label>
+        <input type="text" id="rd-web" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
         <label class="check"><input type="checkbox" id="rd-ok"> <span>He leído y acepto las <a href="#condiciones" data-close>condiciones de la reserva</a> y el tratamiento de mis datos para gestionarla.</span></label>
         <p class="res-err" id="rd-err" hidden></p>
       </div>
 
       <div class="rstep" data-step="3" hidden>
         <div class="rsum" id="res-sum"></div>
-        <div class="paybox">
-          <div class="pay-h"><b>Pago seguro</b><span class="pay-by"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>con Stripe</span></div>
-          <div class="pay-methods" role="radiogroup" aria-label="Forma de pago">
-            <button type="button" class="pm on" data-pm="card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/></svg>Tarjeta</button>
-            <button type="button" class="pm" data-pm="apple"><b>Pay</b>Apple Pay</button>
-            <button type="button" class="pm" data-pm="google"><b>G</b>Google Pay</button>
-            <button type="button" class="pm" data-pm="bizum"><b>bizum</b>Bizum</button>
-          </div>
-          <div class="pay-fields" id="pay-card">
-            <label>Número de tarjeta<span class="fake">1234 1234 1234 1234</span></label>
-            <div class="rgrid2"><label>Caducidad<span class="fake">MM / AA</span></label><label>CVC<span class="fake">123</span></label></div>
-          </div>
-          <p class="pay-alt" id="pay-alt" hidden></p>
-          <button type="button" class="btn pay-btn" id="res-pay" disabled></button>
-          <p class="pay-note">El pago online se activa en breve. De momento, envíanos la reserva por WhatsApp y te confirmamos la habitación.</p>
+        <div class="nextbox">
+          <b>¿Qué pasa después?</b>
+          <ol><li>Revisamos tu pre-reserva y tu documento.</li><li>Te escribimos por WhatsApp o email para confirmarte la habitación.</li><li>Te enviamos el enlace para pagar la fianza (1 mes de alquiler) y el contrato.</li></ol>
+          <small>Enviar la pre-reserva no tiene coste ni te compromete a nada.</small>
         </div>
+        <div class="sent" id="res-sent" hidden><b>¡Pre-reserva enviada!</b><p>Gracias. La revisamos y te escribimos muy pronto a tu WhatsApp o email.</p></div>
       </div>
 
       <div class="msg" id="res-msg" hidden></div>
@@ -1179,7 +1170,7 @@ footer img{height:56px;width:auto}
   function showReserve(id) {
     resRoom.innerHTML = active().map(function (r) { return '<option value="' + r.id + '">' + esc(r.nombre) + ' · ' + esc(r.precio) + ' €/mes</option>'; }).join('');
     if (id) resRoom.value = id;
-    rstep = 1;
+    rstep = 1; sent = false; sending = false;
     drawOpts(view);
     goStep(1);
     open(resDlg);
@@ -1210,9 +1201,9 @@ footer img{height:56px;width:auto}
   function footer() {
     var send = $r('res-send'), back = $r('res-back'), c = chosen(), busy = c && c.o.st.kind === 'ocupada';
     back.hidden = rstep === 1;
-    send.classList.toggle('wa-btn', rstep === 3);
-    send.disabled = rstep === 1 && !!busy;
-    send.textContent = rstep === 1 ? (busy ? 'No disponible en esas fechas' : 'Continuar') : rstep === 2 ? 'Continuar al pago' : 'Enviar por WhatsApp';
+    send.disabled = (rstep === 1 && !!busy) || sending;
+    send.textContent = sent ? 'Cerrar' : rstep === 1 ? (busy ? 'No disponible en esas fechas' : 'Continuar') : rstep === 2 ? 'Continuar' : (sending ? 'Enviando…' : 'Enviar pre-reserva');
+    back.hidden = rstep === 1 || sent;
   }
   function money(n) { return (+n || 0).toLocaleString('es-ES') + ' €'; }
   function drawSum() {
@@ -1224,24 +1215,45 @@ footer img{height:56px;width:auto}
       '<dt>Periodo</dt><dd>' + esc(c.o.title) + '<small>Del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + '</small></dd>' +
       '<dt>Estudiante</dt><dd>' + esc(val('rd-nombre') + ' ' + val('rd-apellidos')) + '<small>' + esc(val('res-perfil')) + '</small></dd>' +
       '<dt>Cada mes</dt><dd>' + money(r.precio) + ' + ' + money(r.gastos) + ' de gastos</dd></dl>' +
-      '<div class="rsum-total"><span>A pagar ahora<small>Fianza, equivalente a 1 mes de alquiler</small></span><b>' + money(fianza) + '</b></div>';
-    $r('res-pay').textContent = 'Pagar ' + money(fianza);
-    drawPm();
+      '<dt>Contacto</dt><dd>' + esc(val('rd-tel')) + '<small>' + esc(val('rd-email')) + ' · @' + esc(val('rd-ig').replace(/^@+/, '')) + '</small></dd>' +
+      '<dt>Documento</dt><dd>' + esc(val('rd-doc')) + '<small>' + esc(docFile ? docFile.nombre : '') + '</small></dd></dl>' +
+      '<div class="rsum-total"><span>Fianza al confirmar<small>Equivalente a 1 mes de alquiler</small></span><b>' + money(fianza) + '</b></div>';
+    $r('res-sent').hidden = !sent;
+    $r('res-sum').hidden = sent; resDlg.querySelector('.nextbox').hidden = sent;
   }
-  function drawPm() {
-    Array.prototype.forEach.call(resDlg.querySelectorAll('.pm'), function (b) { b.classList.toggle('on', b.getAttribute('data-pm') === pm); });
-    $r('pay-card').hidden = pm !== 'card';
-    var alt = { apple: 'Pagarás con Apple Pay desde tu iPhone, sin escribir la tarjeta.', google: 'Pagarás con Google Pay desde tu móvil, sin escribir la tarjeta.', bizum: 'Pagarás con Bizum: solo necesitas tu móvil y la app de tu banco.' }[pm];
-    $r('pay-alt').hidden = !alt; $r('pay-alt').textContent = alt || '';
-  }
-  resDlg.querySelector('.pay-methods').addEventListener('click', function (e) { var b = e.target.closest('.pm'); if (b) { pm = b.getAttribute('data-pm'); drawPm(); } });
+  // Documento (DNI / pasaporte): las fotos se reducen para que ocupen poco
+  var docFile = null, sending = false, sent = false;
+  $r('rd-file').addEventListener('change', function () {
+    var f = this.files && this.files[0]; this.value = ''; if (!f) return;
+    var t = $r('rd-file-t'), isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+    if (!isPdf && !/^image\//.test(f.type)) { stepErr('rd-err', 'El documento tiene que ser una foto o un PDF.'); return; }
+    t.textContent = 'Preparando…';
+    var fr = new FileReader();
+    fr.onload = function () {
+      if (isPdf) {
+        if (f.size > 3 * 1024 * 1024) { docFile = null; t.textContent = 'Subir documento'; stepErr('rd-err', 'El PDF pesa más de 3 MB.'); return; }
+        docFile = { data: fr.result.replace(/^data:[^;]*;/, 'data:application/pdf;'), nombre: f.name }; t.textContent = '✓ ' + f.name; stepErr('rd-err', ''); return;
+      }
+      var img = new Image();
+      img.onload = function () {
+        var k = Math.min(1, 2000 / Math.max(img.width, img.height)), cv = document.createElement('canvas');
+        cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        docFile = { data: cv.toDataURL('image/jpeg', 0.82), nombre: f.name }; t.textContent = '✓ ' + f.name; stepErr('rd-err', '');
+      };
+      img.onerror = function () { docFile = null; t.textContent = 'Subir documento'; stepErr('rd-err', 'No se puede leer esa foto. Prueba con otra o con un PDF.'); };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(f);
+  });
   $r('res-back').addEventListener('click', function () { goStep(rstep - 1); });
   function stepErr(id, msg, focus) { var p = $r(id); p.textContent = msg; p.hidden = !msg; if (focus) { focus.focus(); focus.scrollIntoView({ block: 'center', behavior: 'smooth' }); } }
   function checkDatos() {
-    var need = [['rd-nombre', 'el nombre'], ['rd-apellidos', 'los apellidos'], ['rd-email', 'el email'], ['rd-tel', 'el teléfono'], ['rd-doc', 'el DNI, NIE o pasaporte']];
+    var need = [['rd-nombre', 'el nombre'], ['rd-apellidos', 'los apellidos'], ['rd-email', 'el email'], ['rd-tel', 'el teléfono'], ['rd-doc', 'el número de DNI, NIE o pasaporte'], ['rd-ig', 'tu Instagram']];
     for (var i = 0; i < need.length; i++) if (!val(need[i][0])) { stepErr('rd-err', 'Falta ' + need[i][1] + '.', $r(need[i][0])); return false; }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val('rd-email'))) { stepErr('rd-err', 'Revisa el email.', $r('rd-email')); return false; }
     if (val('rd-tel').replace(/\D/g, '').length < 9) { stepErr('rd-err', 'Revisa el teléfono.', $r('rd-tel')); return false; }
+    if (!docFile) { stepErr('rd-err', 'Sube una foto o PDF de tu DNI o pasaporte.', $r('rd-file').parentNode); return false; }
     if (!$r('rd-ok').checked) { stepErr('rd-err', 'Tienes que aceptar las condiciones para seguir.', $r('rd-ok')); return false; }
     stepErr('rd-err', ''); return true;
   }
@@ -1254,16 +1266,25 @@ footer img{height:56px;width:auto}
       pErr.hidden = true; return goStep(2);
     }
     if (rstep === 2) { if (checkDatos()) goStep(3); return; }
-    var fam = val('rd-fam') ? '\nContacto familiar: ' + val('rd-fam') + (val('rd-famtel') ? ' (' + val('rd-famtel') + ')' : '') : '';
-    var text = 'Hola, quiero reservar la habitación ' + c.room.nombre + ' de BSL · Boutique Student Living.\n' +
-      'Periodo: ' + c.o.title + ', del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + '.\n' +
-      'Precio: ' + c.room.precio + ' €/mes + ' + c.room.gastos + ' € de gastos (agua, luz, internet fibra + wifi, limpieza semanal de zonas comunes, mantenimiento y reparaciones).\nFianza: equivalente a 1 mes de alquiler.\n\n' +
-      'Mis datos:\n' + val('rd-nombre') + ' ' + val('rd-apellidos') + '\n' + 'Perfil de estudiante: ' + val('res-perfil') + (val('rd-estudios') ? ' · ' + val('rd-estudios') : '') + '\n' +
-      'Email: ' + val('rd-email') + '\nTeléfono: ' + val('rd-tel') + '\nDocumento: ' + val('rd-doc') + (val('rd-nac') ? '\nFecha de nacimiento: ' + B.fmt(val('rd-nac'), true) : '') + fam;
-    var link = B.waLink(text);
-    if (link) { window.location.href = link; return; }
-    $r('res-pending').hidden = false;
-    var m = $r('res-msg'); m.textContent = text; m.hidden = false;
+    if (sent) { resDlg.close(); return; }
+    if (sending) return;
+    sending = true; footer(); $r('res-msg').hidden = true;
+    var body = {
+      nombre: val('rd-nombre'), apellidos: val('rd-apellidos'), email: val('rd-email'), telefono: val('rd-tel'), documento: val('rd-doc'),
+      nacimiento: val('rd-nac'), universidad: val('res-perfil'), estudios: val('rd-estudios'), instagram: val('rd-ig'), familiar: val('rd-fam'),
+      familiarTel: val('rd-famtel'), mensaje: val('rd-msg'), web: val('rd-web'), acepta: $r('rd-ok').checked,
+      habitacionId: c.room.id, habitacion: c.room.nombre, precio: c.room.precio, gastos: c.room.gastos,
+      periodo: { titulo: c.o.title, desde: c.o.from, hasta: c.o.to }, doc: docFile.data, docNombre: docFile.nombre
+    };
+    fetch('/api/solicitud', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) throw new Error(j.error || 'No se ha podido enviar.'); return j; }); })
+      .then(function () { sending = false; sent = true; drawSum(); footer(); resDlg.scrollTop = 0; setTimeout(downState, 30); },
+        function (err) {
+          sending = false; footer();
+          var m = $r('res-msg'), link = B.waLink('Hola, quiero hacer una pre-reserva de la habitación ' + c.room.nombre + ' (' + c.o.title + '). Soy ' + body.nombre + ' ' + body.apellidos + ', ' + body.universidad + '.');
+          m.innerHTML = esc(err.message) + (link ? ' <a href="' + esc(link) + '" target="_blank" rel="noopener">Escríbenos por WhatsApp</a>.' : '');
+          m.hidden = false; m.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        });
   });
 
   document.addEventListener('click', function (e) {
