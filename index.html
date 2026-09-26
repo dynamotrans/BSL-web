@@ -159,6 +159,7 @@ a,button,select,summary,[role=button]{cursor:var(--cursor),pointer}
 /* ---------- Menos de la mitad ---------- */
 .half{padding-block:40px 8px}
 .half-in{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:center}
+.half-in.solo{grid-template-columns:1fr}
 .half-txt h2{font-size:clamp(2.2rem,4.6vw,3.4rem);margin:12px 0}
 .half-txt h2 em{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.05em}
 .half-txt p{margin:0;color:var(--muted);font-size:1.05rem}
@@ -794,15 +795,9 @@ footer img{height:56px;width:auto}
   </section>
 
   <section class="half" aria-labelledby="half-t">
-    <div class="wrap half-in">
+    <div class="wrap half-in solo">
       <div class="half-txt rv">
         <h2 id="half-t">Una casa cuidada, <em>solo para chicas estudiantes</em>, con todo incluido.</h2>
-      </div>
-      <div class="pcomp rv">
-        <div class="pc-old"><span>Residencia de estudiantes<small class="pc-ori">orientativo</small></span><em class="pc-op"><s>desde 800 €</s><small>/mes</small></em></div>
-        <div class="pc-new"><span>Alquiler de habitación en BSL, desde</span><b>340 €<small>/mes</small></b></div>
-        <p class="pc-note">Según habitación · + 60 € de gastos, <strong>todo incluido</strong>. No somos una residencia: es <strong>tu casa compartida</strong>.</p>
-        <a class="half-link" href="#comparativa">Ver la comparativa completa →</a>
       </div>
     </div>
   </section>
