@@ -12,7 +12,7 @@ function withTimeout(p, ms) {
 export async function avisar(s) {
   const edad = s.nacimiento ? Math.floor((Date.now() - Date.parse(s.nacimiento)) / 31557600000) : null;
   const resumen = `${s.nombre} ${s.apellidos}${edad ? ` (${edad} años)` : ''} · ${s.universidad} · ${[s.provincia, s.pais].filter(Boolean).join(', ')}`;
-  const panel = 'https://bsl-web.vercel.app/admin.html';
+  const panel = 'https://bslhome.es/admin.html';
   const tareas = [];
 
   if (env.AVISO_WHATSAPP_TEL && env.AVISO_WHATSAPP_KEY) {
