@@ -427,12 +427,12 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
 /* Campos del formulario: todos iguales, compactos y con el texto centrado en altura */
 .sh-body input:not([type=checkbox]):not([type=radio]):not([type=file]),.sh-body select,.sh-body textarea{
   -webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;width:100%;min-width:0;margin:0;
-  font:inherit;font-size:16px;font-weight:500;line-height:1.25;color:var(--ink);background-color:var(--ground);
-  border:1px solid var(--line);border-radius:10px;padding:0 12px;height:44px;outline:none;box-shadow:none;
+  font-family:inherit;font-size:16px;font-weight:500;line-height:normal;color:var(--ink);background-color:var(--ground);
+  border:1px solid var(--line);border-radius:10px;padding:11px 12px;height:auto;min-height:44px;outline:none;box-shadow:none;
   caret-color:var(--coral);transition:border-color .2s ease,box-shadow .2s ease}
-.sh-body textarea{height:auto;min-height:76px;padding:10px 12px;resize:vertical}
+.sh-body textarea{min-height:76px;resize:vertical}
 .sh-body select{padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235b6f6d' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
-.sh-body input[type=date]{line-height:44px;text-align:left}
+.sh-body input[type=date]{text-align:left}
 .sh-body input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
 .sh-body input:focus,.sh-body select:focus,.sh-body textarea:focus{border-color:var(--coral);box-shadow:0 0 0 3px color-mix(in srgb,var(--coral) 22%,transparent)}
 .sh-body input::placeholder,.sh-body textarea::placeholder{color:#9aa7a6}
