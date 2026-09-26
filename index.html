@@ -362,10 +362,7 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
 .demo-note{margin:22px 0 0;font-size:.85rem;color:var(--muted)}
 .demo-note a{color:var(--accent);font-weight:600}
 
-dialog.sheet{border:0;padding:0;border-radius:18px;background:var(--surface);color:var(--ink);width:min(560px,calc(100% - 24px));max-width:none;max-height:calc(100% - 32px);max-height:calc(100dvh - 32px);margin:auto;overflow:hidden;box-shadow:0 40px 80px -30px rgba(0,0,0,.5)}
-dialog.sheet[open]{display:flex;flex-direction:column}
-dialog.sheet form{display:flex;flex-direction:column;min-height:0;flex:1}
-dialog.sheet .sh-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+dialog.sheet{border:0;padding:0;border-radius:18px;background:var(--surface);color:var(--ink);width:min(560px,calc(100% - 24px));max-width:none;max-height:calc(100% - 32px);max-height:calc(100dvh - 32px);margin:auto;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;box-shadow:0 40px 80px -30px rgba(0,0,0,.5)}
 .res-info{display:grid;gap:12px}
 .res-info .rd-photos{margin:0;border-radius:12px}
 .res-info .rd-photos img{aspect-ratio:16/10;max-height:300px}
@@ -1018,7 +1015,7 @@ footer img{height:56px;width:auto}
   function open(dlg) {
     if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
     document.body.style.overflow = 'hidden';
-    var b = dlg.querySelector('.sh-body'); if (b) b.scrollTop = 0;
+    dlg.scrollTop = 0;
   }
   Array.prototype.forEach.call(document.querySelectorAll('dialog.sheet'), function (dlg) {
     dlg.addEventListener('click', function (e) { if (e.target === dlg || e.target.closest('[data-close]')) dlg.close(); });
