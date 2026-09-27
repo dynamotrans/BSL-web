@@ -526,6 +526,18 @@ dialog.sheet::backdrop{background:rgba(9,28,30,.7)}
 .wa-btn{background:#25d366;color:#fff;box-shadow:0 10px 24px -12px rgba(37,211,102,.8)}
 .rd-photos{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:-20px -20px 0;padding:0}
 .rd-photos img{flex:0 0 100%;width:100%;aspect-ratio:4/3;object-fit:cover;scroll-snap-align:start}
+.pc{position:relative;width:100%;height:100%}
+.pc-track{display:flex;width:100%;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.pc-track::-webkit-scrollbar{display:none}
+.pc-track img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:start}
+.rd-photos .pc-track img{aspect-ratio:16/10;height:auto;max-height:300px}
+.pc-nav{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.88);color:#0f3033;font:700 1.3rem/1 var(--sans);display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.25);z-index:2}
+.pc-nav.prev{left:8px}.pc-nav.next{right:8px}
+.pc-dots{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:6px;pointer-events:none;z-index:2}
+.pc-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 3px rgba(0,0,0,.4)}
+.pc-dots i.on{background:#fff}
+.rc-photo .pc-dots{bottom:12px}
+.room-card:hover .rc-photo .pc img{transform:none}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
 .chips li{background:var(--tint);border-radius:999px;padding:7px 12px;font-size:.85rem}
 .rd-avail{display:grid;gap:8px;margin:0;padding:0;list-style:none}
@@ -837,8 +849,8 @@ footer img{height:56px;width:auto}
     </div>
     <div class="track" id="track">
       <figure><button type="button"><img src="images/pasillo-azulejos.jpg" alt="Pasillo de entrada con azulejo sevillano" width="900" height="1598" loading="lazy"></button><figcaption><b>La entrada</b>Azulejo y molduras originales</figcaption></figure>
-      <figure><button type="button"><img src="images/habitacion-cama-140.jpg" alt="Habitación con estantería, escritorio y silla ergonómica" width="900" height="1598" loading="lazy"></button><figcaption><b>Zona de estudio</b>Escritorio, silla ergonómica y TV</figcaption></figure>
-      <figure><button type="button"><img src="images/habitacion-escritorio.jpg" alt="Habitación con cama de 140 cm y armario con espejo" width="900" height="1598" loading="lazy"></button><figcaption><b>Cama de 140 cm</b>Colchón nuevo y ropa de cama incluida</figcaption></figure>
+      <figure><button type="button"><img src="images/habitacion-escritorio.jpg" alt="Habitación con estantería, escritorio y silla ergonómica" width="900" height="1598" loading="lazy"></button><figcaption><b>Zona de estudio</b>Escritorio, silla ergonómica y TV</figcaption></figure>
+      <figure><button type="button"><img src="images/habitacion-cama-140.jpg" alt="Habitación con cama de 140 cm y armario con espejo" width="900" height="1598" loading="lazy"></button><figcaption><b>Cama de 140 cm</b>Colchón nuevo y ropa de cama incluida</figcaption></figure>
       <figure><button type="button"><img src="images/habitacion-completa.jpg" alt="Habitación con armario, escritorio junto a la ventana y televisor" width="900" height="1598" loading="lazy"></button><figcaption><b>Habitación completa</b>Armario de tres puertas y luz natural</figcaption></figure>
       <figure><button type="button"><img src="images/salon-patio.jpg" alt="Salón comedor con salida al patio" width="900" height="1600" loading="lazy"></button><figcaption><b>Salón comedor</b>Con Smart TV de 50″ y salida al patio</figcaption></figure>
       <figure><button type="button"><img src="images/cocina-planta-baja.jpg" alt="Cocina de la planta baja" width="900" height="1600" loading="lazy"></button><figcaption><b>Cocina planta baja</b>Horno, microondas, lavavajillas y lavadora</figcaption></figure>
@@ -1128,6 +1140,29 @@ footer img{height:56px;width:auto}
   }
   var grid = document.getElementById('rooms-grid'), seg = document.getElementById('r-seg');
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  // Fotos de habitación: una sola se ve tal cual; con varias, carrusel deslizable con puntos y flechas.
+  function photoCar(fotos, name) {
+    var imgs = fotos.map(function (f, i) { return '<img src="' + esc(f) + '" alt="' + esc(name) + (fotos.length > 1 ? ' · foto ' + (i + 1) : '') + '" loading="lazy">'; }).join('');
+    if (fotos.length < 2) return imgs;
+    return '<div class="pc"><div class="pc-track">' + imgs + '</div>' +
+      '<button type="button" class="pc-nav prev" data-pc="-1" aria-label="Foto anterior">‹</button><button type="button" class="pc-nav next" data-pc="1" aria-label="Foto siguiente">›</button>' +
+      '<span class="pc-dots">' + fotos.map(function (_, i) { return '<i' + (i ? '' : ' class="on"') + '></i>'; }).join('') + '</span></div>';
+  }
+  if (!window.__pcBound) {
+    window.__pcBound = true;
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-pc]'); if (!b) return;
+      e.preventDefault(); e.stopPropagation();
+      var t = b.parentNode.querySelector('.pc-track'), w = t.clientWidth, n = t.children.length;
+      var i = Math.round(t.scrollLeft / w) + (+b.getAttribute('data-pc'));
+      t.scrollTo({ left: ((i % n) + n) % n * w, behavior: 'smooth' });
+    }, true);
+    document.addEventListener('scroll', function (e) {
+      var t = e.target; if (!t.classList || !t.classList.contains('pc-track')) return;
+      var i = Math.round(t.scrollLeft / t.clientWidth);
+      t.parentNode.querySelectorAll('.pc-dots i').forEach(function (d, k) { d.classList.toggle('on', k === i); });
+    }, true);
+  }
   function active() { return data.rooms.filter(function (r) { return r.activa; }).sort(function (a, b) { return a.num - b.num; }); }
   function byId(id) { return data.rooms.filter(function (r) { return r.id === id; })[0]; }
   function opts(room) { return B.options(room, now, data.ajustes); }
@@ -1170,7 +1205,7 @@ footer img{height:56px;width:auto}
       var r = x.r, st = x.st;
       return '<article class="room-card st-' + st.kind + '" data-reserve="' + r.id + '" role="button" tabindex="0" aria-label="Solicitar plaza en ' + esc(r.nombre) + '">' +
         '<div class="rc-photo">' +
-        (r.fotos && r.fotos.length ? '<img src="' + esc(r.fotos[0]) + '" alt="' + esc(r.nombre) + '" loading="lazy">' : '<div class="rc-ph"><span>Fotos próximamente</span></div>') +
+        (r.fotos && r.fotos.length ? photoCar(r.fotos, r.nombre) : '<div class="rc-ph"><span>Fotos próximamente</span></div>') +
         '<span class="badge"><i class="dot"></i>' + esc(st.text) + '</span></div>' +
         '<div class="rc-body"><p class="rc-num">Habitación</p><h3>' + esc(r.nombre) + '</h3>' +
         '<p class="rc-meta">' + B.m2(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
@@ -1249,9 +1284,8 @@ footer img{height:56px;width:auto}
   function drawOpts(pref) {
     var room = byId(resRoom.value); if (!room) return;
     document.getElementById('res-gastos').innerHTML = gastosBox(room);
-    var fotos = (room.fotos || []).map(function (f) { return '<img src="' + esc(f) + '" alt="' + esc(room.nombre) + '" loading="lazy">'; }).join('');
     document.getElementById('res-info').innerHTML =
-      (fotos ? '<div class="rd-photos">' + fotos + '</div>' : '') +
+      (room.fotos && room.fotos.length ? '<div class="rd-photos">' + photoCar(room.fotos, room.nombre) + '</div>' : '') +
       '<p class="rc-price" style="margin:0"><b>' + esc(room.precio) + ' €</b>/mes + ' + esc(room.gastos) + ' € de gastos · ' + B.m2(room.m2) + ' m² · cama ' + esc(room.cama) + ' cm</p>' +
       (room.descripcion ? '<p style="margin:0">' + esc(room.descripcion) + '</p>' : '') +
       (room.equipamiento && room.equipamiento.length ? '<ul class="chips">' + room.equipamiento.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '');

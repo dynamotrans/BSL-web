@@ -337,5 +337,14 @@ export default [
         "metodo": "Otro"
       }
     ]
+  },
+  {
+    id: '2026-09-27-1',
+    fecha: '2026-09-27',
+    resumen: 'Fotos: Azahar sin foto; Jazmín con sus dos fotos (cama y escritorio)',
+    ops: [
+      { tipo: 'habitacion', num: 1, set: { fotos: [] } },
+      { tipo: 'habitacion', num: 2, set: { fotos: ['images/habitacion-cama-140.jpg', 'images/habitacion-escritorio.jpg'] } }
+    ]
   }
 ];

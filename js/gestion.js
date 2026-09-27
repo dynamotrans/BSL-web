@@ -875,7 +875,7 @@
       default: return 'Operación desconocida: ' + op.tipo;
     }
   }
-  var ROOM_KEYS = ['nombre', 'precio', 'gastos', 'm2', 'cama', 'descripcion', 'activa', 'equipamiento'];
+  var ROOM_KEYS = ['nombre', 'precio', 'gastos', 'm2', 'cama', 'descripcion', 'activa', 'equipamiento', 'fotos'];
   function runOp(op) {
     var t, r, c;
     switch (op.tipo) {
