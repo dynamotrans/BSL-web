@@ -1,0 +1,5 @@
+{
+  "redirects": [
+    { "source": "/:path*", "has": [{ "type": "host", "value": "bsl-web.vercel.app" }], "destination": "https://www.bslhome.es/:path*", "permanent": true }
+  ]
+}
