@@ -1331,7 +1331,7 @@ footer img{height:56px;width:auto}
   function cardState(r) {
     if (view === 'resto') {
       var o = opt(r, 'resto');
-      if (!o) return { kind: 'ocupada', text: 'Ocupada este curso' };
+      if (!o) return { kind: 'ocupada', text: 'Ocupada este curso ' + inCourse + '/' + (inCourse + 1) };
       if (o.from === now) return { kind: 'libre', text: o.short };
       // Queda libre más adelante en este curso (p. ej. termina un contrato el 30 abr)
       return { kind: 'parcial', text: 'Libre el ' + B.fmt(o.from, true) };
