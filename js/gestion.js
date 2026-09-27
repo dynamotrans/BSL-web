@@ -247,9 +247,10 @@
     function list(items, empty) { return items.length ? items.join('') : '<p class="empty">' + empty + '</p>'; }
     var circ = 2 * Math.PI * 34;
     var ys = []; for (var k = -2; k <= 3; k++) ys.push(y0 + k);
-    box.innerHTML = '<div class="ghead"><h2>Panel de control</h2><div class="gtools"><span class="hint">Hoy ' + fmt(t) + '</span><select id="ry" aria-label="Curso">' +
+    var nSol = SOL ? SOL.filter(function (x) { return x.estado === 'nueva'; }).length : 0;
+    box.innerHTML = (nSol ? '<button type="button" class="pre-alert" data-go="inq"><b>' + nSol + '</b><span class="pa-t">' + (nSol > 1 ? 'Tienes ' + nSol + ' solicitudes de admisión pendientes' : 'Tienes 1 solicitud de admisión pendiente') + '<small>Revísalas para admitir o descartar</small></span><span class="pa-go">Ver →</span></button>' : '') +
+      '<div class="ghead"><h2>Panel de control</h2><div class="gtools"><span class="hint">Hoy ' + fmt(t) + '</span><select id="ry" aria-label="Curso">' +
       ys.map(function (c) { return '<option value="' + c + '"' + (c === y ? ' selected' : '') + '>Curso ' + B.courseLabel(c) + (c === y0 ? ' (actual)' : '') + '</option>'; }).join('') + '</select></div></div>' +
-      (SOL && SOL.some(function (x) { return x.estado === 'nueva'; }) ? '<button type="button" class="pre-alert" data-go="inq"><b>' + SOL.filter(function (x) { return x.estado === 'nueva'; }).length + '</b> solicitud(es) de admisión nueva(s) esperando tu revisión <span>Ver →</span></button>' : '') +
       '<section class="card moves"><h3>Entradas y salidas</h3><p class="hint">Próximos 70 días.</p>' + list(moves.slice(0, 8).map(function (m) {
           var te = tenant(m.c.inquilinaId), rm = room(m.c.habitacionId);
           return '<button type="button" class="crow" data-ten="' + (te ? te.id : '') + '"><span><b>' + esc(fullName(te)) + '</b><small>' + fmt(m.d) + ' · ' + esc(rm ? rm.nombre : '') + '</small></span>' + chip(m.k === 'Entra' ? 'pagado' : 'fin', m.k) + '</button>';
