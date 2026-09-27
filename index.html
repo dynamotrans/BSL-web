@@ -136,7 +136,7 @@ body{top:0!important}
 .intro{position:relative;height:135vh;background:var(--teal-deep);--p:0}
 .stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;contain:paint;background:var(--teal-deep)}
 .stage .photo{position:absolute;z-index:0;margin:0;overflow:hidden;inset:calc(12% * (1 - var(--p))) calc(5% * (1 - var(--p))) calc(8% * (1 - var(--p))) calc(52% * (1 - var(--p)));border-radius:calc(14px * (1 - var(--p)))}
-.stage .photo img{width:100%;height:100%;object-fit:cover;object-position:50% 70%;transform-origin:50% 60%;transform:translateZ(0) scale(calc(1 + var(--p) * .7));will-change:transform;backface-visibility:hidden}
+.stage .photo img{width:100%;height:100%;object-fit:cover;object-position:50% 50%;transform-origin:50% 60%;transform:translateZ(0) scale(calc(1 + var(--p) * .7));will-change:transform;backface-visibility:hidden}
 .stage .photo::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,transparent 25%,rgba(15,48,51,.6)),linear-gradient(180deg,transparent 55%,rgba(10,30,32,.75));opacity:var(--p)}
 .copy{position:absolute;z-index:2;inset:0;display:flex;align-items:center;pointer-events:none;padding-top:68px}
 .copy .wrap{width:100%}
@@ -856,7 +856,7 @@ footer img{height:56px;width:auto}
   <section class="intro" id="intro" aria-label="Portada">
     <div class="stage">
       <figure class="photo" style="margin:0">
-        <img src="images/salon-patio.jpg" alt="Salón comedor amplio y luminoso con sofá, mesa grande y salida al patio" width="900" height="1600" fetchpriority="high">
+        <img src="images/pasillo-salon.jpg" alt="Pasillo luminoso con suelo de madera nuevo que lleva al salón comedor" width="900" height="1625" fetchpriority="high">
       </figure>
       <div class="copy">
         <div class="wrap">
@@ -877,7 +877,7 @@ footer img{height:56px;width:auto}
       </div>
       <div class="collage" aria-hidden="true">
         <span class="cl-tile"></span>
-        <figure class="cl-a"><img src="images/salon-patio.jpg" alt="" width="900" height="1600"></figure>
+        <figure class="cl-a"><img src="images/pasillo-salon.jpg" alt="" width="900" height="1625"></figure>
         <figure class="cl-b"><img src="images/habitacion-completa.jpg" alt="" width="900" height="1599" loading="lazy"></figure>
         <figure class="cl-c"><img src="images/bano.jpg" alt="" width="900" height="1599" loading="lazy"></figure>
       </div>
