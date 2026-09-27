@@ -3,5 +3,8 @@ Allow: /
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /condiciones-solicitud.html
+Disallow: /cookies.html
+Disallow: /privacidad.html
+Disallow: /aviso-legal.html
 
 Sitemap: https://www.bslhome.es/sitemap.xml
