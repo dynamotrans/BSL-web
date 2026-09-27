@@ -247,8 +247,7 @@
     function list(items, empty) { return items.length ? items.join('') : '<p class="empty">' + empty + '</p>'; }
     var circ = 2 * Math.PI * 34;
     var ys = []; for (var k = -2; k <= 3; k++) ys.push(y0 + k);
-    var nSol = SOL ? SOL.filter(function (x) { return x.estado === 'nueva'; }).length : 0;
-    box.innerHTML = (nSol ? '<button type="button" class="pre-alert" data-go="inq"><b>' + nSol + '</b><span class="pa-t">' + (nSol > 1 ? 'Tienes ' + nSol + ' solicitudes de admisión pendientes' : 'Tienes 1 solicitud de admisión pendiente') + '<small>Revísalas para admitir o descartar</small></span><span class="pa-go">Ver →</span></button>' : '') +
+    box.innerHTML = solResumenHtml() +
       '<div class="ghead"><h2>Panel de control</h2><div class="gtools"><span class="hint">Hoy ' + fmt(t) + '</span><select id="ry" aria-label="Curso">' +
       ys.map(function (c) { return '<option value="' + c + '"' + (c === y ? ' selected' : '') + '>Curso ' + B.courseLabel(c) + (c === y0 ? ' (actual)' : '') + '</option>'; }).join('') + '</select></div></div>' +
       '<section class="card moves"><h3>Entradas y salidas</h3><p class="hint">Próximos 70 días.</p>' + list(moves.slice(0, 8).map(function (m) {
@@ -281,7 +280,7 @@
     $('ry').onchange = function () { box.dataset.ry = this.value; viewResumen(); };
     box.querySelectorAll('[data-go]').forEach(function (b) { b.onclick = function () { show(b.getAttribute('data-go')); }; });
     box.querySelectorAll('[data-ten]').forEach(function (b) { b.onclick = function () { var id = b.getAttribute('data-ten'); if (id) { detail = id; show('inq'); } }; });
-    bindInc(box);
+    bindInc(box); bindSol();
   }
 
   /* ---------- Solicitudes de admisión (enviadas desde la web) ---------- */
@@ -314,26 +313,45 @@
     return '<section class="card prer"><div class="prer-h"><h3>Solicitudes de admisión' + (nuevas ? ' <span class="chip2 k-pendiente">' + nuevas + ' nueva' + (nuevas > 1 ? 's' : '') + '</span>' : '') + '</h3>' +
       '<button type="button" class="mini" id="pre-all">' + (preAll ? 'Ocultar descartadas' : 'Ver también descartadas') + '</button></div>' +
       (list.length ? '<div class="plist">' + list.map(function (x) {
-        var st = PRE_ST[x.estado] || PRE_ST.nueva, ig = String(x.instagram || '').replace(/^@+/, ''), ed = edad(x.nacimiento);
-        var img = x.doc && x.doc.tipo !== 'pdf';
-        return '<div class="pcard" role="button" tabindex="0" data-sol="' + esc(x.id) + '">' +
-          '<span class="pthumb' + (img ? '' : ' pdf') + '"' + (docsOf(x).length > 1 ? ' data-n="' + docsOf(x).length + '"' : '') + (img ? ' data-thumb="' + esc(x.doc.path) + '"' : '') + '>' + (img ? '' : (x.doc ? 'PDF' : '—')) + '</span>' +
-          '<span class="pinfo"><b>' + esc(x.nombre + ' ' + x.apellidos) + (ed !== null ? ' <em>' + ed + ' años</em>' : '') + '</b>' +
-          '<small>' + esc(x.universidad) + (x.estudios ? ' · ' + esc(x.estudios) : '') + '</small>' +
-          '<small>' + esc([x.provincia, x.pais].filter(Boolean).join(', ')) + ' · ' + esc(x.tipoDoc || 'Doc.') + ' ' + esc(x.documento) + '</small>' +
-          '<small>' + esc(x.habitacion) + ' · ' + esc(x.periodo && x.periodo.titulo || '') + '</small>' +
-          (x.mensaje ? '<small class="pmsg">«' + esc(x.mensaje.slice(0, 120)) + (x.mensaje.length > 120 ? '…' : '') + '»</small>' : '') +
-          '<span class="prow">' + chip(st[0], st[1] + (x.pago ? ' · enlace enviado' : '')) +
-          (ig ? '<a class="pig" href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank" rel="noopener">@' + esc(ig) + '</a>' : '') + '</span></span></div>';
+        return solCard(x);
       }).join('') + '</div>' : '<p class="empty">Todavía no hay solicitudes. Llegan aquí cuando una chica envía su solicitud de admisión desde la web.</p>') + '</section>';
   }
-  function bindPre() {
-    var all = $('pre-all'); if (all) all.onclick = function () { preAll = !preAll; viewTenants(); };
+  function solCard(x) {
+    var st = PRE_ST[x.estado] || PRE_ST.nueva, ig = String(x.instagram || '').replace(/^@+/, ''), ed = edad(x.nacimiento);
+    var img = x.doc && x.doc.tipo !== 'pdf';
+    return '<div class="pcard" role="button" tabindex="0" data-sol="' + esc(x.id) + '">' +
+      '<span class="pthumb' + (img ? '' : ' pdf') + '"' + (docsOf(x).length > 1 ? ' data-n="' + docsOf(x).length + '"' : '') + (img ? ' data-thumb="' + esc(x.doc.path) + '"' : '') + '>' + (img ? '' : (x.doc ? 'PDF' : '—')) + '</span>' +
+      '<span class="pinfo"><b>' + esc(x.nombre + ' ' + x.apellidos) + (ed !== null ? ' <em>' + ed + ' años</em>' : '') + '</b>' +
+      '<small>' + esc(x.universidad) + (x.estudios ? ' · ' + esc(x.estudios) : '') + '</small>' +
+      '<small>' + esc([x.provincia, x.pais].filter(Boolean).join(', ')) + ' · ' + esc(x.tipoDoc || 'Doc.') + ' ' + esc(x.documento) + '</small>' +
+      '<small>' + esc(x.habitacion) + ' · ' + esc(x.periodo && x.periodo.titulo || '') + '</small>' +
+      (x.mensaje ? '<small class="pmsg">«' + esc(x.mensaje.slice(0, 120)) + (x.mensaje.length > 120 ? '…' : '') + '»</small>' : '') +
+      '<span class="prow">' + chip(st[0], st[1] + (x.pago ? ' · enlace enviado' : '')) +
+      (ig ? '<a class="pig" href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank" rel="noopener">@' + esc(ig) + '</a>' : '') + '</span></span></div>';
+  }
+  function bindSol() {
     box.querySelectorAll('[data-sol]').forEach(function (b) {
       b.onclick = function (e) { if (e.target.closest('a')) return; solDialog(b.getAttribute('data-sol')); };
       b.onkeydown = function (e) { if (e.key === 'Enter') solDialog(b.getAttribute('data-sol')); };
     });
     loadThumbs(box);
+  }
+  // Recordatorio en el Panel de control: solicitudes vivas (nuevas primero) en carrusel.
+  function solResumenHtml() {
+    if (!SOL) return '';
+    var act = SOL.filter(function (x) { return x.estado !== 'descartada'; });
+    if (!act.length) return '';
+    act = act.filter(function (x) { return x.estado === 'nueva'; }).concat(act.filter(function (x) { return x.estado !== 'nueva'; }));
+    var n = act.filter(function (x) { return x.estado === 'nueva'; }).length;
+    return '<section class="card solres' + (n ? ' hot' : '') + '"><div class="prer-h"><h3>Solicitudes de admisión <span class="chip2 k-' + (n ? 'pendiente' : 'pagado') + '">' +
+      (n ? n + (n > 1 ? ' nuevas por revisar' : ' nueva por revisar') : act.length + ' en curso') + '</span></h3>' +
+      '<button type="button" class="mini" data-go="inq">Ver todas →</button></div>' +
+      '<div class="solcar">' + act.map(solCard).join('') + '</div>' +
+      (act.length > 1 ? '<p class="hint solhint">Desliza para ver las ' + act.length + ' →</p>' : '') + '</section>';
+  }
+  function bindPre() {
+    var all = $('pre-all'); if (all) all.onclick = function () { preAll = !preAll; viewTenants(); };
+    bindSol();
   }
   function docsOf(x) { return x.docs && x.docs.length ? x.docs : x.doc ? [x.doc] : []; }
   function waPhone(t) { var d = String(t || '').replace(/\D/g, ''); if (d.indexOf('00') === 0) d = d.slice(2); if (d.length === 9) d = '34' + d; return d; }
