@@ -385,6 +385,10 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
 .addr,.head .addr,.fam-head p.addr{margin:2px 0 0;font:600 .9rem/1.3 var(--sans);color:var(--ink);display:flex;align-items:center;gap:8px}
 .addr svg{flex:0 0 16px;color:var(--accent)}
 .addr a{color:inherit;text-decoration:none}
+.addr{flex-wrap:wrap;row-gap:4px}
+.addr .maps-l,.maps-l{margin-left:4px;color:var(--accent);font-weight:700;font-size:.85em;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+.copy .addr .maps-l{color:var(--sun,#f7c95c)}
+footer .maps-l{color:inherit;margin:0}
 .rooms-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:24px;margin-bottom:28px}
 .rooms-top .head{margin-bottom:0}
 .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
@@ -839,7 +843,7 @@ footer img{height:56px;width:auto}
             <p class="hero-price"><span>Desde</span> <b>340 €</b><span>/mes</span></p>
             <h1 class="h1-info">Tu hogar universitario en <em>Dos Hermanas</em><button type="button" class="info-i notranslate" translate="no" id="info-i" aria-label="Información legal" aria-expanded="false" aria-controls="info-tip"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="7.2" r=".6" fill="currentColor"/></svg></button><span class="info-tip" id="info-tip" role="tooltip">BSL (Boutique Student Living) es la marca comercial para la difusión de alquiler de habitaciones de temporada en vivienda compartida, sujeto a la Ley de Arrendamientos Urbanos (LAU). La actividad no constituye un establecimiento de hospedaje ni presta servicios propios de la industria hotelera. <strong>No somos una residencia de estudiantes.</strong></span></h1>
             <p class="lead"><strong>Habitaciones individuales solo para chicas estudiantes</strong>, en su mayoría de la <strong>Universidad Loyola y de la Pablo de Olavide</strong>. Casa reformada, <strong>junto al Ayuntamiento y estación de Tren Renfe y Bus.</strong></p>
-            <p class="addr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="notranslate" translate="no">Calle Canónigo · Dos Hermanas · Sevilla</span></p>
+            <p class="addr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="notranslate" translate="no">Calle Canónigo · Dos Hermanas · Sevilla</span><a class="maps-l" href="https://maps.app.goo.gl/VNDkkathCcGhzhDj8" target="_blank" rel="noopener">Ver en Google Maps ↗</a></p>
             <div class="hero-ctas"><a class="btn" href="#habitaciones">Ver habitaciones libres</a><a class="btn line" href="#casa">Conocer la casa</a></div>
             <ul class="hero-facts">
               <li><b>6 min</b><span>en bus a la Universidad Loyola</span></li>
@@ -868,7 +872,7 @@ footer img{height:56px;width:auto}
         <p class="eyebrow">Para las familias</p>
         <h2 id="fam-t">Tu <b>hija</b>, en una casa <em><b>tranquila y segura</b></em></h2>
         <p>Solo <strong>chicas estudiantes</strong>, en su mayoría de la Universidad <strong>Loyola</strong> Andalucía y de la Universidad <strong>Pablo de Olavide</strong>. Un ambiente de estudio y convivencia entre compañeras.</p>
-        <p class="addr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="notranslate" translate="no">Calle Canónigo · Dos Hermanas · Sevilla</span></p>
+        <p class="addr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="notranslate" translate="no">Calle Canónigo · Dos Hermanas · Sevilla</span><a class="maps-l" href="https://maps.app.goo.gl/VNDkkathCcGhzhDj8" target="_blank" rel="noopener">Ver en Google Maps ↗</a></p>
       </div>
       <ul class="fam">
         <li class="rv"><b>Solo chicas estudiantes</b><span>Ambiente universitario mayoritariamente: Loyola, Pablo de Olavide y máster.</span></li>
@@ -887,7 +891,7 @@ footer img{height:56px;width:auto}
           <p class="eyebrow">La vivienda</p>
           <h2>Reformada, equipada y <em>lista para entrar</em></h2>
           <p>La casa conserva el azulejo y las molduras originales. Todo lo demás es nuevo: suelos, baños, cocinas y mobiliario.</p>
-          <p class="addr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="notranslate" translate="no">Calle Canónigo · Dos Hermanas · Sevilla</span></p>
+          <p class="addr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="notranslate" translate="no">Calle Canónigo · Dos Hermanas · Sevilla</span><a class="maps-l" href="https://maps.app.goo.gl/VNDkkathCcGhzhDj8" target="_blank" rel="noopener">Ver en Google Maps ↗</a></p>
         </div>
         <ul class="kfacts rv">
           <li><strong class="grad-text"><span data-count="6">6</span> min</strong><span>a la Universidad Loyola en bus directo (línea 5)</span></li>
@@ -1013,7 +1017,7 @@ footer img{height:56px;width:auto}
         <p class="eyebrow">Ubicación</p>
         <h2>Junto al AYUNTAMIENTO, <em>y en la <b>MISMA CALLE</b> que <b>ESTACIÓN TREN Y BUS</b></em></h2>
         <p>Zona <b>muy segura del centro de Dos Hermanas.</b> Estación de Cercanías, parada de taxis y parada central de autobuses a pie de casa.</p>
-        <p class="addr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="notranslate" translate="no">Calle Canónigo · Dos Hermanas · Sevilla</span></p>
+        <p class="addr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="notranslate" translate="no">Calle Canónigo · Dos Hermanas · Sevilla</span><a class="maps-l" href="https://maps.app.goo.gl/VNDkkathCcGhzhDj8" target="_blank" rel="noopener">Ver en Google Maps ↗</a></p>
       </div>
       <div class="board rv" role="region" aria-label="Tiempos de viaje desde casa">
         <div class="board-h"><span>Salidas desde casa</span><span class="clock" id="clock">--:--</span></div>
@@ -1080,7 +1084,7 @@ footer img{height:56px;width:auto}
           <p class="eyebrow">Disponibilidad</p>
           <h2>Elige tu <em>habitación</em></h2>
           <p>Mira qué habitaciones quedan libres para el próximo curso o durante este curso. Pulsa en la habitación que te guste y envía tu solicitud de admisión: la revisamos y te escribimos.</p>
-          <p class="addr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="notranslate" translate="no">Calle Canónigo · Dos Hermanas · Sevilla</span></p>
+          <p class="addr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="notranslate" translate="no">Calle Canónigo · Dos Hermanas · Sevilla</span><a class="maps-l" href="https://maps.app.goo.gl/VNDkkathCcGhzhDj8" target="_blank" rel="noopener">Ver en Google Maps ↗</a></p>
         </div>
         <div class="filters">
           <div class="seg" role="radiogroup" aria-label="Periodo" id="r-seg"></div>
@@ -1106,7 +1110,7 @@ footer img{height:56px;width:auto}
 <footer>
   <div class="wrap">
     <img src="images/logo-mark.png" alt="BSL" width="360" height="240">
-    <span><span class="notranslate" translate="no">Calle Canónigo, 41701 Dos Hermanas (Sevilla)</span> · © <span id="y">2026</span> BSL · Boutique Student Living</span>
+    <span><span class="notranslate" translate="no">Calle Canónigo, 41701 Dos Hermanas (Sevilla)</span> · <a class="maps-l" href="https://maps.app.goo.gl/VNDkkathCcGhzhDj8" target="_blank" rel="noopener">Ver en Google Maps ↗</a> · © <span id="y">2026</span> BSL · Boutique Student Living</span>
     <a class="admin-link" href="admin.html" rel="nofollow">Admin</a>
     <p class="legal-note">BSL (Boutique Student Living) es la marca comercial para la difusión de alquiler de habitaciones de temporada en vivienda compartida, sujeto a la Ley de Arrendamientos Urbanos (LAU). La actividad no constituye un establecimiento de hospedaje ni presta servicios propios de la industria hotelera. <strong>No somos una residencia de estudiantes.</strong></p>
   </div>
