@@ -457,15 +457,19 @@
     if (detail) return viewTenant(detail);
     var q = (box.dataset.q || '').toLowerCase();
     var list = G.inquilinas.filter(function (t) { return !q || (fullName(t) + ' ' + (t.telefono || '') + ' ' + (t.doc || '')).toLowerCase().indexOf(q) >= 0; })
-      .sort(function (a, b) { return fullName(a).localeCompare(fullName(b)); });
+      .map(function (t) { var c = activeContract(t.id), r = c && room(c.habitacionId); return { t: t, c: c, n: r ? r.num : 99 }; })
+      .sort(function (a, b) { return (a.n - b.n) || fullName(a.t).localeCompare(fullName(b.t)); });
     box.innerHTML = '<div class="ghead"><h2>Inquilinas</h2><div class="gtools"><input type="search" id="q" placeholder="Buscar por nombre, teléfono o DNI" value="' + esc(box.dataset.q || '') + '"><button class="btn" type="button" id="new-t">+ Nueva inquilina</button></div></div>' + preHtml() +
-      (list.length ? '<div class="tlist">' + pageOf(list, 'inq', 12).map(function (t) {
-        var c = activeContract(t.id), d = debt(t.id);
-        return '<button type="button" class="tcard" data-id="' + t.id + '"><b>' + esc(fullName(t)) + '</b>' +
-          '<small>' + (c ? esc(roomName(c.habitacionId)) + ' · ' + fmt(c.desde) + ' → ' + fmt(c.hasta) : 'Sin contrato en curso') + '</small>' +
-          (t.universidad ? '<small>' + esc(t.universidad) + '</small>' : '') +
-          (d ? chip('vencido', 'Debe ' + money(d)) : chip('pagado', 'Al día')) + '</button>';
-      }).join('') + '</div>' + pager('inq', list.length, 12) : '<p class="empty">Todavía no hay inquilinas. Pulsa <b>+ Nueva inquilina</b> para dar de alta la primera.</p>');
+      (list.length ? '<section class="card tt-card"><table class="tt"><thead><tr><th>Habitación</th><th>Inquilina</th><th>Entrada</th><th>Salida</th><th>Estudia en</th><th>Estado</th></tr></thead><tbody>' +
+        pageOf(list, 'inq', 20).map(function (x) {
+          var t = x.t, c = x.c, d = debt(t.id), r = c && room(c.habitacionId);
+          return '<tr class="tcard" data-id="' + t.id + '" tabindex="0">' +
+            '<td class="t-h">' + (r ? '<b>' + r.num + '</b> ' + esc(r.nombre) + '<span class="t-hd"> · ' + fmt(c.desde) + ' → ' + fmt(c.hasta) + '</span>' : '<span class="muted">Sin contrato</span>') + '</td>' +
+            '<td class="t-n"><b>' + esc(fullName(t)) + '</b>' + (t.telefono ? '<small>' + esc(t.telefono) + '</small>' : '') + '</td>' +
+            '<td class="t-d">' + (c ? fmt(c.desde) : '—') + '</td><td class="t-d">' + (c ? fmt(c.hasta) : '—') + '</td>' +
+            '<td class="t-u">' + esc(t.universidad || '—') + '</td>' +
+            '<td class="t-e">' + (d ? chip('vencido', 'Debe ' + money(d)) : chip('pagado', 'Al día')) + '</td></tr>';
+        }).join('') + '</tbody></table></section>' + pager('inq', list.length, 20) : '<p class="empty">Todavía no hay inquilinas. Pulsa <b>+ Nueva inquilina</b> para dar de alta la primera.</p>');
     $('q').oninput = function () { box.dataset.q = this.value; PAGES.inq = 0; var pos = this.selectionStart; viewTenants(); $('q').focus(); $('q').setSelectionRange(pos, pos); };
     $('new-t').onclick = function () {
       openForm({ title: 'Nueva inquilina', fields: TENANT_FIELDS, values: {}, ok: 'Crear', onSave: function (v) {
@@ -473,7 +477,10 @@
         v.id = uid(); v.creada = today(); G.inquilinas.push(v); save(); detail = v.id; show('inq');
       } });
     };
-    box.querySelectorAll('.tcard').forEach(function (b) { b.onclick = function () { detail = b.getAttribute('data-id'); PAGES.cobT = 0; PAGES.incT = 0; show('inq'); }; });
+    box.querySelectorAll('.tcard').forEach(function (b) {
+      b.onclick = function () { detail = b.getAttribute('data-id'); PAGES.cobT = 0; PAGES.incT = 0; show('inq'); };
+      b.onkeydown = function (e) { if (e.key === 'Enter') b.onclick(); };
+    });
     bindPre();
   }
 

@@ -268,6 +268,33 @@ body.ro #cal{pointer-events:none}
 .prer-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .prer-h h3{display:flex;align-items:center;gap:8px}
 .tcard.pre{border-left:4px solid #e0a43a}
+.tt-card{padding:6px 18px;overflow-x:auto}
+.tt{width:100%;border-collapse:collapse;font-size:.92rem;font-variant-numeric:tabular-nums}
+.tt th{text-align:left;font-size:.76rem;color:var(--muted);font-weight:600;padding:12px 10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tt td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tt tbody tr:last-child td{border-bottom:0}
+.tt tr.tcard{display:table-row;padding:0;border:0;border-radius:0;background:none}
+.tt tr.tcard:hover td{background:var(--tint)}
+.tt .t-h{white-space:nowrap}
+.tt .t-hd{display:none}
+.tt .t-h b{display:inline-grid;place-items:center;min-width:24px;height:24px;margin-right:6px;border-radius:7px;background:var(--teal);color:#fff;font-size:.78rem}
+.tt .t-n b{display:block;font-size:.98rem}
+.tt .t-n small,.tt .muted{color:var(--muted);font-size:.82rem}
+.tt .t-d{white-space:nowrap;color:var(--muted)}
+.tt .t-u{color:var(--muted);font-size:.86rem}
+@media (max-width:700px){
+  .tt-card{padding:4px 14px}
+  .tt thead{display:none}
+  .tt tr.tcard{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n e" "h h" "u u";gap:4px 10px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .tt tbody tr:last-child{border-bottom:0}
+  .tt td{padding:0;border:0}
+  .tt tr.tcard:hover td{background:none}
+  .tt .t-n{grid-area:n}.tt .t-e{grid-area:e;align-self:start}
+  .tt .t-h{grid-area:h;font-size:.86rem;color:var(--muted)}
+  .tt .t-d{display:none}
+  .tt .t-hd{display:inline}
+  .tt .t-u{grid-area:u;font-size:.82rem}
+}
 .solres{margin-bottom:14px}
 .solres.hot{border:2px solid #e0a43a;box-shadow:0 6px 22px rgba(224,164,58,.28)}
 .solcar{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 8px;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
