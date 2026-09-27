@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 Disallow: /api/
+Disallow: /condiciones-solicitud.html
 
 Sitemap: https://www.bslhome.es/sitemap.xml
