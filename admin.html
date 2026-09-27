@@ -302,6 +302,9 @@ body.ro #cal{pointer-events:none}
 .pthumb{position:relative}
 .pthumb[data-n]::after{content:"+" attr(data-n);position:absolute;right:4px;bottom:4px;font:800 .66rem/1 var(--sans);padding:3px 5px;border-radius:6px;background:rgba(0,0,0,.6);color:#fff}
 @media (max-width:520px){.plist{grid-template-columns:minmax(0,1fr)}}
+.totop{position:fixed;right:18px;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:40;width:46px;height:46px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--teal);color:#fff;cursor:pointer;box-shadow:0 10px 24px -8px rgba(0,0,0,.45),inset 0 0 0 1.5px rgba(240,138,108,.6);transform:translateY(12px) scale(.6);opacity:0;pointer-events:none;transition:transform .35s ease,opacity .3s ease}
+.totop.show{transform:none;opacity:1;pointer-events:auto}
+.totop svg{width:22px;height:22px}
 dialog.gdlg.keydlg{width:min(420px,calc(100% - 24px))}
 .keydlg .dbody{grid-template-columns:minmax(0,1fr)}
 .keymsg{margin:0;color:var(--muted);font-size:.92rem}
@@ -714,6 +717,15 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
       renderWizard(); $('wiz').scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
   }
+})();
+</script>
+<button type="button" class="totop" id="totop" aria-label="Volver arriba"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+<script>
+(function () {
+  var b = document.getElementById('totop');
+  function upd() { b.classList.toggle('show', window.scrollY > window.innerHeight * 0.8); }
+  window.addEventListener('scroll', upd, { passive: true }); upd();
+  b.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
 })();
 </script>
 </body>
