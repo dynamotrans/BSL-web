@@ -1091,7 +1091,7 @@ footer img{height:56px;width:auto}
     <p>Declaras que los datos y el documento que envías son ciertos y te pertenecen. Una información falsa es motivo para no admitir la solicitud o resolver el contrato.</p>
     <h4>5. Protección de datos</h4>
     <p><b>Responsable:</b> BSL · Boutique Student Living, Calle Canónigo, 41701 Dos Hermanas (Sevilla). Contacto: teléfono y WhatsApp +34 667 65 67 08.</p>
-    <p><b>Finalidad:</b> estudiar tu solicitud de admisión, contactarte y, si se te ofrece plaza, preparar el contrato. El documento de identidad se usa solo para verificar tu identidad y redactar el contrato. Tu perfil de Instagram, si lo indicas, se consulta únicamente para conocer tu perfil como posible compañera de piso.</p>
+    <p><b>Finalidad:</b> estudiar tu solicitud de admisión, contactarte y, si se te ofrece plaza, preparar el contrato. El documento de identidad se usa solo para verificar tu identidad y redactar el contrato.</p>
     <p><b>Base legal:</b> tu consentimiento y la aplicación de medidas precontractuales a petición tuya (art. 6.1.a y 6.1.b del Reglamento General de Protección de Datos).</p>
     <p><b>Conservación:</b> si no se formaliza el contrato, tus datos y tu documento se eliminan en un plazo máximo de 6 meses. Si se formaliza, se conservan durante la relación contractual y los plazos legales posteriores.</p>
     <p><b>Destinatarios:</b> no se ceden a terceros salvo obligación legal. Se guardan en servidores de proveedores tecnológicos con garantías adecuadas.</p>
@@ -1130,14 +1130,13 @@ footer img{height:56px;width:auto}
 
       <div class="rstep" data-step="2" hidden>
         <p class="rs-intro">Los datos de la estudiante que se va a alojar.</p>
-        <div class="why"><b>¿Por qué te pedimos estos datos?</b><p>En BSL cuidamos la convivencia. Tu universidad, edad, procedencia e Instagram nos ayudan a conocerte y a reunir en la casa a <strong>chicas con un perfil afín</strong>: edades parecidas, estilo de vida y ambiente de estudio compatibles. Así la convivencia es buena para todas.</p></div>
+        <div class="why"><b>¿Por qué te pedimos estos datos?</b><p>En BSL cuidamos la convivencia. Tu universidad, edad y procedencia nos ayudan a conocerte y a reunir en la casa a <strong>chicas con un perfil afín</strong>: edades parecidas, estilo de vida y ambiente de estudio compatibles. Así la convivencia es buena para todas.</p></div>
         <div class="rgrid2">
           <label>Nombre<input id="rd-nombre" autocomplete="given-name"></label>
           <label>Apellidos<input id="rd-apellidos" autocomplete="family-name"></label>
           <label>Teléfono (WhatsApp)<input id="rd-tel" type="tel" autocomplete="tel" inputmode="tel"></label>
           <label>Edad<select id="rd-edad"><option value="">Elige</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option><option>27</option><option>28</option></select></label>
-          <label>Instagram<input id="rd-ig" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="@tuusuario"></label>
-          <label>País y ciudad de procedencia<input id="rd-prov" placeholder="Ej.: España, Córdoba"></label>
+          <label class="full">País y ciudad de procedencia<input id="rd-prov" placeholder="Ej.: España, Córdoba"></label>
         </div>
         <div class="upl">
           <span class="upl-t">Fotos o PDF del DNI / pasaporte <small>(hasta 4: por ejemplo, por delante y por detrás)</small></span>
@@ -1443,7 +1442,7 @@ footer img{height:56px;width:auto}
       '<dt>Periodo</dt><dd>' + esc(c.o.title) + '<small>Del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + '</small></dd>' +
       '<dt>Estudiante</dt><dd>' + esc(val('rd-nombre') + ' ' + val('rd-apellidos')) + '<small>' + esc(val('rd-edad') + ' años · ' + val('res-perfil')) + '</small></dd>' +
       '<dt>Cada mes</dt><dd>' + money(r.precio) + ' + ' + money(r.gastos) + ' de gastos</dd>' +
-      '<dt>Contacto</dt><dd>' + esc(val('rd-tel')) + '<small>WhatsApp · @' + esc(val('rd-ig').replace(/^@+/, '')) + '</small></dd>' +
+      '<dt>Contacto</dt><dd>' + esc(val('rd-tel')) + '<small>WhatsApp</small></dd>' +
       '<dt>Procedencia</dt><dd>' + esc(val('rd-prov')) + '</dd>' +
       '<dt>Documento</dt><dd>DNI / pasaporte<small>' + docFiles.length + ' archivo' + (docFiles.length > 1 ? 's' : '') + ' adjunto' + (docFiles.length > 1 ? 's' : '') + '</small></dd></dl>' +
       '';
@@ -1514,7 +1513,7 @@ footer img{height:56px;width:auto}
   resDlg.addEventListener('input', function (e) { var l = e.target.closest && e.target.closest('label.bad'); if (l) l.classList.remove('bad'); });
   resDlg.addEventListener('change', function (e) { var l = e.target.closest && e.target.closest('label.bad'); if (l) l.classList.remove('bad'); });
   function checkDatos() {
-    var need = [['rd-nombre', 'el nombre'], ['rd-apellidos', 'los apellidos'], ['rd-tel', 'el teléfono'], ['rd-edad', 'la edad'], ['rd-prov', 'el país y la ciudad de procedencia'], ['rd-ig', 'tu Instagram']];
+    var need = [['rd-nombre', 'el nombre'], ['rd-apellidos', 'los apellidos'], ['rd-tel', 'el teléfono'], ['rd-edad', 'la edad'], ['rd-prov', 'el país y la ciudad de procedencia']];
     for (var i = 0; i < need.length; i++) if (!val(need[i][0])) { stepErr('rd-err', 'Falta ' + need[i][1] + '.', $r(need[i][0])); return false; }
     if (val('rd-tel').replace(/\D/g, '').length < 9) { stepErr('rd-err', 'Revisa el teléfono.', $r('rd-tel')); return false; }
     if (uploading) { stepErr('rd-err', 'Espera a que terminen de subirse los documentos.'); return false; }
@@ -1541,7 +1540,7 @@ footer img{height:56px;width:auto}
     sending = true; footer(); $r('res-msg').hidden = true;
     var body = {
       nombre: val('rd-nombre'), apellidos: val('rd-apellidos'), telefono: val('rd-tel'),
-      edad: +val('rd-edad') || 0, pais: '', provincia: val('rd-prov'), universidad: val('res-perfil'), instagram: val('rd-ig'),
+      edad: +val('rd-edad') || 0, pais: '', provincia: val('rd-prov'), universidad: val('res-perfil'),
       mensaje: val('rd-msg'), web: val('rd-web'), acepta: true,
       habitacionId: c.room.id, habitacion: c.room.nombre, precio: c.room.precio, gastos: c.room.gastos,
       periodo: { titulo: c.o.title, desde: c.o.from, hasta: c.o.to }, docs: docFiles
@@ -1552,7 +1551,6 @@ footer img{height:56px;width:auto}
       '*Nombre:* ' + body.nombre + ' ' + body.apellidos + ' (' + body.edad + ' años)\n' +
       '*Estudio en:* ' + body.universidad + (body.estudios ? ' · ' + body.estudios : '') + '\n' +
       '*Procedencia:* ' + [body.provincia, body.pais].filter(Boolean).join(', ') + '\n' +
-      '*Instagram:* @' + body.instagram.replace(/^@+/, '') + '\n' +
       '*Teléfono / WhatsApp:* ' + body.telefono + (body.mensaje ? '\n\n' + body.mensaje : '');
     var wa = B.waLink(waText);
     function goWa() { if (wa) window.location.href = wa; }

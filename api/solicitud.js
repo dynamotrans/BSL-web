@@ -36,7 +36,6 @@ export default async function handler(req, res) {
   if (d.telefono.replace(/\D/g, '').length < 9) faltan.push('teléfono');
   if (!d.edad && !d.nacimiento) faltan.push('edad');
   if (!d.pais && !d.provincia) faltan.push('país y ciudad de procedencia');
-  if (!d.instagram) faltan.push('Instagram');
   if (!d.universidad) faltan.push('universidad');
   if (!d.habitacionId || !d.periodo.desde || !d.periodo.hasta) faltan.push('habitación y fechas');
   if (b.acepta !== true) faltan.push('aceptar las condiciones');
