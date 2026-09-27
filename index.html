@@ -494,6 +494,9 @@ dialog.sheet.legal{width:min(620px,calc(100% - 24px))}
 @media (max-width:420px){.rgrid2{grid-template-columns:minmax(0,1fr)}}
 dialog.sheet{overflow-x:hidden;border:0;padding:0;border-radius:18px;background:var(--surface);color:var(--ink);width:min(560px,calc(100% - 24px));max-width:none;max-height:calc(100% - 32px);max-height:calc(100dvh - 32px);margin:auto;overflow-y:auto;overscroll-behavior:contain;box-shadow:0 40px 80px -30px rgba(0,0,0,.5)}
 .res-info{display:grid;gap:12px}
+.rd-msg-open{justify-self:start;font-weight:700}
+.rd-legal{margin:0;font-size:.85rem;line-height:1.45;color:var(--muted)}
+.rd-legal .linkbtn{display:inline}
 .res-info .rd-photos{margin:0;border-radius:12px}
 .res-info .rd-photos img{aspect-ratio:16/10;max-height:300px}
 dialog.sheet[open]{animation:sheetin .45s var(--ease)}
@@ -1122,13 +1125,9 @@ footer img{height:56px;width:auto}
           <label>Apellidos<input id="rd-apellidos" autocomplete="family-name"></label>
           <label>Email<input id="rd-email" type="email" autocomplete="email" inputmode="email"></label>
           <label>Teléfono<input id="rd-tel" type="tel" autocomplete="tel" inputmode="tel"></label>
-          <label>Tipo de documento<select id="rd-tipodoc"><option>DNI</option><option>NIE</option><option>Pasaporte</option></select></label>
-          <label>Número de documento<input id="rd-doc" autocapitalize="characters"></label>
-          <label>Fecha de nacimiento<input id="rd-nac" type="date"></label>
-          <label>País de procedencia<input id="rd-pais" value="España" autocomplete="country-name"></label>
-          <label>Provincia / ciudad<input id="rd-prov" placeholder="Ej.: Córdoba"></label>
+          <label>Edad<select id="rd-edad"><option value="">Elige</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option><option>27</option><option>28</option></select></label>
           <label>Instagram<input id="rd-ig" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="@tuusuario"></label>
-          <label class="full">Estudios / curso (opcional)<input id="rd-estudios" placeholder="Ej.: 2º de ADE"></label>
+          <label class="full">País y ciudad de procedencia<input id="rd-prov" placeholder="Ej.: España, Córdoba"></label>
         </div>
         <div class="upl">
           <span class="upl-t">Fotos o PDF del DNI / pasaporte <small>(hasta 4: por ejemplo, por delante y por detrás)</small></span>
@@ -1136,9 +1135,10 @@ footer img{height:56px;width:auto}
           <label class="upl-btn" id="rd-file-btn"><input type="file" id="rd-file" accept="image/*,application/pdf" multiple hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg><span id="rd-file-t">Subir documento</span></label>
           <small>Solo lo verá BSL para preparar el contrato. Máximo 3 MB por archivo.</small>
         </div>
-        <label class="full">Mensaje (opcional)<textarea id="rd-msg" rows="3" placeholder="Fecha de llegada, dudas…"></textarea></label>
+        <button type="button" class="linkbtn rd-msg-open" id="rd-msg-open">+ Añadir un mensaje (opcional)</button>
+        <label class="full" id="rd-msg-box" hidden>Mensaje (opcional)<textarea id="rd-msg" rows="3" placeholder="Fecha de llegada, dudas…"></textarea></label>
         <input type="text" id="rd-web" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
-        <label class="check"><input type="checkbox" id="rd-ok"> <span>He leído y acepto las <button type="button" class="linkbtn" data-legal>condiciones de la solicitud y la información sobre protección de datos</button>.</span></label>
+        <p class="rd-legal">Al continuar aceptas las <button type="button" class="linkbtn" data-legal>condiciones de la solicitud y la información sobre protección de datos</button>.</p>
         <p class="res-err" id="rd-err" hidden></p>
       </div>
 
@@ -1428,14 +1428,14 @@ footer img{height:56px;width:auto}
     var c = chosen(); if (!c) return;
     var r = c.room, fianza = +r.precio || 0;
     $r('res-sum').innerHTML =
-      '<h4>Resumen de tu reserva</h4>' +
+      '<h4>Resumen de tu solicitud</h4>' +
       '<dl><dt>Habitación</dt><dd>' + esc(r.nombre) + '</dd>' +
       '<dt>Periodo</dt><dd>' + esc(c.o.title) + '<small>Del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + '</small></dd>' +
-      '<dt>Estudiante</dt><dd>' + esc(val('rd-nombre') + ' ' + val('rd-apellidos')) + '<small>' + esc(val('res-perfil')) + '</small></dd>' +
-      '<dt>Cada mes</dt><dd>' + money(r.precio) + ' + ' + money(r.gastos) + ' de gastos</dd></dl>' +
+      '<dt>Estudiante</dt><dd>' + esc(val('rd-nombre') + ' ' + val('rd-apellidos')) + '<small>' + esc(val('rd-edad') + ' años · ' + val('res-perfil')) + '</small></dd>' +
+      '<dt>Cada mes</dt><dd>' + money(r.precio) + ' + ' + money(r.gastos) + ' de gastos</dd>' +
       '<dt>Contacto</dt><dd>' + esc(val('rd-tel')) + '<small>' + esc(val('rd-email')) + ' · @' + esc(val('rd-ig').replace(/^@+/, '')) + '</small></dd>' +
-      '<dt>Procedencia</dt><dd>' + esc([val('rd-prov'), val('rd-pais')].filter(Boolean).join(', ')) + '</dd>' +
-      '<dt>Documento</dt><dd>' + esc(val('rd-tipodoc') + ' ' + val('rd-doc')) + '<small>' + docFiles.length + ' archivo' + (docFiles.length > 1 ? 's' : '') + ' adjunto' + (docFiles.length > 1 ? 's' : '') + '</small></dd></dl>' +
+      '<dt>Procedencia</dt><dd>' + esc(val('rd-prov')) + '</dd>' +
+      '<dt>Documento</dt><dd>DNI / pasaporte<small>' + docFiles.length + ' archivo' + (docFiles.length > 1 ? 's' : '') + ' adjunto' + (docFiles.length > 1 ? 's' : '') + '</small></dd></dl>' +
       '';
     $r('res-sent').hidden = !sent;
     $r('res-sum').hidden = sent; resDlg.querySelector('.nextbox').hidden = sent;
@@ -1490,15 +1490,15 @@ footer img{height:56px;width:auto}
   });
   $r('res-back').addEventListener('click', function () { goStep(rstep - 1); });
   resDlg.addEventListener('click', function (e) { if (e.target.closest('[data-legal]')) { e.preventDefault(); open(document.getElementById('legal-dlg')); } });
+  document.getElementById('rd-msg-open').addEventListener('click', function () { this.hidden = true; var b = document.getElementById('rd-msg-box'); b.hidden = false; b.querySelector('textarea').focus(); });
   function stepErr(id, msg, focus) { var p = $r(id); p.textContent = msg; p.hidden = !msg; if (focus) { focus.focus(); focus.scrollIntoView({ block: 'center', behavior: 'smooth' }); } }
   function checkDatos() {
-    var need = [['rd-nombre', 'el nombre'], ['rd-apellidos', 'los apellidos'], ['rd-email', 'el email'], ['rd-tel', 'el teléfono'], ['rd-doc', 'el número de documento'], ['rd-nac', 'la fecha de nacimiento'], ['rd-pais', 'el país de procedencia'], ['rd-prov', 'la provincia o ciudad'], ['rd-ig', 'tu Instagram']];
+    var need = [['rd-nombre', 'el nombre'], ['rd-apellidos', 'los apellidos'], ['rd-email', 'el email'], ['rd-tel', 'el teléfono'], ['rd-edad', 'la edad'], ['rd-prov', 'el país y la ciudad de procedencia'], ['rd-ig', 'tu Instagram']];
     for (var i = 0; i < need.length; i++) if (!val(need[i][0])) { stepErr('rd-err', 'Falta ' + need[i][1] + '.', $r(need[i][0])); return false; }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val('rd-email'))) { stepErr('rd-err', 'Revisa el email.', $r('rd-email')); return false; }
     if (val('rd-tel').replace(/\D/g, '').length < 9) { stepErr('rd-err', 'Revisa el teléfono.', $r('rd-tel')); return false; }
     if (uploading) { stepErr('rd-err', 'Espera a que terminen de subirse los documentos.'); return false; }
     if (!docFiles.length) { stepErr('rd-err', 'Sube al menos una foto o PDF de tu DNI o pasaporte.', $r('rd-file-btn')); return false; }
-    if (!$r('rd-ok').checked) { stepErr('rd-err', 'Tienes que aceptar las condiciones de la solicitud para seguir.', $r('rd-ok')); return false; }
     stepErr('rd-err', ''); return true;
   }
   document.getElementById('res-form').addEventListener('submit', function (e) {
@@ -1514,16 +1514,16 @@ footer img{height:56px;width:auto}
     if (sending) return;
     sending = true; footer(); $r('res-msg').hidden = true;
     var body = {
-      nombre: val('rd-nombre'), apellidos: val('rd-apellidos'), email: val('rd-email'), telefono: val('rd-tel'), documento: val('rd-doc'),
-      nacimiento: val('rd-nac'), tipoDoc: val('rd-tipodoc'), pais: val('rd-pais'), provincia: val('rd-prov'), universidad: val('res-perfil'), estudios: val('rd-estudios'), instagram: val('rd-ig'),
-      mensaje: val('rd-msg'), web: val('rd-web'), acepta: $r('rd-ok').checked,
+      nombre: val('rd-nombre'), apellidos: val('rd-apellidos'), email: val('rd-email'), telefono: val('rd-tel'),
+      edad: +val('rd-edad') || 0, pais: '', provincia: val('rd-prov'), universidad: val('res-perfil'), instagram: val('rd-ig'),
+      mensaje: val('rd-msg'), web: val('rd-web'), acepta: true,
       habitacionId: c.room.id, habitacion: c.room.nombre, precio: c.room.precio, gastos: c.room.gastos,
       periodo: { titulo: c.o.title, desde: c.o.from, hasta: c.o.to }, docs: docFiles
     };
     // Al pulsar: se guarda en el panel y se abre WhatsApp con la solicitud escrita para BSL
     var waText = 'Hola BSL 👋 Acabo de enviar mi solicitud de admisión desde la web.\n\n' +
       '*Habitación:* ' + c.room.nombre + ' · ' + c.o.title + ' (del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + ')\n' +
-      '*Nombre:* ' + body.nombre + ' ' + body.apellidos + '\n' +
+      '*Nombre:* ' + body.nombre + ' ' + body.apellidos + ' (' + body.edad + ' años)\n' +
       '*Estudio en:* ' + body.universidad + (body.estudios ? ' · ' + body.estudios : '') + '\n' +
       '*Procedencia:* ' + [body.provincia, body.pais].filter(Boolean).join(', ') + '\n' +
       '*Instagram:* @' + body.instagram.replace(/^@+/, '') + '\n' +

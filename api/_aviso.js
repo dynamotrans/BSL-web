@@ -10,7 +10,7 @@ function withTimeout(p, ms) {
 }
 
 export async function avisar(s) {
-  const edad = s.nacimiento ? Math.floor((Date.now() - Date.parse(s.nacimiento)) / 31557600000) : null;
+  const edad = s.edad || (s.nacimiento ? Math.floor((Date.now() - Date.parse(s.nacimiento)) / 31557600000) : null);
   const resumen = `${s.nombre} ${s.apellidos}${edad ? ` (${edad} años)` : ''} · ${s.universidad} · ${[s.provincia, s.pais].filter(Boolean).join(', ')}`;
   const panel = 'https://www.bslhome.es/admin.html';
   const tareas = [];

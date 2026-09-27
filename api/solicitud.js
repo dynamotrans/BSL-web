@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   const iso = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '');
   const d = {
     nombre: str(b.nombre, 80), apellidos: str(b.apellidos, 120), email: str(b.email, 120), telefono: str(b.telefono, 30),
-    documento: str(b.documento, 30), tipoDoc: ['DNI', 'NIE', 'Pasaporte'].includes(b.tipoDoc) ? b.tipoDoc : 'DNI', nacimiento: iso(b.nacimiento),
+    documento: str(b.documento, 30), tipoDoc: ['DNI', 'NIE', 'Pasaporte'].includes(b.tipoDoc) ? b.tipoDoc : '', nacimiento: iso(b.nacimiento), edad: (n => (n >= 16 && n <= 99 ? n : 0))(Math.round(Number(b.edad) || 0)),
     pais: str(b.pais, 60), provincia: str(b.provincia, 80), universidad: str(b.universidad, 80), estudios: str(b.estudios, 120),
     instagram: str(b.instagram, 60).replace(/^@+/, ''), familiar: str(b.familiar, 100), familiarTel: str(b.familiarTel, 30), mensaje: str(b.mensaje, 1000),
     habitacionId: str(b.habitacionId, 20), habitacion: str(b.habitacion, 80), precio: Number(b.precio) || 0, gastos: Number(b.gastos) || 0,
@@ -34,9 +34,8 @@ export default async function handler(req, res) {
   if (!d.nombre || !d.apellidos) faltan.push('nombre y apellidos');
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) faltan.push('email');
   if (d.telefono.replace(/\D/g, '').length < 9) faltan.push('teléfono');
-  if (!d.documento) faltan.push('número de documento');
-  if (!d.nacimiento) faltan.push('fecha de nacimiento');
-  if (!d.pais || !d.provincia) faltan.push('país y provincia de procedencia');
+  if (!d.edad && !d.nacimiento) faltan.push('edad');
+  if (!d.pais && !d.provincia) faltan.push('país y ciudad de procedencia');
   if (!d.instagram) faltan.push('Instagram');
   if (!d.universidad) faltan.push('universidad');
   if (!d.habitacionId || !d.periodo.desde || !d.periodo.hasta) faltan.push('habitación y fechas');

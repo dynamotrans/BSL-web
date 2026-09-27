@@ -317,13 +317,13 @@
       }).join('') + '</div>' : '<p class="empty">Todavía no hay solicitudes. Llegan aquí cuando una chica envía su solicitud de admisión desde la web.</p>') + '</section>';
   }
   function solCard(x) {
-    var st = PRE_ST[x.estado] || PRE_ST.nueva, ig = String(x.instagram || '').replace(/^@+/, ''), ed = edad(x.nacimiento);
+    var st = PRE_ST[x.estado] || PRE_ST.nueva, ig = String(x.instagram || '').replace(/^@+/, ''), ed = x.edad || edad(x.nacimiento);
     var img = x.doc && x.doc.tipo !== 'pdf';
     return '<div class="pcard" role="button" tabindex="0" data-sol="' + esc(x.id) + '">' +
       '<span class="pthumb' + (img ? '' : ' pdf') + '"' + (docsOf(x).length > 1 ? ' data-n="' + docsOf(x).length + '"' : '') + (img ? ' data-thumb="' + esc(x.doc.path) + '"' : '') + '>' + (img ? '' : (x.doc ? 'PDF' : '—')) + '</span>' +
       '<span class="pinfo"><b>' + esc(x.nombre + ' ' + x.apellidos) + (ed !== null ? ' <em>' + ed + ' años</em>' : '') + '</b>' +
       '<small>' + esc(x.universidad) + (x.estudios ? ' · ' + esc(x.estudios) : '') + '</small>' +
-      '<small>' + esc([x.provincia, x.pais].filter(Boolean).join(', ')) + ' · ' + esc(x.tipoDoc || 'Doc.') + ' ' + esc(x.documento) + '</small>' +
+      '<small>' + esc([[x.provincia, x.pais].filter(Boolean).join(', '), x.documento ? (x.tipoDoc || 'Doc.') + ' ' + x.documento : ''].filter(Boolean).join(' · ')) + '</small>' +
       '<small>' + esc(x.habitacion) + ' · ' + esc(x.periodo && x.periodo.titulo || '') + '</small>' +
       (x.mensaje ? '<small class="pmsg">«' + esc(x.mensaje.slice(0, 120)) + (x.mensaje.length > 120 ? '…' : '') + '»</small>' : '') +
       '<span class="prow">' + chip(st[0], st[1] + (x.pago ? ' · enlace enviado' : '')) +
@@ -372,9 +372,9 @@
       row('Teléfono', '<a href="tel:' + esc(x.telefono) + '">' + esc(x.telefono) + '</a>') +
       row('Email', '<a href="mailto:' + esc(x.email) + '">' + esc(x.email) + '</a>') +
       row('Instagram', ig ? '<a href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank" rel="noopener">@' + esc(ig) + '</a>' : '') +
-      row('Edad', edad(x.nacimiento) !== null ? edad(x.nacimiento) + ' años<small>Nacida el ' + fmt(x.nacimiento) + '</small>' : '') +
+      row('Edad', x.edad ? x.edad + ' años' : edad(x.nacimiento) !== null ? edad(x.nacimiento) + ' años<small>Nacida el ' + fmt(x.nacimiento) + '</small>' : '') +
       row('Procedencia', esc([x.provincia, x.pais].filter(Boolean).join(', '))) +
-      row('Documento', esc((x.tipoDoc || '') + ' ' + x.documento)) +
+      row('Documento', x.documento ? esc((x.tipoDoc || '') + ' ' + x.documento) : '') +
       row('Familiar', esc(x.familiar) + (x.familiarTel ? '<small>' + esc(x.familiarTel) + '</small>' : '')) +
       row('Mensaje', esc(x.mensaje)) +
       '</dl>' +
