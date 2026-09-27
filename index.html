@@ -425,6 +425,13 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
 .rs-intro{margin:0;color:var(--muted);font-size:.92rem}
 .rgrid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .rgrid2 .full{grid-column:1/-1}
+.cbx{position:relative;min-width:0}
+.cbx label{display:grid}
+.cbx-list{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);margin:0;padding:6px;list-style:none;max-height:260px;overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 40px -18px rgba(0,0,0,.45);overscroll-behavior:contain}
+.cbx-list .g{padding:8px 10px 4px;font:700 .7rem/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cbx-list .o{padding:9px 10px;border-radius:8px;cursor:pointer;font-size:.95rem}
+.cbx-list .o.on,.cbx-list .o:hover{background:var(--tint)}
+.cbx-list .none{padding:10px;color:var(--muted);font-size:.9rem}
 .sh-body label small{font-weight:500;color:var(--muted)}
 .sh-body label.check{display:flex;align-items:flex-start;gap:10px;font-weight:500;color:var(--ink);font-size:.88rem}
 .check input{margin-top:3px;width:18px;height:18px;flex:0 0 18px;accent-color:var(--coral)}
@@ -1148,7 +1155,7 @@ footer img{height:56px;width:auto}
           <label>Apellidos<input id="rd-apellidos" autocomplete="family-name"></label>
           <label>Teléfono (WhatsApp)<input id="rd-tel" type="tel" autocomplete="tel" inputmode="tel"></label>
           <label>Edad<select id="rd-edad"><option value="">Elige</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option><option>27</option><option>28</option></select></label>
-          <label>País de procedencia<input id="rd-pais" value="España" list="rd-paises" autocomplete="country-name"><datalist id="rd-paises"><option value="España"><option value="Italia"><option value="Francia"><option value="Portugal"><option value="Alemania"><option value="México"><option value="Colombia"><option value="Argentina"><option value="Perú"><option value="Chile"><option value="Ecuador"><option value="Venezuela"><option value="Guatemala"><option value="Honduras"><option value="Bolivia"><option value="Paraguay"><option value="Uruguay"><option value="República Dominicana"><option value="Estados Unidos"><option value="Marruecos"></datalist></label>
+          <div class="cbx"><label>País de procedencia<input id="rd-pais" value="España" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="rd-pais-list"></label><ul class="cbx-list" id="rd-pais-list" role="listbox" hidden></ul></div>
           <label>Ciudad<input id="rd-prov" placeholder="Ej.: Córdoba" autocomplete="address-level2"></label>
         </div>
         <div class="upl">
@@ -1348,6 +1355,44 @@ footer img{height:56px;width:auto}
 
   /* Reserva */
   var resDlg = document.getElementById('res-dlg'), resRoom = document.getElementById('res-room'), optsBox = document.getElementById('res-opts');
+  // País de procedencia: buscador con los más habituales arriba (España, Latinoamérica, Europa) y luego el resto del mundo
+  (function () {
+    var G = [['', ['España']], ['Latinoamérica', ["México", "Colombia", "Argentina", "Perú", "Venezuela", "Chile", "Ecuador", "Guatemala", "Cuba", "Bolivia", "República Dominicana", "Honduras", "Paraguay", "El Salvador", "Nicaragua", "Costa Rica", "Panamá", "Uruguay", "Puerto Rico"]], ['Europa', ["Portugal", "Francia", "Italia", "Alemania", "Reino Unido", "Países Bajos", "Bélgica", "Irlanda", "Suiza", "Austria", "Polonia", "Rumanía", "Grecia", "Suecia", "Dinamarca", "Noruega", "Finlandia", "Chequia", "Hungría", "Bulgaria", "Croacia", "Ucrania", "Andorra", "Luxemburgo"]], ['Resto del mundo', ["Afganistán", "Albania", "Angola", "Anguila", "Antártida", "Antigua y Barbuda", "Arabia Saudí", "Argelia", "Armenia", "Aruba", "Australia", "Azerbaiyán", "Bahamas", "Bangladés", "Barbados", "Baréin", "Belice", "Benín", "Bermudas", "Bielorrusia", "Bosnia y Herzegovina", "Botsuana", "Brasil", "Brunéi", "Burkina Faso", "Burundi", "Bután", "Cabo Verde", "Camboya", "Camerún", "Canadá", "Caribe neerlandés", "Catar", "Chad", "China", "Chipre", "Ciudad del Vaticano", "Comoras", "Congo", "Corea del Norte", "Corea del Sur", "Côte d’Ivoire", "Curazao", "Dominica", "Egipto", "Emiratos Árabes Unidos", "Eritrea", "Eslovaquia", "Eslovenia", "Estados Unidos", "Estonia", "Esuatini", "Etiopía", "Filipinas", "Fiyi", "Gabón", "Gambia", "Georgia", "Ghana", "Gibraltar", "Granada", "Groenlandia", "Guadalupe", "Guam", "Guayana Francesa", "Guernesey", "Guinea", "Guinea Ecuatorial", "Guinea-Bisáu", "Guyana", "Haití", "India", "Indonesia", "Irak", "Irán", "Isla Bouvet", "Isla de Man", "Isla de Navidad", "Isla Norfolk", "Islandia", "Islas Aland", "Islas Caimán", "Islas Cocos", "Islas Cook", "Islas Feroe", "Islas Georgia del Sur y Sandwich del Sur", "Islas Heard y McDonald", "Islas Malvinas", "Islas Marianas del Norte", "Islas Marshall", "Islas menores alejadas de EE. UU.", "Islas Pitcairn", "Islas Salomón", "Islas Turcas y Caicos", "Islas Vírgenes Británicas", "Islas Vírgenes de EE. UU.", "Israel", "Jamaica", "Japón", "Jersey", "Jordania", "Kazajistán", "Kenia", "Kirguistán", "Kiribati", "Kosovo", "Kuwait", "Laos", "Lesoto", "Letonia", "Líbano", "Liberia", "Libia", "Liechtenstein", "Lituania", "Macedonia del Norte", "Madagascar", "Malasia", "Malaui", "Maldivas", "Mali", "Malta", "Marruecos", "Martinica", "Mauricio", "Mauritania", "Mayotte", "Micronesia", "Moldavia", "Mónaco", "Mongolia", "Montenegro", "Montserrat", "Mozambique", "Myanmar (Birmania)", "Namibia", "Nauru", "Nepal", "Níger", "Nigeria", "Niue", "Nueva Caledonia", "Nueva Zelanda", "Omán", "Pakistán", "Palaos", "Papúa Nueva Guinea", "Polinesia Francesa", "RAE de Hong Kong (China)", "RAE de Macao (China)", "República Centroafricana", "República Democrática del Congo", "Reunión", "Ruanda", "Rusia", "Sáhara Occidental", "Samoa", "Samoa Americana", "San Bartolomé", "San Cristóbal y Nieves", "San Marino", "San Martín", "San Pedro y Miquelón", "San Vicente y las Granadinas", "Santa Elena", "Santa Lucía", "Santo Tomé y Príncipe", "Senegal", "Serbia", "Seychelles", "Sierra Leona", "Singapur", "Sint Maarten", "Siria", "Somalia", "Sri Lanka", "Sudáfrica", "Sudán", "Sudán del Sur", "Surinam", "Svalbard y Jan Mayen", "Tailandia", "Taiwán", "Tanzania", "Tayikistán", "Territorio Británico del Océano Índico", "Territorios Australes Franceses", "Territorios Palestinos", "Timor-Leste", "Togo", "Tokelau", "Tonga", "Trinidad y Tobago", "Túnez", "Turkmenistán", "Turquía", "Tuvalu", "Uganda", "Uzbekistán", "Vanuatu", "Vietnam", "Wallis y Futuna", "Yemen", "Yibuti", "Zambia", "Zimbabue"]]];
+    var inp = document.getElementById('rd-pais'), ul = document.getElementById('rd-pais-list'), act = -1;
+    function nrm(t) { return String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+    function draw() {
+      var q = nrm(inp.value.trim()), html = '', n = 0;
+      if (G.some(function (g) { return g[1].indexOf(inp.value.trim()) >= 0; })) q = inp.dataset.typed ? q : '';
+      G.forEach(function (g) {
+        var items = g[1].filter(function (c) { return !q || nrm(c).indexOf(q) >= 0; });
+        if (q) items.sort(function (a, b) { return (nrm(a).indexOf(q) !== 0) - (nrm(b).indexOf(q) !== 0); });
+        if (!items.length) return;
+        if (g[0]) html += '<li class="g" role="presentation">' + g[0] + '</li>';
+        items.forEach(function (c) { html += '<li class="o" role="option" data-v="' + c + '">' + c + '</li>'; n++; });
+      });
+      ul.innerHTML = html || '<li class="none">Sin resultados: puedes dejarlo escrito así.</li>';
+      act = -1; open(true);
+    }
+    function open(v) { ul.hidden = !v; inp.setAttribute('aria-expanded', v ? 'true' : 'false'); }
+    function pick(v) { inp.value = v; inp.dataset.typed = ''; open(false); var l = inp.closest('label.bad'); if (l) l.classList.remove('bad'); }
+    function mark(i) { var o = ul.querySelectorAll('.o'); if (!o.length) return; act = (i + o.length) % o.length; o.forEach(function (x, k) { x.classList.toggle('on', k === act); }); o[act].scrollIntoView({ block: 'nearest' }); }
+    inp.addEventListener('focus', function () {
+      inp.dataset.typed = ''; draw(); setTimeout(function () { inp.select(); }, 0);
+      // En el móvil sube el campo para que la lista no quede tapada por el teclado
+      if (window.innerWidth < 700) setTimeout(function () { inp.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 300);
+    });
+    inp.addEventListener('input', function () { inp.dataset.typed = '1'; draw(); });
+    inp.addEventListener('blur', function () { setTimeout(function () { open(false); }, 150); });
+    inp.addEventListener('keydown', function (e) {
+      if (ul.hidden) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); mark(act + 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); mark(act - 1); }
+      else if (e.key === 'Enter') { var o = ul.querySelectorAll('.o')[act < 0 ? 0 : act]; if (o) { e.preventDefault(); pick(o.getAttribute('data-v')); } }
+      else if (e.key === 'Escape') { e.stopPropagation(); open(false); }
+    });
+    ul.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    ul.addEventListener('click', function (e) { var o = e.target.closest('.o'); if (o) pick(o.getAttribute('data-v')); });
+  })();
   function chosen() {
     var i = optsBox.querySelector('input:checked'), room = byId(resRoom.value);
     var o = room && i ? opt(room, i.value) : null;
