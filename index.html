@@ -1345,7 +1345,7 @@ footer img{height:56px;width:auto}
     buildSegs();
     var RANK = { libre: 0, parcial: 1, ocupada: 2 };
     grid.innerHTML = active().map(function (r) { return { r: r, st: cardState(r) }; }).sort(function (a, b) {
-      return (RANK[a.st.kind] - RANK[b.st.kind]) || (a.r.num - b.r.num);
+      return (RANK[a.st.kind] - RANK[b.st.kind]) || ((+a.r.precio || 0) - (+b.r.precio || 0)) || (a.r.num - b.r.num);
     }).map(function (x) {
       var r = x.r, st = x.st;
       return '<article class="room-card st-' + st.kind + '" data-reserve="' + r.id + '" role="button" tabindex="0" aria-label="Solicitar plaza en ' + esc(r.nombre) + '">' +
