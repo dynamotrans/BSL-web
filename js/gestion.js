@@ -325,7 +325,7 @@
     var st = PRE_ST[x.estado] || PRE_ST.nueva, ig = String(x.instagram || '').replace(/^@+/, ''), ed = x.edad || edad(x.nacimiento);
     var img = x.doc && x.doc.tipo !== 'pdf';
     return '<div class="pcard" role="button" tabindex="0" data-sol="' + esc(x.id) + '">' +
-      '<span class="pthumb' + (img ? '' : ' pdf') + '"' + (docsOf(x).length > 1 ? ' data-n="' + docsOf(x).length + '"' : '') + (img ? ' data-thumb="' + esc(x.doc.path) + '"' : '') + '>' + (img ? '' : (x.doc ? 'PDF' : '—')) + '</span>' +
+      (x.doc ? '<span class="pthumb' + (img ? '' : ' pdf') + '"' + (docsOf(x).length > 1 ? ' data-n="' + docsOf(x).length + '"' : '') + (img ? ' data-thumb="' + esc(x.doc.path) + '"' : '') + '>' + (img ? '' : 'PDF') + '</span>' : '') +
       '<span class="pinfo"><b>' + esc(x.nombre + ' ' + x.apellidos) + (ed !== null ? ' <em>' + ed + ' años</em>' : '') + '</b>' +
       '<small>' + esc(x.universidad) + (x.estudios ? ' · ' + esc(x.estudios) : '') + '</small>' +
       '<small>' + esc([[x.provincia, x.pais].filter(Boolean).join(', '), x.documento ? (x.tipoDoc || 'Doc.') + ' ' + x.documento : ''].filter(Boolean).join(' · ')) + '</small>' +

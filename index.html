@@ -1181,12 +1181,12 @@ footer img{height:56px;width:auto}
     <h4>3. Si se te ofrece plaza</h4>
     <p>La plaza solo queda confirmada cuando se firma el contrato de arrendamiento de habitación y se abona la fianza, equivalente a una mensualidad de alquiler. Hasta entonces, la habitación puede ofrecerse a otras solicitantes.</p>
     <h4>4. Veracidad de los datos</h4>
-    <p>Declaras que los datos y el documento que envías son ciertos y te pertenecen. Una información falsa es motivo para no admitir la solicitud o resolver el contrato.</p>
+    <p>Declaras que los datos que envías son ciertos y te pertenecen. Una información falsa es motivo para no admitir la solicitud o resolver el contrato.</p>
     <h4>5. Protección de datos</h4>
     <p><b>Responsable:</b> BSL · Boutique Student Living, Calle Canónigo, 41701 Dos Hermanas (Sevilla). Contacto: teléfono y WhatsApp +34 672 33 89 22.</p>
-    <p><b>Finalidad:</b> estudiar tu solicitud de admisión, contactarte y, si se te ofrece plaza, preparar el contrato. El documento de identidad se usa solo para verificar tu identidad y redactar el contrato.</p>
+    <p><b>Finalidad:</b> estudiar tu solicitud de admisión, contactarte y, si se te ofrece plaza, preparar el contrato.</p>
     <p><b>Base legal:</b> tu consentimiento y la aplicación de medidas precontractuales a petición tuya (art. 6.1.a y 6.1.b del Reglamento General de Protección de Datos).</p>
-    <p><b>Conservación:</b> si no se formaliza el contrato, tus datos y tu documento se eliminan en un plazo máximo de 6 meses. Si se formaliza, se conservan durante la relación contractual y los plazos legales posteriores.</p>
+    <p><b>Conservación:</b> si no se formaliza el contrato, tus datos se eliminan en un plazo máximo de 6 meses. Si se formaliza, se conservan durante la relación contractual y los plazos legales posteriores.</p>
     <p><b>Destinatarios:</b> no se ceden a terceros salvo obligación legal. Se guardan en servidores de proveedores tecnológicos con garantías adecuadas.</p>
     <p><b>Derechos:</b> puedes pedir el acceso, rectificación, supresión, oposición, limitación y portabilidad de tus datos, o retirar tu consentimiento, escribiendo al contacto indicado. También puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es).</p>
   </div>
@@ -1216,7 +1216,6 @@ footer img{height:56px;width:auto}
         <option value="Universidad de Sevilla">Universidad de Sevilla</option>
         <option value="Máster">Máster</option>
         <option value="Otro centro docente">Otro centro docente</option>
-        <option value="Prácticas">Prácticas</option>
       </select></label>
       <p class="res-err" id="res-perfil-err" hidden>Elige dónde estudias para poder seguir.</p>
       </div>
@@ -1231,12 +1230,6 @@ footer img{height:56px;width:auto}
           <label>Ciudad<input id="rd-prov" placeholder="Ej.: Córdoba" autocomplete="address-level2"></label>
           <div class="full tel-wrap"><label class="tel-l">Teléfono (WhatsApp)<span class="tel-in"><span class="tel-p"><span class="tel-f" id="rd-flag" aria-hidden="true"></span><input id="rd-pref" value="+34" inputmode="tel" autocomplete="off" aria-label="Prefijo del país" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="rd-pref-list"></span><input id="rd-tel" type="tel" autocomplete="tel-national" inputmode="tel" placeholder="600 000 000"></span></label><ul class="cbx-list" id="rd-pref-list" role="listbox" hidden></ul></div>
           <label>Edad<select id="rd-edad"><option value="">Elige</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option><option>27</option><option>28</option></select></label>
-        </div>
-        <div class="upl">
-          <span class="upl-t">Fotos o PDF del DNI / pasaporte <small>(hasta 4: por ejemplo, por delante y por detrás)</small></span>
-          <div class="upl-list" id="rd-files"></div>
-          <label class="upl-btn" id="rd-file-btn"><input type="file" id="rd-file" accept="image/*,application/pdf" multiple hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg><span id="rd-file-t">Subir documento</span></label>
-          <small>Solo lo verá BSL para preparar el contrato. Máximo 3 MB por archivo.</small>
         </div>
         <button type="button" class="linkbtn rd-msg-open" id="rd-msg-open">+ Añadir un mensaje (opcional)</button>
         <label class="full" id="rd-msg-box" hidden>Mensaje (opcional)<textarea id="rd-msg" rows="3" placeholder="Fecha de llegada, dudas…"></textarea></label>
@@ -1605,60 +1598,12 @@ footer img{height:56px;width:auto}
       '<dt>Estudiante</dt><dd>' + esc(val('rd-nombre') + ' ' + val('rd-apellidos')) + '<small>' + esc(val('rd-edad') + ' años · ' + val('res-perfil')) + '</small></dd>' +
       '<dt>Cada mes</dt><dd>' + money(r.precio) + ' + ' + money(r.gastos) + ' de gastos</dd>' +
       '<dt>Contacto</dt><dd>' + esc(val('rd-pref') + ' ' + val('rd-tel')) + '<small>WhatsApp</small></dd>' +
-      '<dt>Procedencia</dt><dd>' + esc([val('rd-prov'), val('rd-pais')].filter(Boolean).join(', ')) + '</dd>' +
-      '<dt>Documento</dt><dd>DNI / pasaporte<small>' + docFiles.length + ' archivo' + (docFiles.length > 1 ? 's' : '') + ' adjunto' + (docFiles.length > 1 ? 's' : '') + '</small></dd></dl>' +
+      '<dt>Procedencia</dt><dd>' + esc([val('rd-prov'), val('rd-pais')].filter(Boolean).join(', ')) + '</dd></dl>' +
       '';
     $r('res-sent').hidden = !sent;
     $r('res-sum').hidden = sent; resDlg.querySelector('.nextbox').hidden = sent;
   }
-  // Documentos (DNI / pasaporte): hasta 4 fotos o PDF. Cada uno se sube al elegirlo;
-  // las fotos se reducen antes para que ocupen poco.
-  var docFiles = [], uploading = 0, sending = false, sent = false, MAXDOCS = 4;
-  function drawFiles() {
-    $r('rd-files').innerHTML = docFiles.map(function (d, i) {
-      return '<span class="upl-item"><i>' + (d.tipo === 'pdf' ? 'PDF' : 'FOTO') + '</i><em>' + esc(d.nombre) + '</em><button type="button" data-rmdoc="' + i + '" aria-label="Quitar">✕</button></span>';
-    }).join('');
-    $r('rd-file-btn').hidden = docFiles.length >= MAXDOCS;
-    $r('rd-file-t').textContent = uploading ? 'Subiendo…' : docFiles.length ? 'Añadir otro' : 'Subir documento';
-  }
-  $r('rd-files').addEventListener('click', function (e) { var b = e.target.closest('[data-rmdoc]'); if (b) { docFiles.splice(+b.getAttribute('data-rmdoc'), 1); drawFiles(); } });
-  function readDoc(f) {
-    return new Promise(function (res, rej) {
-      var isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
-      if (!isPdf && !/^image\//.test(f.type)) return rej(new Error(f.name + ': tiene que ser una foto o un PDF.'));
-      var fr = new FileReader();
-      fr.onerror = function () { rej(new Error('No se puede leer ' + f.name)); };
-      fr.onload = function () {
-        if (isPdf) { if (f.size > 3 * 1024 * 1024) return rej(new Error(f.name + ' pesa más de 3 MB.')); return res(fr.result.replace(/^data:[^;]*;/, 'data:application/pdf;')); }
-        var img = new Image();
-        img.onload = function () {
-          var k = Math.min(1, 2000 / Math.max(img.width, img.height)), cv = document.createElement('canvas');
-          cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
-          cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-          res(cv.toDataURL('image/jpeg', 0.82));
-        };
-        img.onerror = function () { rej(new Error(f.name + ': no se puede leer esa foto. Prueba con otra o con un PDF.')); };
-        img.src = fr.result;
-      };
-      fr.readAsDataURL(f);
-    });
-  }
-  $r('rd-file').addEventListener('change', function () {
-    var files = Array.prototype.slice.call(this.files || [], 0, MAXDOCS - docFiles.length); this.value = '';
-    if (!files.length) return;
-    stepErr('rd-err', '');
-    files.reduce(function (p, f) {
-      return p.then(function () {
-        uploading++; drawFiles();
-        return readDoc(f).then(function (data) {
-          return fetch('/api/solicitud-doc', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: data }) })
-            .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) throw new Error(j.error || 'No se ha podido subir ' + f.name); return j; }); });
-        }).then(function (j) { docFiles.push({ path: j.path, tipo: j.tipo, nombre: f.name }); },
-          function (err) { stepErr('rd-err', err.message); })
-          .then(function () { uploading--; drawFiles(); });
-      });
-    }, Promise.resolve());
-  });
+  var sending = false, sent = false;
   $r('res-back').addEventListener('click', function () { goStep(rstep - 1); });
   resDlg.addEventListener('click', function (e) { if (e.target.closest('[data-legal]')) { e.preventDefault(); open(document.getElementById('legal-dlg')); } });
   document.getElementById('rd-msg-open').addEventListener('click', function () { this.hidden = true; var b = document.getElementById('rd-msg-box'); b.hidden = false; b.querySelector('textarea').focus(); });
@@ -1679,8 +1624,6 @@ footer img{height:56px;width:auto}
     for (var i = 0; i < need.length; i++) if (!val(need[i][0])) { stepErr('rd-err', 'Falta ' + need[i][1] + '.', $r(need[i][0])); return false; }
     if (!/^\+\d{1,4}$/.test(val('rd-pref'))) { stepErr('rd-err', 'Revisa el prefijo del teléfono (por ejemplo +34).', $r('rd-pref')); return false; }
     if (val('rd-tel').replace(/\D/g, '').length < 9) { stepErr('rd-err', 'Revisa el teléfono.', $r('rd-tel')); return false; }
-    if (uploading) { stepErr('rd-err', 'Espera a que terminen de subirse los documentos.'); return false; }
-    if (!docFiles.length) { stepErr('rd-err', 'Sube al menos una foto o PDF de tu DNI o pasaporte.', $r('rd-file-btn')); return false; }
     stepErr('rd-err', ''); return true;
   }
   document.getElementById('res-form').addEventListener('submit', function (e) {
@@ -1706,7 +1649,7 @@ footer img{height:56px;width:auto}
       edad: +val('rd-edad') || 0, pais: val('rd-pais'), provincia: val('rd-prov'), universidad: val('res-perfil'),
       mensaje: val('rd-msg'), web: val('rd-web'), acepta: true,
       habitacionId: c.room.id, habitacion: c.room.nombre, precio: c.room.precio, gastos: c.room.gastos,
-      periodo: { titulo: c.o.title, desde: c.o.from, hasta: c.o.to }, docs: docFiles
+      periodo: { titulo: c.o.title, desde: c.o.from, hasta: c.o.to }
     };
     // Al pulsar: se guarda en el panel y se abre WhatsApp con la solicitud escrita para BSL
     var waText = 'Hola BSL 👋 Acabo de enviar mi solicitud de admisión desde la web.\n\n' +
