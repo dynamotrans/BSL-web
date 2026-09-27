@@ -552,6 +552,7 @@ label.bad input,label.bad select,label.bad textarea{border-color:#d4456f!importa
 .pc-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 3px rgba(0,0,0,.4)}
 .pc-dots i.on{background:#fff}
 .rc-photo .pc-dots{bottom:12px}
+.rc-n{position:absolute;right:10px;bottom:10px;padding:5px 10px;border-radius:999px;background:rgba(15,48,51,.78);color:#fff;font:700 .74rem/1 var(--sans)}
 .room-card:hover .rc-photo .pc img{transform:none}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
 .chips li{background:var(--tint);border-radius:999px;padding:7px 12px;font-size:.85rem}
@@ -1271,7 +1272,8 @@ footer img{height:56px;width:auto}
       var r = x.r, st = x.st;
       return '<article class="room-card st-' + st.kind + '" data-reserve="' + r.id + '" role="button" tabindex="0" aria-label="Solicitar plaza en ' + esc(r.nombre) + '">' +
         '<div class="rc-photo">' +
-        (r.fotos && r.fotos.length ? photoCar(r.fotos, r.nombre) : '<div class="rc-ph"><span>Fotos próximamente</span></div>') +
+        // En la tarjeta solo la portada (así deslizar mueve las habitaciones); las demás fotos se ven al abrirla
+        (r.fotos && r.fotos.length ? '<img src="' + esc(r.fotos[0]) + '" alt="' + esc(r.nombre) + '" loading="lazy">' + (r.fotos.length > 1 ? '<span class="rc-n">' + r.fotos.length + ' fotos</span>' : '') : '<div class="rc-ph"><span>Fotos próximamente</span></div>') +
         '<span class="badge"><i class="dot"></i>' + esc(st.text) + '</span></div>' +
         '<div class="rc-body"><p class="rc-num">Habitación</p><h3>' + esc(r.nombre) + '</h3>' +
         '<p class="rc-meta">' + B.m2(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
