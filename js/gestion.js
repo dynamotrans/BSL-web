@@ -374,7 +374,7 @@
       (x.estado !== 'aceptada' ? '<button type="button" class="btn sm" id="sol-ok">Admitir como inquilina</button>' : '') +
       (x.estado === 'aceptada' ? '<button type="button" class="btn sm" id="sol-pay">' + (x.pago ? 'Nuevo enlace de pago' : 'Generar enlace de pago (' + money(fianza) + ')') + '</button>' : '') +
       '</div></div></form>';
-    var err = function (m) { var p = $('sol-err'); p.textContent = m; p.hidden = !m; };
+    var err = function (m) { var p = $('sol-err'); p.textContent = m; p.hidden = !m; if (m) p.scrollIntoView({ block: 'center', behavior: 'smooth' }); };
     dlg.querySelector('.dx').onclick = function () { dlg.close(); };
     loadThumbs(dlg);
     dlg.querySelectorAll('[data-opendoc]').forEach(function (b) { b.onclick = function () {

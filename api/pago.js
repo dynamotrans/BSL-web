@@ -18,8 +18,14 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return send(res, 405, { error: 'Método no permitido' });
   if (!isAuthed(req)) return send(res, 401, { error: 'Sesión caducada. Vuelve a entrar.' });
   if (!canWrite(req)) return send(res, 403, { error: READONLY_MSG });
-  const key = process.env.STRIPE_SECRET_KEY;
+  const key = String(process.env.STRIPE_SECRET_KEY || '').trim();
   if (!key) return send(res, 503, { error: 'Los pagos con Stripe todavía no están activados. En cuanto la cuenta esté verificada y la clave puesta en Vercel, este botón generará el enlace.' });
+  // Solo se mira el prefijo (sk_live / rk_live / pk_live…) para diagnosticar; la clave nunca se muestra.
+  if (!/^(sk|rk)_(live|test)_/.test(key)) {
+    const pre = (key.match(/^[a-z]+_[a-z]+_/) || ['desconocido'])[0];
+    console.error('pago: STRIPE_SECRET_KEY con formato no válido, prefijo ' + pre);
+    return send(res, 503, { error: 'La clave de Stripe puesta en Vercel no es la secreta (empieza por «' + pre + '»). Hay que pegar la que empieza por sk_live_.' });
+  }
   const b = req.body || {};
   const cents = Math.round((Number(b.importe) || 0) * 100);
   if (cents < 100 || cents > 1000000) return send(res, 400, { error: 'Importe no válido' });
@@ -35,6 +41,7 @@ export default async function handler(req, res) {
     }, key);
     return send(res, 200, { url: link.url });
   } catch (e) {
+    console.error('pago: Stripe ha rechazado la petición: ' + e.message);
     return send(res, 502, { error: 'Stripe: ' + e.message });
   }
 }
