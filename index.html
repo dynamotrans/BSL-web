@@ -494,9 +494,10 @@ dialog.sheet.legal{width:min(620px,calc(100% - 24px))}
 @media (max-width:420px){.rgrid2{grid-template-columns:minmax(0,1fr)}}
 dialog.sheet{overflow-x:hidden;border:0;padding:0;border-radius:18px;background:var(--surface);color:var(--ink);width:min(560px,calc(100% - 24px));max-width:none;max-height:calc(100% - 32px);max-height:calc(100dvh - 32px);margin:auto;overflow-y:auto;overscroll-behavior:contain;box-shadow:0 40px 80px -30px rgba(0,0,0,.5)}
 .res-info{display:grid;gap:12px}
-.rd-msg-open{justify-self:start;font-weight:700}
-.rd-legal{margin:0;font-size:.85rem;line-height:1.45;color:var(--muted)}
-.rd-legal .linkbtn{display:inline}
+.rd-msg-open{justify-self:start;margin-top:14px;font-weight:600;font-size:.9rem;color:var(--ink);text-decoration:none;opacity:.8}
+.rd-msg-open:hover{opacity:1;text-decoration:underline}
+.rd-legal{margin:14px 0 0;padding-top:14px;border-top:1px solid var(--line);font-size:.8rem;line-height:1.5;color:var(--muted)}
+.rd-legal .linkbtn{display:inline;font-weight:600;color:var(--muted);text-decoration:underline}
 .res-info .rd-photos{margin:0;border-radius:12px}
 .res-info .rd-photos img{aspect-ratio:16/10;max-height:300px}
 dialog.sheet[open]{animation:sheetin .45s var(--ease)}
@@ -517,7 +518,11 @@ dialog.sheet::backdrop{background:rgba(9,28,30,.7)}
 .opt input{accent-color:#c0456f;width:18px;height:18px;margin:0}
 .opt:has(input:checked){border-color:var(--coral);background:color-mix(in srgb,var(--coral) 8%,transparent)}
 .opts{display:grid;gap:8px}
-.res-err{margin:-4px 0 0;color:var(--occ,#c0456f);font-size:.85rem;font-weight:600}
+.res-err{display:flex;align-items:center;gap:10px;margin:4px 0 0;padding:12px 14px;border-radius:12px;background:#fde7ee;border:1.5px solid #e2708f;color:#a3163f;font-size:.92rem;font-weight:700;line-height:1.35;animation:errIn .4s var(--ease)}
+.res-err::before{content:"!";flex:0 0 22px;height:22px;border-radius:50%;background:#c42a55;color:#fff;display:grid;place-items:center;font:800 .8rem/1 var(--sans)}
+@keyframes errIn{0%{transform:translateX(0)}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-3px)}100%{transform:none}}
+label.bad{color:#a3163f}
+label.bad input,label.bad select,label.bad textarea{border-color:#d4456f!important;box-shadow:0 0 0 3px rgba(212,69,111,.15)}
 .opt .ost{display:inline-flex;align-items:center;gap:6px;margin-top:4px;font-size:.83rem;font-weight:600;color:var(--ink)}
 .opt.main{border-width:2px}
 .tag{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:999px;background:var(--grad);color:#1a1414;font-size:.68rem;font-weight:700;vertical-align:2px}
@@ -1137,7 +1142,7 @@ footer img{height:56px;width:auto}
         <button type="button" class="linkbtn rd-msg-open" id="rd-msg-open">+ Añadir un mensaje (opcional)</button>
         <label class="full" id="rd-msg-box" hidden>Mensaje (opcional)<textarea id="rd-msg" rows="3" placeholder="Fecha de llegada, dudas…"></textarea></label>
         <input type="text" id="rd-web" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
-        <p class="rd-legal">Al continuar aceptas las <button type="button" class="linkbtn" data-legal>condiciones de la solicitud y la información sobre protección de datos</button>.</p>
+        <p class="rd-legal">Al continuar aceptas las <a href="#" class="linkbtn" data-legal>condiciones de la solicitud y la información sobre protección de datos</a>.</p>
         <p class="res-err" id="rd-err" hidden></p>
       </div>
 
@@ -1490,7 +1495,18 @@ footer img{height:56px;width:auto}
   $r('res-back').addEventListener('click', function () { goStep(rstep - 1); });
   resDlg.addEventListener('click', function (e) { if (e.target.closest('[data-legal]')) { e.preventDefault(); open(document.getElementById('legal-dlg')); } });
   document.getElementById('rd-msg-open').addEventListener('click', function () { this.hidden = true; var b = document.getElementById('rd-msg-box'); b.hidden = false; b.querySelector('textarea').focus(); });
-  function stepErr(id, msg, focus) { var p = $r(id); p.textContent = msg; p.hidden = !msg; if (focus) { focus.focus(); focus.scrollIntoView({ block: 'center', behavior: 'smooth' }); } }
+  function stepErr(id, msg, focus) {
+    var p = $r(id); p.textContent = msg; p.hidden = !msg;
+    if (!p._home) { p._home = p.parentNode; p._next = p.nextSibling; }
+    if (!focus || !focus.closest('label')) { p._home.insertBefore(p, p._next); p.style.gridColumn = ''; }
+    resDlg.querySelectorAll('label.bad').forEach(function (l) { l.classList.remove('bad'); });
+    if (focus) {
+      var l = focus.closest('label'); if (l) { l.classList.add('bad'); l.after(p); p.style.gridColumn = '1 / -1'; }
+      focus.focus(); focus.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+  }
+  resDlg.addEventListener('input', function (e) { var l = e.target.closest && e.target.closest('label.bad'); if (l) l.classList.remove('bad'); });
+  resDlg.addEventListener('change', function (e) { var l = e.target.closest && e.target.closest('label.bad'); if (l) l.classList.remove('bad'); });
   function checkDatos() {
     var need = [['rd-nombre', 'el nombre'], ['rd-apellidos', 'los apellidos'], ['rd-tel', 'el teléfono'], ['rd-edad', 'la edad'], ['rd-prov', 'el país y la ciudad de procedencia'], ['rd-ig', 'tu Instagram']];
     for (var i = 0; i < need.length; i++) if (!val(need[i][0])) { stepErr('rd-err', 'Falta ' + need[i][1] + '.', $r(need[i][0])); return false; }
