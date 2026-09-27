@@ -26,6 +26,11 @@ export default async function handler(req, res) {
     console.error('pago: STRIPE_SECRET_KEY con formato no válido, prefijo ' + pre);
     return send(res, 503, { error: 'La clave de Stripe puesta en Vercel no es la secreta (empieza por «' + pre + '»). Hay que pegar la que empieza por sk_live_.' });
   }
+  const bad = key.search(/[^A-Za-z0-9_]/);
+  if (bad >= 0) {
+    console.error('pago: STRIPE_SECRET_KEY con un carácter no válido en la posición ' + (bad + 1) + ' de ' + key.length);
+    return send(res, 503, { error: 'La clave de Stripe en Vercel está mal copiada: tiene un carácter raro en la posición ' + (bad + 1) + ' (de ' + key.length + '). Cópiala de nuevo desde Stripe, pégala en Vercel y haz Redeploy.' });
+  }
   const b = req.body || {};
   const cents = Math.round((Number(b.importe) || 0) * 100);
   if (cents < 100 || cents > 1000000) return send(res, 400, { error: 'Importe no válido' });
