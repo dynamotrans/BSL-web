@@ -112,6 +112,25 @@ a,button,select,summary,[role=button]{cursor:var(--cursor),pointer}
 .btn.line:hover{box-shadow:inset 0 0 0 1.5px var(--cream)}
 .btn.line.dark{color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
 .top .btn{padding:10px 18px;font-size:.88rem}
+/* Selector de idioma (Google Translate, igual que en Dynamo) */
+.lang{position:relative;flex:0 0 auto}
+.lang-btn{display:flex;align-items:center;gap:6px;height:38px;padding:0 11px;border-radius:999px;border:0;background:rgba(243,239,230,.1);box-shadow:inset 0 0 0 1.5px rgba(243,239,230,.28);color:var(--cream);font:700 .8rem/1 var(--sans);cursor:pointer}
+.lang-btn:hover{box-shadow:inset 0 0 0 1.5px rgba(243,239,230,.6)}
+.lang-btn .flag{font-size:1.05rem;line-height:1}
+.lang-btn .arr{font-size:.7rem;opacity:.75;transition:transform .2s}
+.lang-btn[aria-expanded="true"] .arr{transform:rotate(180deg)}
+.lang-dd{position:absolute;right:0;top:calc(100% + 8px);z-index:60;min-width:172px;padding:6px;border-radius:14px;background:#fff;box-shadow:0 18px 40px -14px rgba(0,0,0,.45);display:grid;gap:2px}
+.lang-dd[hidden]{display:none}
+.lang-opt{display:flex;align-items:center;gap:10px;padding:9px 10px;border:0;border-radius:9px;background:none;color:#10292a;font:600 .9rem/1 var(--sans);text-align:left;cursor:pointer}
+.lang-opt:hover{background:#eef3f2}
+.lang-opt.active{background:#fde9e1;color:#b24a2c}
+.lang-opt .flag{font-size:1.15rem}
+/* Ocultar la interfaz de Google Translate */
+.goog-te-banner-frame,#goog-gt-tt,.goog-te-balloon-frame,.goog-te-gadget,.goog-te-spinner-pos,.goog-te-spinner-pos *,img.goog-te-spinner,.goog-te-gadget-icon,.goog-te-gadget-simple,iframe.skiptranslate,iframe.goog-te-menu-frame{display:none!important}
+body{top:0!important}
+.skiptranslate{display:none!important;height:0!important;overflow:hidden!important}
+.goog-text-highlight{background:none!important;box-shadow:none!important}
+#google_translate_element{position:absolute;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 
 /* ---------- Portada: entrar en la casa ---------- */
 .intro{position:relative;height:135vh;background:var(--teal-deep);--p:0}
@@ -748,7 +767,10 @@ footer img{height:56px;width:auto}
   .amen li::before{grid-row:span 2;margin:3px 0 0}
   .brand img{height:34px}
   .top .btn{display:none}
-  .top-res{display:grid}
+  .top-res{display:grid;order:3}
+  .lang{order:2}
+  .lang-btn{height:34px;padding:0 9px;gap:4px}
+  .lang-btn .code{display:none}
   .form{grid-template-columns:1fr}
   .near{grid-template-columns:1fr}
   .board td{padding:13px 14px}
@@ -789,6 +811,7 @@ footer img{height:56px;width:auto}
       <a href="#ubicacion">Ubicación</a>
       <a href="#condiciones">Condiciones</a>
     </nav>
+    <div class="lang notranslate" translate="no"><button type="button" class="lang-btn" id="lang-btn" aria-haspopup="true" aria-expanded="false" aria-label="Idioma"><span class="flag">🇪🇸</span><span class="code">ES</span><span class="arr" aria-hidden="true">▾</span></button><div class="lang-dd" id="lang-dd" role="menu" hidden><button type="button" class="lang-opt active" role="menuitem" data-lang="es" data-flag="🇪🇸" data-code="ES"><span class="flag">🇪🇸</span> Español</button><button type="button" class="lang-opt" role="menuitem" data-lang="pt" data-flag="🇵🇹" data-code="PT"><span class="flag">🇵🇹</span> Português</button><button type="button" class="lang-opt" role="menuitem" data-lang="en" data-flag="🇬🇧" data-code="EN"><span class="flag">🇬🇧</span> English</button><button type="button" class="lang-opt" role="menuitem" data-lang="de" data-flag="🇩🇪" data-code="DE"><span class="flag">🇩🇪</span> Deutsch</button><button type="button" class="lang-opt" role="menuitem" data-lang="nl" data-flag="🇳🇱" data-code="NL"><span class="flag">🇳🇱</span> Nederlands</button><button type="button" class="lang-opt" role="menuitem" data-lang="fr" data-flag="🇫🇷" data-code="FR"><span class="flag">🇫🇷</span> Français</button><button type="button" class="lang-opt" role="menuitem" data-lang="it" data-flag="🇮🇹" data-code="IT"><span class="flag">🇮🇹</span> Italiano</button><button type="button" class="lang-opt" role="menuitem" data-lang="ar" data-flag="🇸🇦" data-code="AR"><span class="flag">🇸🇦</span> العربية</button><button type="button" class="lang-opt" role="menuitem" data-lang="zh-CN" data-flag="🇨🇳" data-code="ZH"><span class="flag">🇨🇳</span> 中文</button><button type="button" class="lang-opt" role="menuitem" data-lang="ja" data-flag="🇯🇵" data-code="JA"><span class="flag">🇯🇵</span> 日本語</button></div></div>
     <a class="btn" href="#habitaciones">Solicitar plaza</a>
   </div>
 </header>
@@ -1145,12 +1168,12 @@ footer img{height:56px;width:auto}
       <div class="alt" id="res-alt" hidden></div>
       <label id="res-perfil-l">Soy estudiante de<select id="res-perfil" required>
         <option value="">Elige una opción…</option>
-        <option>Universidad Loyola Andalucía</option>
-        <option>Universidad Pablo de Olavide</option>
-        <option>Universidad de Sevilla</option>
-        <option>Máster</option>
-        <option>Otro centro docente</option>
-        <option>Prácticas</option>
+        <option value="Universidad Loyola Andalucía">Universidad Loyola Andalucía</option>
+        <option value="Universidad Pablo de Olavide">Universidad Pablo de Olavide</option>
+        <option value="Universidad de Sevilla">Universidad de Sevilla</option>
+        <option value="Máster">Máster</option>
+        <option value="Otro centro docente">Otro centro docente</option>
+        <option value="Prácticas">Prácticas</option>
       </select></label>
       <p class="res-err" id="res-perfil-err" hidden>Elige dónde estudias para poder seguir.</p>
       </div>
@@ -1889,6 +1912,87 @@ var WA_NUMBER = (window.BSL_CONFIG && window.BSL_CONFIG.whatsapp) || '';
     if (e.key === 'ArrowRight') show(cur + 1);
   });
 
+})();
+</script>
+<div id="google_translate_element"></div>
+<script>
+/* Idiomas con Google Translate (mismo sistema que Dynamo y Montes Blanco). Español = página original. */
+(function () {
+  var LANGS = {'es':['🇪🇸','ES'],'pt':['🇵🇹','PT'],'en':['🇬🇧','EN'],'de':['🇩🇪','DE'],'nl':['🇳🇱','NL'],'fr':['🇫🇷','FR'],'it':['🇮🇹','IT'],'ar':['🇸🇦','AR'],'zh-CN':['🇨🇳','ZH'],'ja':['🇯🇵','JA']};
+  var btn = document.getElementById('lang-btn'), dd = document.getElementById('lang-dd');
+  var loaded = false, ready = false;
+  function load() {
+    if (loaded) return; loaded = true;
+    var s = document.createElement('script');
+    s.src = 'https://translate.google.com/translate_a/element.js?cb=bslGT';
+    s.onerror = function () { loaded = false; };
+    document.body.appendChild(s);
+  }
+  window.bslGT = function () {
+    new google.translate.TranslateElement({ pageLanguage: 'es', autoDisplay: false, includedLanguages: 'pt,en,de,nl,fr,it,ar,zh-CN,ja' }, 'google_translate_element');
+    var t = setInterval(function () { if (document.querySelector('.goog-te-combo')) { ready = true; clearInterval(t); } }, 200);
+    setTimeout(function () { clearInterval(t); }, 10000);
+  };
+  function apply(lang) {
+    var sel = document.querySelector('.goog-te-combo');
+    if (!sel) return false;
+    sel.value = lang; sel.dispatchEvent(new Event('change')); return true;
+  }
+  function show(lang) {
+    var i = LANGS[lang] || LANGS.es;
+    btn.querySelector('.flag').textContent = i[0]; btn.querySelector('.code').textContent = i[1];
+    dd.querySelectorAll('.lang-opt').forEach(function (o) { o.classList.toggle('active', o.getAttribute('data-lang') === lang); });
+  }
+  function hosts() { var h = location.hostname, p = h.split('.'), d = ['', h, '.' + h]; if (p.length > 2) { var b = p.slice(1).join('.'); d.push(b, '.' + b); } return d; }
+  function setCookie(v) { hosts().forEach(function (d) { document.cookie = 'googtrans=' + v + '; path=/' + (d ? '; domain=' + d : ''); }); }
+  function clearCookie() { hosts().forEach(function (d) { document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/' + (d ? '; domain=' + d : ''); }); }
+  function openDd(v) { dd.hidden = !v; btn.setAttribute('aria-expanded', v ? 'true' : 'false'); }
+  btn.addEventListener('click', function (e) { e.stopPropagation(); openDd(dd.hidden); });
+  document.addEventListener('click', function (e) { if (!e.target.closest('.lang')) openDd(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') openDd(false); });
+  function change(lang) {
+    openDd(false); show(lang);
+    if (lang === 'es') { // volver al original: se borra la cookie y se recarga limpio
+      clearCookie();
+      setTimeout(function () { clearCookie(); location.href = location.pathname + '?lang=es&t=' + Date.now(); }, 100);
+      return;
+    }
+    setCookie('/es/' + lang); load();
+    if (ready && apply(lang)) return;
+    var n = 0, t = setInterval(function () {
+      n++;
+      if (apply(lang)) clearInterval(t);
+      else if (n >= 16) { clearInterval(t); location.reload(); }
+    }, 250);
+  }
+  dd.addEventListener('click', function (e) { var o = e.target.closest('.lang-opt'); if (o) change(o.getAttribute('data-lang')); });
+  // Al cargar
+  if (location.search.indexOf('lang=es') > -1) { clearCookie(); if (history.replaceState) history.replaceState(null, '', location.pathname); return; }
+  var m = document.cookie.match(/googtrans=\/es\/([\w-]+)/);
+  if (m && LANGS[m[1]] && m[1] !== 'es') {
+    var lang = m[1]; show(lang); setTimeout(load, 600);
+    // Si Google Translate carga pero no aplica solo la traducción, se fuerza
+    var k = 0, wd = setInterval(function () {
+      k++;
+      var done = document.documentElement.classList.contains('translated-ltr') || document.documentElement.classList.contains('translated-rtl');
+      if (done || k > 20) { clearInterval(wd); return; }
+      apply(lang);
+    }, 600);
+    return;
+  }
+  // Primera visita: idioma del navegador (si no es español). Idioma no disponible → inglés.
+  if (document.cookie.indexOf('bsl_lang_detected=') < 0 && !/bot|crawl|spider|slurp|lighthouse|google|bing/i.test(navigator.userAgent)) {
+    var exp = new Date(); exp.setFullYear(exp.getFullYear() + 1);
+    document.cookie = 'bsl_lang_detected=1; expires=' + exp.toUTCString() + '; path=/; SameSite=Lax';
+    var nav = (navigator.language || 'es').toLowerCase(), b = nav.split('-')[0];
+    var use = b === 'es' || b === 'ca' || b === 'eu' || b === 'gl' ? null : b === 'zh' ? 'zh-CN' : LANGS[b] ? b : 'en';
+    if (use) {
+      show(use); setCookie('/es/' + use);
+      setTimeout(function () { load(); var n = 0, t = setInterval(function () { n++; if (apply(use) || n > 40) clearInterval(t); }, 250); }, 800);
+      return;
+    }
+  }
+  setTimeout(load, 1500);
 })();
 </script>
 </body>
