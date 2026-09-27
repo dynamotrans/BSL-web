@@ -405,6 +405,7 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
   .bar .btn{padding:8px 12px;font-size:.82rem}
 }
 @media (max-width:420px){.bar h1{display:none}.bar .in{justify-content:space-between}}
+.item .pr{font-style:normal;font-weight:600;font-size:.8rem;color:var(--muted);margin-left:6px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -533,7 +534,7 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
     $('list').innerHTML = data.rooms.slice().sort(function (a, b) { return a.num - b.num; }).map(function (r) {
       var st = B.status(r, rg.from, rg.to);
       return '<button type="button" class="item' + (r.activa ? '' : ' off') + '" data-id="' + r.id + '" aria-current="' + (r.id === sel) + '">' +
-        '<span class="n">' + r.num + '</span><span><b>' + esc(r.nombre) + '</b><small>' + (r.activa ? esc(st.text) + ' · ' + B.courseLabel(y) : 'Oculta en la web') + '</small></span>' +
+        '<span class="n">' + r.num + '</span><span><b>' + esc(r.nombre) + (+r.precio ? ' <em class="pr">' + esc(r.precio) + ' €/mes</em>' : '') + '</b><small>' + (r.activa ? esc(st.text) + ' · ' + B.courseLabel(y) : 'Oculta en la web') + '</small></span>' +
         '<span class="dot st-' + st.kind + '"></span></button>';
     }).join('');
   }
