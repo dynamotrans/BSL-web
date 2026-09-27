@@ -146,7 +146,7 @@
     var y = defaultCourse();
     var fotos = {
       2: ['images/habitacion-cama-140.jpg', 'images/habitacion-escritorio.jpg'],
-      3: ['images/habitacion-completa.jpg']
+      1: ['images/habitacion-completa.jpg']
     };
     var rooms = [];
     for (var n = 1; n <= 8; n++) {

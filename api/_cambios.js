@@ -346,5 +346,14 @@ export default [
       { tipo: 'habitacion', num: 1, set: { fotos: [] } },
       { tipo: 'habitacion', num: 2, set: { fotos: ['images/habitacion-cama-140.jpg', 'images/habitacion-escritorio.jpg'] } }
     ]
+  },
+  {
+    id: '2026-09-27-2',
+    fecha: '2026-09-27',
+    resumen: 'Fotos: la foto que tenía Dalia es de Azahar (Azahar con foto, Dalia sin foto)',
+    ops: [
+      { tipo: 'habitacion', num: 1, set: { fotos: ['images/habitacion-completa.jpg'] } },
+      { tipo: 'habitacion', num: 3, set: { fotos: [] } }
+    ]
   }
 ];
