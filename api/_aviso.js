@@ -38,7 +38,7 @@ export async function avisar(s) {
       body: JSON.stringify({
         sender: { email: env.AVISO_REMITENTE || env.AVISO_EMAIL, name: 'BSL · Web' },
         to: env.AVISO_EMAIL.split(',').map((e) => ({ email: e.trim() })),
-        replyTo: { email: s.email, name: s.nombre + ' ' + s.apellidos },
+        ...(s.email ? { replyTo: { email: s.email, name: s.nombre + ' ' + s.apellidos } } : {}),
         subject: `Nueva solicitud: ${s.nombre} ${s.apellidos} · ${s.habitacion}`,
         htmlContent: html
       })

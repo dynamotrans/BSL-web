@@ -370,7 +370,7 @@
       row('Periodo', esc(x.periodo && x.periodo.titulo || '') + '<small>' + fmt(x.periodo && x.periodo.desde) + ' → ' + fmt(x.periodo && x.periodo.hasta) + '</small>') +
       row('Estudia', esc(x.universidad) + (x.estudios ? '<small>' + esc(x.estudios) + '</small>' : '')) +
       row('Teléfono', '<a href="tel:' + esc(x.telefono) + '">' + esc(x.telefono) + '</a>') +
-      row('Email', '<a href="mailto:' + esc(x.email) + '">' + esc(x.email) + '</a>') +
+      row('Email', x.email ? '<a href="mailto:' + esc(x.email) + '">' + esc(x.email) + '</a>' : '') +
       row('Instagram', ig ? '<a href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank" rel="noopener">@' + esc(ig) + '</a>' : '') +
       row('Edad', x.edad ? x.edad + ' años' : edad(x.nacimiento) !== null ? edad(x.nacimiento) + ' años<small>Nacida el ' + fmt(x.nacimiento) + '</small>' : '') +
       row('Procedencia', esc([x.provincia, x.pais].filter(Boolean).join(', '))) +

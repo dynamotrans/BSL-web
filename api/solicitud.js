@@ -32,7 +32,7 @@ export default async function handler(req, res) {
   };
   const faltan = [];
   if (!d.nombre || !d.apellidos) faltan.push('nombre y apellidos');
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) faltan.push('email');
+  if (d.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) d.email = '';
   if (d.telefono.replace(/\D/g, '').length < 9) faltan.push('teléfono');
   if (!d.edad && !d.nacimiento) faltan.push('edad');
   if (!d.pais && !d.provincia) faltan.push('país y ciudad de procedencia');
