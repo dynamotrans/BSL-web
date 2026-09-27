@@ -244,6 +244,11 @@
     moves.sort(function (a, b) { return a.d < b.d ? -1 : 1; });
     var prox = G.cobros.filter(function (x) { return !x.pagado && x.vence >= t && x.vence <= B.addDays(t, 10); }).sort(function (a, b) { return a.vence < b.vence ? -1 : 1; });
     function who(x) { var c = contract(x.contratoId); return esc(fullName(tenantOfCobro(x))) + (c ? ' · ' + esc(room(c.habitacionId) ? room(c.habitacionId).nombre : '') : ''); }
+    // Días que faltan: menos de 15 en rojo, menos de 55 en naranja, el resto neutro
+    function faltan(d) {
+      var n = Math.round((Date.parse(d) - Date.parse(t)) / 864e5);
+      return '<span class="chip2 ' + (n < 15 ? 'k-vencido' : n < 55 ? 'k-pendiente' : 'k-neutro') + '">' + (n <= 0 ? 'Hoy' : n === 1 ? 'Mañana' : 'Faltan ' + n + ' días') + '</span>';
+    }
     function list(items, empty) { return items.length ? items.join('') : '<p class="empty">' + empty + '</p>'; }
     var circ = 2 * Math.PI * 34;
     var ys = []; for (var k = -2; k <= 3; k++) ys.push(y0 + k);
@@ -252,7 +257,7 @@
       ys.map(function (c) { return '<option value="' + c + '"' + (c === y ? ' selected' : '') + '>Curso ' + B.courseLabel(c) + (c === y0 ? ' (actual)' : '') + '</option>'; }).join('') + '</select></div></div>' +
       '<section class="card moves"><h3>Entradas y salidas</h3><p class="hint">Próximos 70 días.</p>' + list(moves.slice(0, 8).map(function (m) {
           var te = tenant(m.c.inquilinaId), rm = room(m.c.habitacionId);
-          return '<button type="button" class="crow" data-ten="' + (te ? te.id : '') + '"><span><b>' + esc(fullName(te)) + '</b><small>' + fmt(m.d) + ' · ' + esc(rm ? rm.nombre : '') + '</small></span>' + chip(m.k === 'Entra' ? 'pagado' : 'fin', m.k) + '</button>';
+          return '<button type="button" class="crow" data-ten="' + (te ? te.id : '') + '"><span><b>' + esc(fullName(te)) + '</b><small>' + fmt(m.d) + ' · ' + esc(rm ? rm.nombre : '') + '</small></span><span class="mv-tags">' + faltan(m.d) + chip(m.k === 'Entra' ? 'pagado' : 'fin', m.k) + '</span></button>';
         }), 'Sin entradas ni salidas.') + '</section>' +
       '<div class="kpis">' +
         '<button type="button" class="kpi" data-go="ocu"><svg class="ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34"/><circle class="on" cx="40" cy="40" r="34" style="stroke-dasharray:' + (circ * pct / 100) + ' ' + circ + '"/></svg>' +
