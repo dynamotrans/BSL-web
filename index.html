@@ -224,6 +224,20 @@ body{top:0!important}
 
 /* ---------- Para las familias ---------- */
 .families{padding-block:72px 16px}
+.perfiles{padding-block:48px 8px}
+.perfiles .head{margin-bottom:22px}
+.pf-track{--gut:max(20px,calc((100vw - 1160px)/2 + 20px));display:flex;gap:12px;margin:0;padding:4px var(--gut) 14px;list-style:none;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--gut);scrollbar-width:none;overscroll-behavior-x:contain}
+.pf-track::-webkit-scrollbar{display:none}
+.pf-c{flex:0 0 auto;width:210px;scroll-snap-align:start;display:grid;gap:6px;padding:16px 16px 18px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:0 14px 30px -26px rgba(16,41,42,.5)}
+.pf-k{justify-self:start;padding:5px 9px;border-radius:999px;font:700 .68rem/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;background:var(--tint);color:var(--muted)}
+.pf-u .pf-k{background:#e6f3ee;color:#2c7a5a}
+.pf-c.pf-u .pf-k{background:#e6f3ee;color:#2c7a5a}
+.pf-c.pf-m .pf-k{background:#fdeee6;color:#b24a2c}
+.pf-c.pf-g .pf-k{background:#eeeaf8;color:#5a4a9a}
+.pf-c b{font:400 1.45rem/1.1 var(--serif);color:var(--ink);margin-top:4px}
+.pf-a{font-weight:700;color:var(--ink);font-size:.92rem}
+.pf-u{color:var(--muted);font-size:.86rem;line-height:1.35}
+.pf-note{margin:2px 0 0;font-size:.76rem;color:var(--muted)}
 .fam-head{display:grid;gap:14px;max-width:44em;margin-bottom:32px}
 .fam-head h2{font-size:clamp(2.2rem,4.4vw,3.4rem)}
 .fam-head p{margin:0;color:var(--muted);font-size:1.08rem}
@@ -882,6 +896,18 @@ footer img{height:56px;width:auto}
       </ul>
       <p class="fam-cta rv"><a class="btn" href="#habitaciones">Ver habitaciones libres</a></p>
     </div>
+  </section>
+
+  <section class="perfiles" aria-labelledby="pf-t">
+    <div class="wrap">
+      <div class="head rv">
+        <p class="eyebrow">Perfiles que buscamos</p>
+        <h2 id="pf-t">¿Encajas en <em>BSL</em>?</h2>
+        <p>Chicas universitarias de 18 a 23 años: grado en la Loyola o la Pablo de Olavide, máster o semestre de intercambio.</p>
+      </div>
+    </div>
+    <ul class="pf-track rv"><li class="pf-c pf-u"><span class="pf-k">Grado</span><b>Madrid</b><span class="pf-a">19 años</span><span class="pf-u">Univ. Loyola · Curso completo</span></li><li class="pf-c pf-u"><span class="pf-k">Grado</span><b>Sevilla</b><span class="pf-a">20 años</span><span class="pf-u">Univ. Loyola · Curso completo</span></li><li class="pf-c pf-u"><span class="pf-k">Grado</span><b>Córdoba</b><span class="pf-a">18 años</span><span class="pf-u">Univ. Loyola · Curso completo</span></li><li class="pf-c pf-u"><span class="pf-k">Grado</span><b>Huelva</b><span class="pf-a">21 años</span><span class="pf-u">Univ. Pablo de Olavide · Curso completo</span></li><li class="pf-c pf-m"><span class="pf-k">Máster</span><b>Cádiz</b><span class="pf-a">22 años</span><span class="pf-u">Máster · Curso completo</span></li><li class="pf-c pf-g"><span class="pf-k">Erasmus / semestre</span><b>Países Bajos</b><span class="pf-a">21 años</span><span class="pf-u">Univ. Loyola · Semestre de otoño</span></li><li class="pf-c pf-g"><span class="pf-k">Erasmus / semestre</span><b>Italia</b><span class="pf-a">22 años</span><span class="pf-u">Univ. Loyola · Semestre de primavera</span></li><li class="pf-c pf-u"><span class="pf-k">Grado</span><b>Ecuador</b><span class="pf-a">20 años</span><span class="pf-u">Univ. Loyola · Curso completo</span></li><li class="pf-c pf-g"><span class="pf-k">Erasmus / semestre</span><b>Miami (EE. UU.)</b><span class="pf-a">21 años</span><span class="pf-u">Univ. Loyola · Semestre</span></li><li class="pf-c pf-m"><span class="pf-k">Máster</span><b>Colombia</b><span class="pf-a">23 años</span><span class="pf-u">Máster · Curso completo</span></li><li class="pf-c pf-u"><span class="pf-k">Grado</span><b>Perú</b><span class="pf-a">19 años</span><span class="pf-u">Univ. Loyola · Curso completo</span></li><li class="pf-c pf-u"><span class="pf-k">Grado</span><b>Badajoz</b><span class="pf-a">20 años</span><span class="pf-u">Univ. Pablo de Olavide · Curso completo</span></li><li class="pf-c pf-u"><span class="pf-k">Grado</span><b>Jaén</b><span class="pf-a">18 años</span><span class="pf-u">Univ. Loyola · Curso completo</span></li><li class="pf-c pf-m"><span class="pf-k">Máster</span><b>Málaga</b><span class="pf-a">22 años</span><span class="pf-u">Máster · Curso completo</span></li><li class="pf-c pf-u"><span class="pf-k">Grado</span><b>Granada</b><span class="pf-a">19 años</span><span class="pf-u">Univ. Loyola · Curso completo</span></li></ul>
+    <div class="wrap"><p class="pf-note">Perfiles de ejemplo.</p></div>
   </section>
 
   <section class="block" id="casa">
