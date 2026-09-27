@@ -406,6 +406,11 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
 }
 @media (max-width:420px){.bar h1{display:none}.bar .in{justify-content:space-between}}
 .item .pr{font-style:normal;font-weight:600;font-size:.8rem;color:var(--muted);margin-left:6px;white-space:nowrap}
+.rtotal{margin-top:6px;padding:14px 16px;border-radius:12px;background:var(--surface);border:1px dashed var(--line);display:grid;gap:6px}
+.rtotal > span{font:700 .78rem/1.2 var(--sans);color:var(--muted)}
+.rtotal p{margin:0;display:flex;justify-content:space-between;align-items:baseline}
+.rtotal small{color:var(--muted);font-size:.84rem}
+.rtotal b{font-size:1.05rem}
 </style>
 </head>
 <body>
@@ -536,7 +541,16 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
       return '<button type="button" class="item' + (r.activa ? '' : ' off') + '" data-id="' + r.id + '" aria-current="' + (r.id === sel) + '">' +
         '<span class="n">' + r.num + '</span><span><b>' + esc(r.nombre) + (+r.precio ? ' <em class="pr">' + esc(r.precio) + ' €/mes</em>' : '') + '</b><small>' + (r.activa ? esc(st.text) + ' · ' + B.courseLabel(y) : 'Oculta en la web') + '</small></span>' +
         '<span class="dot st-' + st.kind + '"></span></button>';
-    }).join('');
+    }).join('') + totalHtml();
+  }
+  // Totalizador de la lista: suma mensual de todas las habitaciones, sin y con gastos
+  function totalHtml() {
+    var act = data.rooms; // todas las habitaciones juntas
+    var alq = act.reduce(function (t, r) { return t + (+r.precio || 0); }, 0);
+    var gas = act.reduce(function (t, r) { return t + (+r.gastos || 0); }, 0);
+    var f = function (n) { return n.toLocaleString('es-ES') + ' €'; };
+    return '<div class="rtotal"><span>Total al mes · ' + act.length + ' habitaciones</span>' +
+      '<p><small>Sin gastos</small><b>' + f(alq) + '</b></p><p><small>Con gastos</small><b>' + f(alq + gas) + '</b></p></div>';
   }
   $('list').addEventListener('click', function (e) {
     var b = e.target.closest('[data-id]'); if (!b) return;
