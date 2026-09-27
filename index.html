@@ -136,7 +136,7 @@ body{top:0!important}
 .intro{position:relative;height:135vh;background:var(--teal-deep);--p:0}
 .stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;contain:paint;background:var(--teal-deep)}
 .stage .photo{position:absolute;z-index:0;margin:0;overflow:hidden;inset:calc(12% * (1 - var(--p))) calc(5% * (1 - var(--p))) calc(8% * (1 - var(--p))) calc(52% * (1 - var(--p)));border-radius:calc(14px * (1 - var(--p)))}
-.stage .photo img{width:100%;height:100%;object-fit:cover;object-position:50% 62%;transform-origin:50% 60%;transform:translateZ(0) scale(calc(1 + var(--p) * .7));will-change:transform;backface-visibility:hidden}
+.stage .photo img{width:100%;height:100%;object-fit:cover;object-position:50% 70%;transform-origin:50% 60%;transform:translateZ(0) scale(calc(1 + var(--p) * .7));will-change:transform;backface-visibility:hidden}
 .stage .photo::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,transparent 25%,rgba(15,48,51,.6)),linear-gradient(180deg,transparent 55%,rgba(10,30,32,.75));opacity:var(--p)}
 .copy{position:absolute;z-index:2;inset:0;display:flex;align-items:center;pointer-events:none;padding-top:68px}
 .copy .wrap{width:100%}
@@ -720,11 +720,11 @@ footer img{height:56px;width:auto}
   .collage img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
   .collage figure:hover img{transform:scale(1.04)}
   .cl-a{grid-row:1 / 3}
-  .cl-a img{object-position:50% 60%}
+  .cl-a img{object-position:50% 78%}
   .cl-b{transform:translateY(-18px)}
   .cl-b img{object-position:50% 55%}
   .cl-c{transform:translateY(18px)}
-  .cl-c img{object-position:50% 50%}
+  .cl-c img{object-position:50% 60%}
   .cl-tile{position:absolute;z-index:-1;right:-26px;top:-44px;width:120px;height:120px;border-radius:18px;background:var(--tiles) 0 0/40px 40px;opacity:.9}
   .cl-tag{position:absolute;left:18px;bottom:18px;padding:8px 14px;border-radius:999px;background:rgba(15,48,51,.78);color:var(--cream);font-size:.8rem;font-weight:600;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
   .load .collage figure{animation:rise 1.1s var(--ease) both}
@@ -856,7 +856,7 @@ footer img{height:56px;width:auto}
   <section class="intro" id="intro" aria-label="Portada">
     <div class="stage">
       <figure class="photo" style="margin:0">
-        <img src="images/pasillo-azulejos.jpg" alt="Pasillo de entrada con zócalo de azulejo sevillano, molduras restauradas y suelo de madera" width="900" height="1598" fetchpriority="high">
+        <img src="images/salon-patio.jpg" alt="Salón comedor amplio y luminoso con sofá, mesa grande y salida al patio" width="900" height="1600" fetchpriority="high">
       </figure>
       <div class="copy">
         <div class="wrap">
@@ -877,9 +877,9 @@ footer img{height:56px;width:auto}
       </div>
       <div class="collage" aria-hidden="true">
         <span class="cl-tile"></span>
-        <figure class="cl-a"><img src="images/pasillo-azulejos.jpg" alt="" width="900" height="1598"></figure>
+        <figure class="cl-a"><img src="images/salon-patio.jpg" alt="" width="900" height="1600"></figure>
         <figure class="cl-b"><img src="images/habitacion-completa.jpg" alt="" width="900" height="1599" loading="lazy"></figure>
-        <figure class="cl-c"><img src="images/salon-patio.jpg" alt="" width="900" height="1599" loading="lazy"></figure>
+        <figure class="cl-c"><img src="images/salon-sofa.jpg" alt="" width="900" height="1499" loading="lazy"></figure>
       </div>
       <p class="welcome" aria-hidden="true">Bienvenida a casa<small class="notranslate" translate="no">Calle Canónigo · Dos Hermanas · Sevilla</small></p>
       <button type="button" class="down" id="down" aria-label="Bajar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button>
