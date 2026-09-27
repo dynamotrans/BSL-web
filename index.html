@@ -1683,25 +1683,5 @@ var WA_NUMBER = (window.BSL_CONFIG && window.BSL_CONFIG.whatsapp) || '';
 
 })();
 </script>
-<script>
-// Diagnóstico temporal: abrir la web con ?debug para ver qué alarga la página
-if (/[?&]debug/.test(location.search)) (function () {
-  var box = document.createElement('div');
-  box.style.cssText = 'position:fixed;left:8px;right:8px;top:80px;z-index:99999;background:#111;color:#0f0;font:12px/1.4 monospace;padding:8px;border-radius:8px;white-space:pre-wrap;opacity:.92;pointer-events:none';
-  document.body.appendChild(box);
-  function name(e) { return e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') + (typeof e.className === 'string' && e.className ? '.' + e.className.trim().split(/\s+/).slice(0, 2).join('.') : ''); }
-  function measure() {
-    var f = document.querySelector('footer'), fb = f.getBoundingClientRect().bottom + scrollY, H = document.documentElement.scrollHeight, out = [];
-    Array.prototype.forEach.call(document.querySelectorAll('body *'), function (e) {
-      var r = e.getBoundingClientRect(); if (!r.height && !r.width) return;
-      var b = r.bottom + scrollY; if (b > fb + 2) out.push([Math.round(b - fb), name(e)]);
-    });
-    out.sort(function (a, b) { return b[0] - a[0]; });
-    box.textContent = 'alto página ' + H + ' · fin del pie ' + Math.round(fb) + ' · sobra ' + Math.round(H - fb) + '\nventana ' + innerWidth + 'x' + innerHeight + ' · scroll ' + Math.round(scrollY) +
-      '\n' + (out.length ? 'Pasan del pie:\n' + out.slice(0, 6).map(function (x) { return '+' + x[0] + ' ' + x[1]; }).join('\n') : 'Nada pasa del pie');
-  }
-  setInterval(measure, 1000); measure();
-})();
-</script>
 </body>
 </html>
