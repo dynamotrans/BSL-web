@@ -392,7 +392,7 @@
         '<a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(x.telefono) + '?text=' + encodeURIComponent(payMsg) + '">Enviar por WhatsApp</a></div></div>' : '') +
       '<p class="derr" id="sol-err" hidden></p>' +
       '</div><div class="dfoot sol-actions edit-only">' +
-      (x.estado !== 'descartada' ? '<button type="button" class="btn plain danger" id="sol-no">Descartar</button>' : '<button type="button" class="btn plain" id="sol-re">Recuperar</button>') +
+      (x.estado !== 'descartada' ? '<button type="button" class="btn plain danger" id="sol-no">Descartar</button>' : '<button type="button" class="btn plain" id="sol-re">Recuperar</button><button type="button" class="btn plain danger" id="sol-del">Eliminar</button>') +
       '<div class="sol-row">' +
       '<a class="btn plain sm" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(x.telefono) + '?text=' + encodeURIComponent('Hola ' + x.nombre + ', te escribimos de BSL. Hemos recibido tu solicitud de admisión para la habitación ' + x.habitacion + '.') + '">WhatsApp</a>' +
       (x.estado !== 'aceptada' ? '<button type="button" class="btn sm" id="sol-ok">Admitir como inquilina</button>' : '') +
@@ -420,6 +420,15 @@
       setEstado('descartada').then(function () { dlg.close(); viewTenants(); }, function (e) { err(e.message); });
     };
     if ($('sol-re')) $('sol-re').onclick = function () { setEstado('nueva').then(function () { solDialog(x.id); }, function (e) { err(e.message); }); };
+    if ($('sol-del')) $('sol-del').onclick = function () {
+      confirmKey('Vas a eliminar para siempre la solicitud de ' + x.nombre + ' ' + x.apellidos + ' y sus documentos. No se puede deshacer.').then(function (ok) {
+        if (!ok) return;
+        B.store.updateSolicitud({ id: x.id, borrar: true }).then(function () {
+          SOL = SOL.filter(function (o) { return o.id !== x.id; }); renderTabs(); dlg.close();
+          if (tab === 'res') viewResumen(); else viewTenants();
+        }, function (e) { if (e.status === 401) return A.expired(); err(e.message); });
+      });
+    };
     if ($('sol-ok')) $('sol-ok').onclick = function () {
       // Crea la inquilina con sus datos y abre el contrato con la habitación, fechas y el DNI adjunto
       var t = { id: uid(), creada: today(), nombre: x.nombre, apellidos: x.apellidos, doc: x.documento, nacimiento: x.nacimiento, telefono: x.telefono, email: x.email,

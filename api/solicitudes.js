@@ -1,4 +1,4 @@
-import { get, put, list } from '@vercel/blob';
+import { get, put, list, del } from '@vercel/blob';
 import { isAuthed, canWrite, READONLY_MSG, blobReady, readStream, send } from './_lib.js';
 
 // Pre-reservas: listado y cambio de estado desde el panel (solo con sesión).
@@ -34,6 +34,20 @@ export default async function handler(req, res) {
     const path = PREFIX + b.id + '.json';
     const s = await read(path).catch(() => null);
     if (!s) return send(res, 404, { error: 'No existe esa pre-reserva' });
+    // Borrado definitivo: solo de las descartadas, con sus documentos
+    if (b.borrar === true) {
+      if (s.estado !== 'descartada') return send(res, 400, { error: 'Solo se pueden eliminar las solicitudes descartadas.' });
+      const paths = [path].concat((Array.isArray(s.docs) ? s.docs : s.doc ? [s.doc] : [])
+        .map((d) => String((d && d.path) || '')).filter((x) => x.startsWith('privado/docs/')));
+      const urls = [];
+      for (const p of paths) {
+        const r = await list({ prefix: p, limit: 5 });
+        const hit = r.blobs.find((x) => x.pathname === p);
+        if (hit) urls.push(hit.url);
+      }
+      if (urls.length) await del(urls);
+      return send(res, 200, { ok: true, borrada: true });
+    }
     if (['nueva', 'aceptada', 'descartada'].includes(b.estado)) s.estado = b.estado;
     if (typeof b.nota === 'string') s.nota = b.nota.slice(0, 1000);
     if (typeof b.inquilinaId === 'string') s.inquilinaId = b.inquilinaId.slice(0, 40);
