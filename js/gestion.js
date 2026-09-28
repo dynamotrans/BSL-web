@@ -418,7 +418,7 @@
       '<div class="sol-row">' +
       '<a class="btn plain sm" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(x.telefono) + '?text=' + encodeURIComponent('Hola ' + x.nombre + ', te escribimos de BSL. Hemos recibido tu solicitud de admisión para la habitación ' + x.habitacion + '.') + '">WhatsApp</a>' +
       (x.estado !== 'aceptada' ? '<button type="button" class="btn sm" id="sol-ok">Admitir como inquilina</button>' : '') +
-      (x.estado === 'aceptada' ? '<button type="button" class="btn sm" id="sol-pay">' + (x.pago ? 'Nuevo enlace de pago' : 'Generar enlace de pago (' + money(fianza) + ')') + '</button>' : '') +
+      (x.estado === 'aceptada' ? '<button type="button" class="btn sm" id="sol-pay">' + (x.pago ? 'Solicitar pago de nuevo' : 'Solicitar pago de la fianza (' + money(fianza) + ')') + '</button>' : '') +
       '</div></div></form>';
     var err = function (m) { var p = $('sol-err'); p.textContent = m; p.hidden = !m; if (m) p.scrollIntoView({ block: 'center', behavior: 'smooth' }); };
     dlg.querySelector('.dx').onclick = function () { dlg.close(); };
@@ -472,7 +472,7 @@
           if (fx && !fx.pagado) { fx.pago = { url: url, importe: fianza, fecha: today() }; save(); }
           return setEstado('aceptada', { pago: { url: url, importe: fianza } });
         })
-        .then(function () { solDialog(x.id); }, function (e) { b.disabled = false; b.textContent = 'Generar enlace de pago'; if (e.status === 401) return A.expired(); err(e.message); });
+        .then(function () { solDialog(x.id); }, function (e) { b.disabled = false; b.textContent = 'Solicitar pago'; if (e.status === 401) return A.expired(); err(e.message); });
     };
     if (!dlg.open) { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
   }
@@ -604,7 +604,7 @@
     // Si no se ha marcado nada: lo vencido, o si no hay, el primer cobro pendiente
     if (!sel.length) { sel = list.filter(function (x) { return cobroState(x) === 'vencido'; }).map(function (x) { return x.id; }); if (!sel.length && list[0]) sel = [list[0].id]; }
     var old = list.filter(function (x) { return x.pago && sel.indexOf(x.id) >= 0; })[0];
-    dlg.innerHTML = '<form method="dialog" class="dform"><div class="dh"><h3>Enlace de pago</h3><button type="button" class="dx" aria-label="Cerrar">✕</button></div>' +
+    dlg.innerHTML = '<form method="dialog" class="dform"><div class="dh"><h3>Solicitar pago</h3><button type="button" class="dx" aria-label="Cerrar">✕</button></div>' +
       '<div class="dbody paydlg">' +
       '<label><span>Inquilina</span><select id="py-t">' + (conT.indexOf(t) < 0 ? '<option value="' + esc(tid) + '">' + esc(fullName(t)) + '</option>' : '') +
         conT.map(function (o) { return '<option value="' + esc(o.id) + '"' + (o.id === tid ? ' selected' : '') + '>' + esc(fullName(o)) + '</option>'; }).join('') + '</select></label>' +
@@ -621,7 +621,7 @@
       '<div id="py-trans"></div>' +
       '<div id="py-out"></div>' +
       '<p class="derr" id="py-err" hidden></p>' +
-      '</div><div class="dfoot"><span></span><button type="submit" class="btn" id="py-go">Generar enlace</button></div></form>';
+      '</div><div class="dfoot"><span></span><button type="submit" class="btn" id="py-go">Solicitar pago</button></div></form>';
     dlg.querySelector('.dx').onclick = function () { dlg.close(); };
     var err = function (m) { var p = $('py-err'); p.textContent = m; p.hidden = !m; };
     function picked() { return Array.prototype.map.call(dlg.querySelectorAll('.paylist input:checked'), function (i) { return G.cobros.filter(function (x) { return x.id === i.value; })[0]; }).filter(Boolean); }
@@ -632,7 +632,7 @@
       return partes.length > 2 ? partes.length + ' conceptos (' + partes.join(', ') + ')' : partes.join(' y ');
     }
     function upd() {
-      var tt = total(); $('py-tot').textContent = money(tt); $('py-go').textContent = tt ? 'Generar enlace de ' + money(tt) : 'Generar enlace';
+      var tt = total(); $('py-tot').textContent = money(tt); $('py-go').textContent = tt ? 'Solicitar pago de ' + money(tt) : 'Solicitar pago';
       $('py-trans').innerHTML = '<h4 class="subh">O que pague por transferencia</h4>' + ibanBox(t, conceptoSel() || 'lo pendiente', tt);
     }
     function showLink(url, imp, concepto) {
@@ -695,7 +695,7 @@
         { k: 'fianzaEstado', label: 'Fianza', type: 'select', opts: [['pendiente', 'Pendiente de cobrar'], ['cobrada', 'Cobrada'], ['devuelta', 'Devuelta']] },
         { k: 'diaPago', label: 'Día de pago de cada mes', type: 'number', step: '1' },
         { k: 'notas', label: 'Notas del contrato', type: 'textarea' },
-        { k: 'pay', type: 'html', html: isNew ? '' : '<div class="payc edit-only"><button type="button" class="btn plain sm" id="c-pay">💳 Enlace de pago (fianza, mensualidades…)</button></div>' },
+        { k: 'pay', type: 'html', html: isNew ? '' : '<div class="payc edit-only"><button type="button" class="btn plain sm" id="c-pay">💳 Solicitar pago (fianza, mensualidades…)</button></div>' },
         { k: 'docs', type: 'html', html: '<div class="docs"><h4 class="subh">Documentos del contrato</h4><div id="c-docs"></div>' +
           '<label class="btn plain sm doc-add edit-only">+ Adjuntar PDF o fotos<input type="file" id="c-doc-in" accept="application/pdf,image/*" multiple hidden></label>' +
           '<p class="hint edit-only" id="c-doc-st">PDF o fotos, hasta 3 MB cada uno. Puedes adjuntar varios.</p></div>' }
@@ -820,7 +820,7 @@
     box.innerHTML = '<button type="button" class="back" id="back">← Inquilinas</button>' +
       '<div class="ghead"><h2>' + esc(fullName(t)) + '</h2><div class="gtools">' +
       (t.telefono ? '<a class="btn plain" href="https://wa.me/' + esc(String(t.telefono).replace(/\D/g, '').replace(/^(?!34)(\d{9})$/, '34$1')) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') +
-      '<button class="btn plain" type="button" id="edit-t">Editar datos</button><button class="btn edit-only" type="button" id="pay-t">💳 Enlace de pago</button></div></div>' +
+      '<button class="btn plain" type="button" id="edit-t">Editar datos</button><button class="btn edit-only" type="button" id="pay-t">💳 Solicitar pago</button></div></div>' +
       '<section class="card"><h3>Datos</h3><dl class="kv">' + TENANT_FIELDS.filter(function (f) { return t[f.k]; }).map(function (f) {
         var v = f.type === 'date' ? fmt(t[f.k]) : t[f.k];
         return '<div><dt>' + esc(f.label) + '</dt><dd>' + esc(v) + '</dd></div>';
@@ -883,7 +883,7 @@
       '<option value="prox2"' + (mesSel === 'prox2' ? ' selected' : '') + '>Próximos 2 meses (' + MES_LARGO[+ahead[0].slice(5) - 1] + ' y ' + MES_LARGO[+ahead[1].slice(5) - 1] + ')</option>' +
       '<option value="todos"' + (mesSel === 'todos' ? ' selected' : '') + '>Todos los meses</option>' +
       meses.map(function (m) { return '<option value="' + m + '"' + (m === mesSel ? ' selected' : '') + '>' + mesLabel(m) + '</option>'; }).join('') +
-      '</select><button class="btn plain" type="button" id="new-x">+ Cobro manual</button><button class="btn edit-only" type="button" id="pay-x">💳 Enlace de pago</button></div></div>' +
+      '</select><button class="btn plain" type="button" id="new-x">+ Cobro manual</button><button class="btn edit-only" type="button" id="pay-x">💳 Solicitar pago</button></div></div>' +
       '<div class="tiles"><div><small>Previsto</small><b>' + money(prev) + '</b></div><div><small>Cobrado</small><b class="ok">' + money(cobrado) + '</b></div>' +
       '<div><small>Por cobrar</small><b>' + money(prev - cobrado) + '</b></div><div><small>Vencido (total)</small><b class="bad">' + money(vencidoTotal) + '</b></div></div>' +
       '<div class="seg2" id="cf">' + [['abiertos', 'Pendientes'], ['vencido', 'Vencidos'], ['pagado', 'Pagados'], ['todos', 'Todos']].map(function (o) {
