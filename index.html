@@ -409,6 +409,7 @@ dialog.lb::backdrop{background:rgba(9,28,30,.94)}
 footer .maps-l{color:inherit;margin:0}
 .rooms-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:24px;margin-bottom:28px}
 .rooms-top .head{margin-bottom:0}
+.r-filters{display:flex;justify-content:flex-start;margin:0 0 14px}
 .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .filters select{font:600 .9rem var(--sans);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:10px 14px}
 .seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px;gap:2px;flex-wrap:wrap}
@@ -1120,9 +1121,9 @@ footer img{height:56px;width:auto}
           <p>Mira qué habitaciones quedan libres para el próximo curso o durante este curso. Pulsa en la habitación que te guste y envía tu solicitud de admisión: la revisamos y te escribimos.</p>
           <p class="addr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="notranslate" translate="no">Calle Canónigo · Dos Hermanas · Sevilla</span><a class="maps-l" href="https://maps.app.goo.gl/VNDkkathCcGhzhDj8" target="_blank" rel="noopener">Ver en Google Maps ↗</a></p>
         </div>
-        <div class="filters">
-          <div class="seg" role="radiogroup" aria-label="Periodo" id="r-seg"></div>
-        </div>
+      </div>
+      <div class="filters r-filters">
+        <div class="seg" role="radiogroup" aria-label="Periodo" id="r-seg"></div>
       </div>
       <p class="legend"><span class="st-libre"><i class="dot"></i>Libre</span><span class="st-parcial"><i class="dot"></i>Libre parte del curso</span><span class="st-ocupada"><i class="dot"></i>Ocupada</span></p>
     </div>
