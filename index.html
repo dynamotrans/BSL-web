@@ -447,6 +447,7 @@ footer .maps-l{color:inherit;margin:0}
 .room-card.st-ocupada .rc-photo{background:#8a9496}
 .rc-body{padding:16px 16px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
 .rc-num{margin:0;font:600 .74rem/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.rc-num strong{display:inline-block;margin-left:2px;padding:4px 8px;border-radius:6px;background:var(--accent);color:#fff;font-weight:900;font-size:.82rem;letter-spacing:.1em}
 .rc-body h3{font-size:1.55rem}
 .rc-meta{margin:0;color:var(--muted);font-size:.9rem}
 .rc-price{margin:4px 0 0;font-size:.9rem;color:var(--muted)}
@@ -1358,7 +1359,7 @@ footer img{height:56px;width:auto}
         // En la tarjeta solo la portada (así deslizar mueve las habitaciones); las demás fotos se ven al abrirla
         (r.fotos && r.fotos.length ? '<img src="' + esc(r.fotos[0]) + '" alt="' + esc(r.nombre) + '" loading="lazy">' + (r.fotos.length > 1 ? '<span class="rc-n">' + r.fotos.length + ' fotos</span>' : '') : '<div class="rc-ph"><span>Fotos próximamente</span></div>') +
         '<span class="badge"><i class="dot"></i>' + esc(st.text) + '</span></div>' +
-        '<div class="rc-body"><p class="rc-num">Habitación individual</p><h3>' + esc(r.nombre) + '</h3>' +
+        '<div class="rc-body"><p class="rc-num">Habitación <strong>individual</strong></p><h3>' + esc(r.nombre) + '</h3>' +
         '<p class="rc-meta">' + B.m2(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
         '<p class="rc-price"><b>' + esc(r.precio) + ' €</b>/mes + ' + esc(r.gastos) + ' € de gastos</p>' +
         '<p class="rc-inc">Agua, luz, fibra + wifi, limpieza y mantenimiento incluidos</p>' +
