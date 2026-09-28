@@ -1250,9 +1250,9 @@ footer img{height:56px;width:auto}
         <div class="nextbox">
           <b>¿Qué pasa después?</b>
           <ol><li>Revisamos tu solicitud de admisión y tu perfil.</li><li>Si hay plaza para ti, te escribimos por WhatsApp.</li><li>Entonces te enviamos el contrato y los pasos para formalizarlo.</li></ol>
-          <small>Al pulsar el botón se guarda tu solicitud y se abre WhatsApp para enviárnosla. No es una reserva: no tiene coste ni te compromete a nada.</small>
+          <small>Tu solicitud ya está registrada. Pulsa el botón para avisarnos por WhatsApp y te contestamos antes. No es una reserva: no tiene coste ni te compromete a nada.</small>
         </div>
-        <div class="sent" id="res-sent" hidden><b>¡Solicitud enviada!</b><p>Gracias. Ahora se abre WhatsApp con tu solicitud: solo tienes que pulsar enviar. Te contestamos muy pronto.</p><a class="btn wa-btn" id="res-sent-wa" href="#" target="_blank" rel="noopener">Abrir WhatsApp</a></div>
+        <div class="sent" id="res-sent" hidden><b>¡Solicitud registrada!</b><p>Gracias. Ahora se abre WhatsApp con tu solicitud: solo tienes que pulsar enviar. Te contestamos muy pronto.</p><a class="btn wa-btn" id="res-sent-wa" href="#" target="_blank" rel="noopener">Abrir WhatsApp</a></div>
       </div>
 
       <div class="msg" id="res-msg" hidden></div>
@@ -1564,7 +1564,7 @@ footer img{height:56px;width:auto}
   function showReserve(id) {
     resRoom.innerHTML = active().map(function (r) { return '<option value="' + r.id + '">' + esc(r.nombre) + ' · ' + esc(r.precio) + ' €/mes</option>'; }).join('');
     if (id) resRoom.value = id;
-    rstep = 1; sent = false; sending = false;
+    rstep = 1; sent = false; sending = false; savedSig = '';
     drawOpts(view);
     goStep(1);
     open(resDlg);
@@ -1602,7 +1602,7 @@ footer img{height:56px;width:auto}
     back.hidden = rstep === 1;
     send.disabled = (rstep === 1 && !!busy) || sending;
     send.classList.toggle('wa-btn', rstep === 3 && !sent);
-    send.textContent = sent ? 'Cerrar' : rstep === 1 ? (busy ? 'No disponible en esas fechas' : 'Continuar') : rstep === 2 ? 'Continuar' : (sending ? 'Enviando…' : 'Enviar solicitud por WhatsApp');
+    send.textContent = sent ? 'Cerrar' : rstep === 1 ? (busy ? 'No disponible en esas fechas' : 'Continuar') : rstep === 2 ? (sending ? 'Guardando…' : 'Continuar') : 'Avisar por WhatsApp';
     back.hidden = rstep === 1 || sent;
   }
   function money(n) { return (+n || 0).toLocaleString('es-ES') + ' €'; }
@@ -1621,7 +1621,7 @@ footer img{height:56px;width:auto}
     $r('res-sent').hidden = !sent;
     $r('res-sum').hidden = sent; resDlg.querySelector('.nextbox').hidden = sent;
   }
-  var sending = false, sent = false;
+  var sending = false, sent = false, savedSig = '';
   $r('res-back').addEventListener('click', function () { goStep(rstep - 1); });
   resDlg.addEventListener('click', function (e) { if (e.target.closest('[data-legal]')) { e.preventDefault(); open(document.getElementById('legal-dlg')); } });
   document.getElementById('rd-msg-open').addEventListener('click', function () { this.hidden = true; var b = document.getElementById('rd-msg-box'); b.hidden = false; b.querySelector('textarea').focus(); });
@@ -1658,10 +1658,8 @@ footer img{height:56px;width:auto}
       }
       pErr.hidden = true; $r('res-perfil-l').classList.remove('bad'); return goStep(2);
     }
-    if (rstep === 2) { if (checkDatos()) goStep(3); return; }
     if (sent) { resDlg.close(); return; }
     if (sending) return;
-    sending = true; footer(); $r('res-msg').hidden = true;
     var body = {
       nombre: val('rd-nombre'), apellidos: val('rd-apellidos'), telefono: val('rd-pref') + ' ' + val('rd-tel'),
       edad: +val('rd-edad') || 0, pais: val('rd-pais'), provincia: val('rd-prov'), universidad: val('res-perfil'),
@@ -1669,28 +1667,33 @@ footer img{height:56px;width:auto}
       habitacionId: c.room.id, habitacion: c.room.nombre, precio: c.room.precio, gastos: c.room.gastos,
       periodo: { titulo: c.o.title, desde: c.o.from, hasta: c.o.to }
     };
-    // Al pulsar: se guarda en el panel y se abre WhatsApp con la solicitud escrita para BSL
+    if (rstep === 2) {
+      if (!checkDatos()) return;
+      // Al pulsar Continuar se registra la solicitud en el panel (una sola vez si no cambian los datos)
+      var sig = JSON.stringify(body);
+      if (sig === savedSig) return goStep(3);
+      sending = true; footer(); $r('res-msg').hidden = true;
+      fetch('/api/solicitud', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: sig })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var er = new Error(j.error || 'No se ha podido enviar.'); er.status = r.status; throw er; } return j; }); })
+        .then(function () { sending = false; savedSig = sig; goStep(3); }, function (err) {
+          sending = false; footer();
+          // Si faltan datos, se avisa; si falla el servidor, se sigue para que al menos llegue por WhatsApp
+          if (err.status && err.status < 500) stepErr('rd-err', err.message);
+          else goStep(3);
+        });
+      return;
+    }
+    // Paso 3: la solicitud ya está guardada; el botón solo abre WhatsApp con el resumen
     var waText = 'Hola BSL 👋 Acabo de enviar mi solicitud de admisión desde la web.\n\n' +
       '*Habitación:* ' + c.room.nombre + ' · ' + c.o.title + ' (del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + ')\n' +
       '*Nombre:* ' + body.nombre + ' ' + body.apellidos + ' (' + body.edad + ' años)\n' +
-      '*Estudio en:* ' + body.universidad + (body.estudios ? ' · ' + body.estudios : '') + '\n' +
+      '*Estudio en:* ' + body.universidad + '\n' +
       '*Procedencia:* ' + [body.provincia, body.pais].filter(Boolean).join(', ') + '\n' +
       '*Teléfono / WhatsApp:* ' + body.telefono + (body.mensaje ? '\n\n' + body.mensaje : '');
     var wa = B.waLink(waText);
-    function goWa() { if (wa) window.location.href = wa; }
-    fetch('/api/solicitud', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var er = new Error(j.error || 'No se ha podido enviar.'); er.status = r.status; throw er; } return j; }); })
-      .then(function () {
-        sending = false; sent = true; drawSum(); footer(); resDlg.scrollTop = 0; setTimeout(downState, 30);
-        $r('res-sent-wa').href = wa || '#';
-        setTimeout(goWa, 400);
-      }, function (err) {
-        sending = false; footer();
-        // Si faltan datos, se avisa; si falla el servidor, al menos se manda por WhatsApp
-        if (err.status && err.status < 500) {
-          var m = $r('res-msg'); m.textContent = err.message; m.hidden = false; m.scrollIntoView({ block: 'center', behavior: 'smooth' });
-        } else goWa();
-      });
+    sent = true; drawSum(); footer(); resDlg.scrollTop = 0; setTimeout(downState, 30);
+    $r('res-sent-wa').href = wa || '#';
+    if (wa) setTimeout(function () { window.location.href = wa; }, 400);
   });
 
   document.addEventListener('click', function (e) {
