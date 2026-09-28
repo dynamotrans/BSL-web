@@ -538,7 +538,7 @@
     var v = b.getAttribute('data-copy'), done = function () { var o = b.textContent; b.textContent = '¡Copiado!'; setTimeout(function () { b.textContent = o; }, 1500); };
     if (navigator.clipboard) navigator.clipboard.writeText(v).then(done, done); else done();
   });
-  function payMini(x) { return '<button type="button" class="mini pay edit-only" data-paylink="' + x.id + '" title="Enlace de pago con tarjeta">' + (x.pago ? '💳 Ver enlace' : '💳 Enlace') + '</button>'; }
+  function payMini(x) { return '<button type="button" class="mini pay edit-only" data-paylink="' + x.id + '" title="Solicitar el pago (enlace con tarjeta o transferencia)">' + (x.pago ? '💳 Solicitado' : '💳 Solicitar') + '</button>'; }
   function cobroRows(list, showWho, key) {
     if (!list.length) return '<p class="empty">No hay cobros.</p>';
     list.sort(function (a, b) { return a.vence < b.vence ? -1 : 1; });
