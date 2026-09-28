@@ -313,6 +313,20 @@ body.ro #cal{pointer-events:none}
 .sol-pay{display:grid;gap:8px;padding:14px;border-radius:12px;background:#f3f2ff;border:1px solid #d9d6ff}
 .sol-pay input{width:100%;padding:9px 10px;border-radius:8px;border:1px solid #d9d6ff;font-size:.85rem;background:#fff}
 .sol-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.mini.pay{margin-right:6px;border-color:#d9d6ff;background:#f3f2ff;color:#3d2fb3}
+.crow-w{display:flex;gap:8px;align-items:center}.crow-w .crow{flex:1;min-width:0}.crow-w .mini.pay{margin:0;flex:none}
+.dbody.paydlg{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+.paylist{display:grid;gap:6px;max-height:280px;overflow:auto}
+.payrow{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer}
+.payrow input{width:18px;height:18px;margin:0}
+.payrow b{display:block;font-size:.9rem}.payrow small{color:var(--muted);font-size:.78rem}
+.payrow em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
+.payrow:has(input:checked){border-color:#8f86ff;background:#f7f6ff}
+.payotro summary{cursor:pointer;font-weight:600;font-size:.88rem;color:var(--muted);margin-top:8px}
+.payotro .grid2{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-top:8px}
+.paytot{display:flex;justify-content:space-between;align-items:baseline;padding:12px 14px;border-radius:12px;background:var(--tint)}
+.paytot b{font:400 1.6rem/1 var(--serif);font-variant-numeric:tabular-nums}
+.payc{margin-top:-4px}
 .btn.wa{background:#25d366!important;color:#fff!important}
 .sol-actions{flex-wrap:wrap}
 .plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}

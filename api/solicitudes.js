@@ -48,6 +48,7 @@ export default async function handler(req, res) {
       if (urls.length) await del(urls);
       return send(res, 200, { ok: true, borrada: true });
     }
+    if (b.estado === 'aceptada' && s.estado !== 'aceptada') s.admitida = new Date().toISOString();
     if (['nueva', 'aceptada', 'descartada'].includes(b.estado)) s.estado = b.estado;
     if (typeof b.nota === 'string') s.nota = b.nota.slice(0, 1000);
     if (typeof b.inquilinaId === 'string') s.inquilinaId = b.inquilinaId.slice(0, 40);

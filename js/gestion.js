@@ -118,10 +118,21 @@
     A.saveRooms();
   }
   // Mensualidades (prorrateadas el primer y último mes) + fianza. Los cobros ya pagados no se tocan.
+  // Al admitir: la fianza queda pendiente en Cobros con vencimiento el día de la admisión
+  function fianzaAdmision(tid, importe, dia, solId) {
+    var cids = G.contratos.filter(function (c) { return c.inquilinaId === tid; }).map(function (c) { return c.id; });
+    var ya = G.cobros.filter(function (x) { return x.tipo === 'fianza' && (x.inquilinaId === tid || cids.indexOf(x.contratoId) >= 0); })[0];
+    if (ya || !(num(importe) > 0)) return ya || null;
+    var x = { id: uid(), contratoId: '', inquilinaId: tid, solicitudId: solId || '', tipo: 'fianza', mes: dia.slice(0, 7), concepto: 'Fianza (admisión)', importe: num(importe), vence: dia, pagado: false };
+    G.cobros.push(x); return x;
+  }
   function genCobros(c) {
     var paid = {};
+    // La fianza apuntada al admitir (aún sin contrato) pasa a este contrato, con su fecha y su enlace de pago
+    G.cobros.forEach(function (x) { if (x.tipo === 'fianza' && !x.contratoId && x.inquilinaId && x.inquilinaId === c.inquilinaId) x.contratoId = c.id; });
     G.cobros.forEach(function (x) { if (x.contratoId === c.id && x.pagado) paid[x.tipo === 'fianza' ? 'fianza' : x.mes] = true; });
-    G.cobros = G.cobros.filter(function (x) { return x.contratoId !== c.id || x.pagado || x.tipo === 'otro'; });
+    var fz = G.cobros.filter(function (x) { return x.contratoId === c.id && x.tipo === 'fianza' && !x.pagado; })[0];
+    G.cobros = G.cobros.filter(function (x) { return x.contratoId !== c.id || x.pagado || x.tipo === 'otro' || (x === fz && num(c.fianza) > 0); });
     var total = num(c.precio) + num(c.gastos), dia = Math.min(28, Math.max(1, num(c.diaPago) || 5));
     var y = +c.desde.slice(0, 4), m = +c.desde.slice(5, 7), endKey = c.hasta.slice(0, 7);
     for (var guard = 0; guard < 60; guard++) {
@@ -135,7 +146,8 @@
       if (!paid[ym] && imp > 0) G.cobros.push({ id: uid(), contratoId: c.id, tipo: 'mensualidad', mes: ym, concepto: 'Mensualidad ' + mesLabel(ym) + (days < dim ? ' (' + days + ' días)' : ''), importe: imp, vence: vence, pagado: false });
       m++; if (m > 12) { m = 1; y++; }
     }
-    if (num(c.fianza) > 0 && !paid.fianza) G.cobros.push({ id: uid(), contratoId: c.id, tipo: 'fianza', mes: c.desde.slice(0, 7), concepto: 'Fianza', importe: num(c.fianza), vence: c.desde, pagado: false });
+    if (fz && num(c.fianza) > 0 && !paid.fianza) { fz.importe = num(c.fianza); if (fz.pago && num(fz.pago.importe) !== fz.importe) delete fz.pago; }
+    else if (num(c.fianza) > 0 && !paid.fianza) G.cobros.push({ id: uid(), contratoId: c.id, tipo: 'fianza', mes: c.desde.slice(0, 7), concepto: 'Fianza', importe: num(c.fianza), vence: c.desde, pagado: false });
   }
 
   /* ---------- Ventana de formulario genérica ---------- */
@@ -273,9 +285,9 @@
       '</div>' +
       '<div class="rgrid">' +
         '<section class="card"><h3>Cobros atrasados</h3>' + list(venc.slice(0, 5).map(function (x) {
-          return '<button type="button" class="crow" data-go="cob"><span><b>' + who(x) + '</b><small>' + esc(x.concepto) + ' · venció ' + fmt(x.vence) + '</small></span>' + chip('vencido', money(x.importe)) + '</button>';
+          return '<div class="crow-w"><button type="button" class="crow" data-go="cob"><span><b>' + who(x) + '</b><small>' + esc(x.concepto) + ' · venció ' + fmt(x.vence) + '</small></span>' + chip('vencido', money(x.importe)) + '</button>' + payMini(x) + '</div>';
         }), '<span class="ok-msg">Nadie debe nada.</span>') + (venc.length > 5 ? '<button type="button" class="btn plain sm rmore" data-go="cob">Ver los ' + venc.length + ' atrasados</button>' : '') + (prox.length ? '<h4 class="rsub warn">Vencen en 10 días · ' + prox.length + ' · ' + money(prox.reduce(function (t2, x) { return t2 + num(x.importe); }, 0)) + '</h4>' + prox.map(function (x) {
-          return '<button type="button" class="crow" data-go="cob"><span><b>' + who(x) + '</b><small>' + esc(x.concepto) + ' · ' + fmt(x.vence) + '</small></span>' + chip('pendiente', money(x.importe)) + '</button>';
+          return '<div class="crow-w"><button type="button" class="crow" data-go="cob"><span><b>' + who(x) + '</b><small>' + esc(x.concepto) + ' · ' + fmt(x.vence) + '</small></span>' + chip('pendiente', money(x.importe)) + '</button>' + payMini(x) + '</div>';
         }).join('') : '') + '</section>' +
         '<section class="card"><h3>Incidencias</h3>' + list(incA.slice(0, 6).map(function (x) {
           var s = INC_ST[x.estado] || INC_ST.abierta;
@@ -285,13 +297,22 @@
     $('ry').onchange = function () { box.dataset.ry = this.value; viewResumen(); };
     box.querySelectorAll('[data-go]').forEach(function (b) { b.onclick = function () { show(b.getAttribute('data-go')); }; });
     box.querySelectorAll('[data-ten]').forEach(function (b) { b.onclick = function () { var id = b.getAttribute('data-ten'); if (id) { detail = id; show('inq'); } }; });
-    bindInc(box); bindSol();
+    bindInc(box); bindSol(); bindCobros(box);
   }
 
   /* ---------- Solicitudes de admisión (enviadas desde la web) ---------- */
   var SOL = null, preAll = false;
   function loadSol() {
-    return B.store.loadSolicitudes().then(function (list) { SOL = list; renderTabs(); if (tab === 'inq' && !detail) viewTenants(); if (tab === 'res') viewResumen(); }, function (err) {
+    return B.store.loadSolicitudes().then(function (list) {
+      SOL = list;
+      var nuevo = false;
+      if (!document.body.classList.contains('ro')) SOL.forEach(function (x) {
+        if (x.estado !== 'aceptada' || !x.inquilinaId || !tenant(x.inquilinaId)) return;
+        var n = G.cobros.length, fx = fianzaAdmision(x.inquilinaId, +x.precio || (room(x.habitacionId) || {}).precio || 0, (x.admitida || x.actualizada || x.fecha || today()).slice(0, 10), x.id);
+        if (G.cobros.length > n) { nuevo = true; if (x.pago && fx) fx.pago = x.pago; }
+      });
+      if (nuevo) { save(); if (tab === 'cob') viewCobros(); }
+      renderTabs(); if (tab === 'inq' && !detail) viewTenants(); if (tab === 'res') viewResumen(); }, function (err) {
       if (err.status === 401) return A.expired(); SOL = SOL || [];
     });
   }
@@ -435,7 +456,7 @@
         universidad: uniToTenant(x.universidad), estudios: [x.universidad !== uniToTenant(x.universidad) ? x.universidad : '', x.estudios].filter(Boolean).join(' · '),
         nacionalidad: x.pais, direccion: [x.provincia, x.pais].filter(Boolean).join(', '),
         emergNombre: x.familiar, emergTelefono: x.familiarTel, notas: ['Instagram: @' + ig, x.mensaje ? 'Mensaje: ' + x.mensaje : ''].filter(Boolean).join('\n') };
-      G.inquilinas.push(t); save();
+      G.inquilinas.push(t); fianzaAdmision(t.id, fianza, today(), x.id); save();
       setEstado('aceptada', { inquilinaId: t.id }).then(function () {
         dlg.close(); detail = t.id; show('inq');
         contractForm(t.id, null, { habitacionId: x.habitacionId, desde: x.periodo && x.periodo.desde, hasta: x.periodo && x.periodo.hasta,
@@ -445,7 +466,11 @@
     if ($('sol-pay')) $('sol-pay').onclick = function () {
       var b = this; b.disabled = true; b.textContent = 'Generando…'; err('');
       B.store.crearPago({ id: x.id, importe: fianza, concepto: 'Fianza habitación ' + x.habitacion + ' · BSL · ' + x.nombre + ' ' + x.apellidos })
-        .then(function (url) { return setEstado('aceptada', { pago: { url: url, importe: fianza } }); })
+        .then(function (url) {
+          var fx = x.inquilinaId && tenant(x.inquilinaId) ? fianzaAdmision(x.inquilinaId, fianza, (x.admitida || x.actualizada || today()).slice(0, 10), x.id) : null;
+          if (fx && !fx.pagado) { fx.pago = { url: url, importe: fianza, fecha: today() }; save(); }
+          return setEstado('aceptada', { pago: { url: url, importe: fianza } });
+        })
         .then(function () { solDialog(x.id); }, function (e) { b.disabled = false; b.textContent = 'Generar enlace de pago'; if (e.status === 401) return A.expired(); err(e.message); });
     };
     if (!dlg.open) { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
@@ -493,6 +518,7 @@
     bindPre();
   }
 
+  function payMini(x) { return '<button type="button" class="mini pay edit-only" data-paylink="' + x.id + '" title="Enlace de pago con tarjeta">' + (x.pago ? '💳 Ver enlace' : '💳 Enlace') + '</button>'; }
   function cobroRows(list, showWho, key) {
     if (!list.length) return '<p class="empty">No hay cobros.</p>';
     list.sort(function (a, b) { return a.vence < b.vence ? -1 : 1; });
@@ -500,14 +526,23 @@
     return '<table class="gt"><thead><tr><th>Vence</th>' + (showWho ? '<th>Inquilina</th><th>Habitación</th>' : '') + '<th>Concepto</th><th class="r">Importe</th><th>Estado</th><th></th></tr></thead><tbody>' +
       shown.map(function (x) {
         var st = cobroState(x), c = contract(x.contratoId), t = tenantOfCobro(x);
-        var meta = 'Vence ' + fmt(x.vence) + (showWho ? ' · ' + fullName(t) + ' · ' + (c ? roomName(c.habitacionId) : '—') : '');
-        return '<tr><td class="c-v">' + fmt(x.vence) + '</td>' + (showWho ? '<td class="c-q">' + esc(fullName(t)) + '</td><td class="c-h">' + esc(c ? roomName(c.habitacionId) : '—') + '</td>' : '') +
+        var so = !c && x.solicitudId && SOL ? SOL.filter(function (o) { return o.id === x.solicitudId; })[0] : null;
+        var hab = c ? roomName(c.habitacionId) : so ? roomName(so.habitacionId) + ' (sin contrato)' : '—';
+        var meta = 'Vence ' + fmt(x.vence) + (showWho ? ' · ' + fullName(t) + ' · ' + hab : '');
+        return '<tr><td class="c-v">' + fmt(x.vence) + '</td>' + (showWho ? '<td class="c-q">' + esc(fullName(t)) + '</td><td class="c-h">' + esc(hab) + '</td>' : '') +
           '<td class="c-c">' + esc(x.concepto) + '</td><td class="c-m">' + esc(meta) + '</td><td class="r c-i">' + money(x.importe) + '</td>' +
           '<td class="c-e">' + chip(st, st === 'pagado' ? 'Pagado ' + fmt(x.fechaPago) + (x.metodo ? ' · ' + x.metodo : '') : st === 'vencido' ? 'Vencido' : 'Pendiente') + '</td>' +
-          '<td class="r c-a"><button type="button" class="mini" data-cobro="' + x.id + '">' + (x.pagado ? 'Editar' : 'Cobrado') + '</button></td></tr>';
+          '<td class="r c-a">' + (x.pagado ? '' : payMini(x)) +
+          '<button type="button" class="mini" data-cobro="' + x.id + '">' + (x.pagado ? 'Editar' : 'Cobrado') + '</button></td></tr>';
       }).join('') + '</tbody></table>' + pager(key, total);
   }
   function bindCobros(root) {
+    root.querySelectorAll('[data-paylink]').forEach(function (b) {
+      b.onclick = function () {
+        var x = G.cobros.filter(function (c) { return c.id === b.getAttribute('data-paylink'); })[0], t = x && tenantOfCobro(x);
+        if (x) payDialog(t && t.id, [x.id]);
+      };
+    });
     root.querySelectorAll('[data-cobro]').forEach(function (b) {
       b.onclick = function () {
         var x = G.cobros.filter(function (c) { return c.id === b.getAttribute('data-cobro'); })[0];
@@ -522,12 +557,95 @@
           ok: 'Guardar',
           onSave: function (v) {
             x.pagado = v.pagado === 'si'; x.fechaPago = x.pagado ? v.fechaPago : ''; x.metodo = x.pagado ? v.metodo : '';
-            x.importe = v.importe; x.vence = v.vence; x.nota = v.nota; save(); refresh();
+            x.importe = v.importe; x.vence = v.vence; x.nota = v.nota;
+            var cx = x.tipo === 'fianza' && contract(x.contratoId); if (cx && cx.fianzaEstado !== 'devuelta') cx.fianzaEstado = x.pagado ? 'cobrada' : 'pendiente';
+            save(); refresh();
           },
           onDelete: function () { G.cobros = G.cobros.filter(function (c) { return c !== x; }); save(); refresh(); }
         });
       };
     });
+  }
+
+  /* ---------- Enlace de pago (Stripe) desde cualquier sitio ----------
+     tid: inquilina (si falta, se elige en la ventana). sel: ids de cobros marcados de inicio. */
+  function cobrosOf(tid) {
+    var cids = G.contratos.filter(function (c) { return c.inquilinaId === tid; }).map(function (c) { return c.id; });
+    return G.cobros.filter(function (x) { return !x.pagado && (cids.indexOf(x.contratoId) >= 0 || x.inquilinaId === tid); })
+      .sort(function (a, b) { return a.vence < b.vence ? -1 : 1; });
+  }
+  function payDialog(tid, sel) {
+    sel = sel || [];
+    var conT = G.inquilinas.filter(function (t) { return G.contratos.some(function (c) { return c.inquilinaId === t.id; }); })
+      .sort(function (a, b) { return fullName(a).localeCompare(fullName(b)); });
+    if (!tid && !conT.length) { A.alert('Primero crea una inquilina con su contrato.'); return; }
+    if (!tid) tid = conT[0].id;
+    var t = tenant(tid), list = cobrosOf(tid);
+    // Si no se ha marcado nada: lo vencido, o si no hay, el primer cobro pendiente
+    if (!sel.length) { sel = list.filter(function (x) { return cobroState(x) === 'vencido'; }).map(function (x) { return x.id; }); if (!sel.length && list[0]) sel = [list[0].id]; }
+    var old = list.filter(function (x) { return x.pago && sel.indexOf(x.id) >= 0; })[0];
+    dlg.innerHTML = '<form method="dialog" class="dform"><div class="dh"><h3>Enlace de pago</h3><button type="button" class="dx" aria-label="Cerrar">✕</button></div>' +
+      '<div class="dbody paydlg">' +
+      '<label><span>Inquilina</span><select id="py-t">' + (conT.indexOf(t) < 0 ? '<option value="' + esc(tid) + '">' + esc(fullName(t)) + '</option>' : '') +
+        conT.map(function (o) { return '<option value="' + esc(o.id) + '"' + (o.id === tid ? ' selected' : '') + '>' + esc(fullName(o)) + '</option>'; }).join('') + '</select></label>' +
+      '<div><h4 class="subh">¿Qué quieres cobrar?</h4>' +
+      (list.length ? '<div class="paylist">' + list.map(function (x) {
+        var st = cobroState(x);
+        return '<label class="payrow"><input type="checkbox" value="' + x.id + '"' + (sel.indexOf(x.id) >= 0 ? ' checked' : '') + '>' +
+          '<span><b>' + esc(x.concepto) + '</b><small>Vence ' + fmt(x.vence) + (x.pago ? ' · ya tiene enlace de ' + money(x.pago.importe) : '') + '</small></span>' +
+          (st === 'vencido' ? chip('vencido', 'Vencido') : '') + '<em>' + money(x.importe) + '</em></label>';
+      }).join('') + '</div>' : '<p class="empty">No tiene cobros pendientes.</p>') +
+      '<details class="payotro"' + (list.length ? '' : ' open') + '><summary>+ Otro importe (llave extra, daños…)</summary><div class="grid2">' +
+        '<label><span>Concepto</span><input id="py-con" placeholder="Ej.: llave extra"></label><label><span>Importe (€)</span><input id="py-imp" type="number" step="0.01" min="0"></label></div></details></div>' +
+      '<div class="paytot"><span>Total del enlace</span><b id="py-tot">0 €</b></div>' +
+      '<div id="py-out"></div>' +
+      '<p class="derr" id="py-err" hidden></p>' +
+      '</div><div class="dfoot"><span></span><button type="submit" class="btn" id="py-go">Generar enlace</button></div></form>';
+    dlg.querySelector('.dx').onclick = function () { dlg.close(); };
+    var err = function (m) { var p = $('py-err'); p.textContent = m; p.hidden = !m; };
+    function picked() { return Array.prototype.map.call(dlg.querySelectorAll('.paylist input:checked'), function (i) { return G.cobros.filter(function (x) { return x.id === i.value; })[0]; }).filter(Boolean); }
+    function extra() { return { con: $('py-con').value.trim(), imp: num($('py-imp').value) }; }
+    function total() { return picked().reduce(function (s, x) { return s + num(x.importe); }, 0) + extra().imp; }
+    function upd() { var tt = total(); $('py-tot').textContent = money(tt); $('py-go').textContent = tt ? 'Generar enlace de ' + money(tt) : 'Generar enlace'; }
+    function showLink(url, imp, concepto) {
+      var msg = 'Hola ' + (t.nombre || '') + ', te escribimos de BSL. Para pagar ' + concepto + ' (' + money(imp) + ') puedes usar este enlace seguro con tarjeta: ' + url;
+      $('py-out').innerHTML = '<div class="sol-pay"><b>Enlace de pago · ' + money(imp) + '</b><input type="text" readonly value="' + esc(url) + '" id="py-url">' +
+        '<div class="sol-row"><button type="button" class="btn plain sm" id="py-copy">Copiar enlace</button>' +
+        (t.telefono ? '<a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(t.telefono) + '?text=' + encodeURIComponent(msg) + '">Enviar por WhatsApp</a>' : '') + '</div>' +
+        '<small class="hint">Cuando te pague, marca el cobro como «Cobrado» (forma de pago: Tarjeta).</small></div>';
+      $('py-copy').onclick = function () {
+        var inp = $('py-url'), b = this; inp.select();
+        (navigator.clipboard ? navigator.clipboard.writeText(inp.value) : Promise.reject()).then(function () { b.textContent = '¡Copiado!'; }, function () { document.execCommand('copy'); b.textContent = '¡Copiado!'; });
+      };
+    }
+    $('py-t').onchange = function () { payDialog(this.value, []); };
+    dlg.querySelector('.dbody').addEventListener('input', upd);
+    dlg.querySelector('.dbody').addEventListener('change', function (e) { if (e.target.id !== 'py-t') upd(); });
+    upd();
+    if (old && sel.length === 1) showLink(old.pago.url, old.pago.importe, old.concepto);
+    dlg.querySelector('form').addEventListener('submit', function (e) {
+      e.preventDefault(); err('');
+      var ps = picked(), ex = extra(), tt = total();
+      if (ex.imp && !ex.con) return err('Pon el concepto del otro importe.');
+      if (tt < 1) return err('Marca algún cobro o pon un importe.');
+      var partes = ps.map(function (x) { return x.concepto.toLowerCase(); }); if (ex.imp) partes.push(ex.con.toLowerCase());
+      var concepto = partes.length > 2 ? partes.length + ' conceptos (' + partes.join(', ') + ')' : partes.join(' y ');
+      var c = activeContract(tid), hab = c && room(c.habitacionId) ? room(c.habitacionId).nombre : '';
+      var b = $('py-go'); b.disabled = true; b.textContent = 'Generando…';
+      B.store.crearPago({ id: tid, importe: Math.round(tt * 100) / 100, concepto: (concepto.charAt(0).toUpperCase() + concepto.slice(1)) + (hab ? ' · habitación ' + hab : '') + ' · BSL · ' + fullName(t) })
+        .then(function (url) {
+          var pago = { url: url, importe: Math.round(tt * 100) / 100, fecha: today() };
+          if (ex.imp) { // el otro importe queda apuntado como cobro para no perderlo
+            var nx = { id: uid(), contratoId: c ? c.id : '', inquilinaId: tid, tipo: 'otro', mes: today().slice(0, 7), concepto: ex.con, importe: ex.imp, vence: today(), pagado: false };
+            G.cobros.push(nx); ps.push(nx);
+          }
+          ps.forEach(function (x) { x.pago = pago; });
+          save(); refresh(); b.disabled = false; upd();
+          showLink(url, pago.importe, concepto);
+          $('py-out').scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }, function (e) { b.disabled = false; upd(); if (e.status === 401) return A.expired(); err(e.message); });
+    });
+    if (!dlg.open) { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
   }
 
   function contractForm(tid, c, preset) {
@@ -548,6 +666,7 @@
         { k: 'fianzaEstado', label: 'Fianza', type: 'select', opts: [['pendiente', 'Pendiente de cobrar'], ['cobrada', 'Cobrada'], ['devuelta', 'Devuelta']] },
         { k: 'diaPago', label: 'Día de pago de cada mes', type: 'number', step: '1' },
         { k: 'notas', label: 'Notas del contrato', type: 'textarea' },
+        { k: 'pay', type: 'html', html: isNew ? '' : '<div class="payc edit-only"><button type="button" class="btn plain sm" id="c-pay">💳 Enlace de pago (fianza, mensualidades…)</button></div>' },
         { k: 'docs', type: 'html', html: '<div class="docs"><h4 class="subh">Documentos del contrato</h4><div id="c-docs"></div>' +
           '<label class="btn plain sm doc-add edit-only">+ Adjuntar PDF o fotos<input type="file" id="c-doc-in" accept="application/pdf,image/*" multiple hidden></label>' +
           '<p class="hint edit-only" id="c-doc-st">PDF o fotos, hasta 3 MB cada uno. Puedes adjuntar varios.</p></div>' }
@@ -591,6 +710,10 @@
       }).join('') : '<p class="hint">Sin documentos adjuntos.</p>';
     }
     drawDocs();
+    if ($('c-pay')) $('c-pay').onclick = function () {
+      var fz = G.cobros.filter(function (x) { return x.contratoId === c.id && x.tipo === 'fianza' && !x.pagado; })[0];
+      payDialog(tid, fz ? [fz.id] : []);
+    };
     $('c-docs').onclick = function (e) {
       var o = e.target.closest('[data-dopen]'), d = e.target.closest('[data-ddel]');
       if (o) {
@@ -665,7 +788,7 @@
     box.innerHTML = '<button type="button" class="back" id="back">← Inquilinas</button>' +
       '<div class="ghead"><h2>' + esc(fullName(t)) + '</h2><div class="gtools">' +
       (t.telefono ? '<a class="btn plain" href="https://wa.me/' + esc(String(t.telefono).replace(/\D/g, '').replace(/^(?!34)(\d{9})$/, '34$1')) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') +
-      '<button class="btn plain" type="button" id="edit-t">Editar datos</button></div></div>' +
+      '<button class="btn plain" type="button" id="edit-t">Editar datos</button><button class="btn edit-only" type="button" id="pay-t">💳 Enlace de pago</button></div></div>' +
       '<section class="card"><h3>Datos</h3><dl class="kv">' + TENANT_FIELDS.filter(function (f) { return t[f.k]; }).map(function (f) {
         var v = f.type === 'date' ? fmt(t[f.k]) : t[f.k];
         return '<div><dt>' + esc(f.label) + '</dt><dd>' + esc(v) + '</dd></div>';
@@ -687,6 +810,7 @@
       } });
     };
     $('new-c').onclick = function () { contractForm(id, null); };
+    $('pay-t').onclick = function () { payDialog(id, []); };
     box.querySelectorAll('[data-c]').forEach(function (b) { b.onclick = function () { contractForm(id, contract(b.getAttribute('data-c'))); }; });
     $('new-i').onclick = function () { incForm(null, { inquilinaId: id, habitacionId: (activeContract(id) || {}).habitacionId }); };
     bindInc(box); bindCobros(box);
@@ -726,7 +850,7 @@
       '<option value="prox2"' + (mesSel === 'prox2' ? ' selected' : '') + '>Próximos 2 meses (' + MES_LARGO[+ahead[0].slice(5) - 1] + ' y ' + MES_LARGO[+ahead[1].slice(5) - 1] + ')</option>' +
       '<option value="todos"' + (mesSel === 'todos' ? ' selected' : '') + '>Todos los meses</option>' +
       meses.map(function (m) { return '<option value="' + m + '"' + (m === mesSel ? ' selected' : '') + '>' + mesLabel(m) + '</option>'; }).join('') +
-      '</select><button class="btn plain" type="button" id="new-x">+ Cobro manual</button></div></div>' +
+      '</select><button class="btn plain" type="button" id="new-x">+ Cobro manual</button><button class="btn edit-only" type="button" id="pay-x">💳 Enlace de pago</button></div></div>' +
       '<div class="tiles"><div><small>Previsto</small><b>' + money(prev) + '</b></div><div><small>Cobrado</small><b class="ok">' + money(cobrado) + '</b></div>' +
       '<div><small>Por cobrar</small><b>' + money(prev - cobrado) + '</b></div><div><small>Vencido (total)</small><b class="bad">' + money(vencidoTotal) + '</b></div></div>' +
       '<div class="seg2" id="cf">' + [['abiertos', 'Pendientes'], ['vencido', 'Vencidos'], ['pagado', 'Pagados'], ['todos', 'Todos']].map(function (o) {
@@ -735,6 +859,7 @@
       '<section class="card">' + cobroRows(list, true, 'cob') + '</section>';
     $('cm').onchange = function () { box.dataset.cm = this.value; PAGES.cob = 0; viewCobros(); };
     $('cf').onclick = function (e) { var b = e.target.closest('[data-f]'); if (b) { box.dataset.cf = b.getAttribute('data-f'); PAGES.cob = 0; viewCobros(); } };
+    $('pay-x').onclick = function () { payDialog(null, []); };
     $('new-x').onclick = function () {
       var opts = G.contratos.map(function (c) { return [c.id, fullName(tenant(c.inquilinaId)) + ' · ' + roomName(c.habitacionId)]; });
       if (!opts.length) { A.alert('Primero crea una inquilina con su contrato.'); return; }
