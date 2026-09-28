@@ -387,7 +387,7 @@
     var st = PRE_ST[x.estado] || PRE_ST.nueva, ig = String(x.instagram || '').replace(/^@+/, '');
     var fianza = +x.precio || (room(x.habitacionId) || {}).precio || 0;
     var row = function (k, v) { return v ? '<dt>' + k + '</dt><dd>' + v + '</dd>' : ''; };
-    var payMsg = x.pago ? 'Hola ' + x.nombre + ', te escribimos de BSL. Te hemos admitido para la habitación ' + x.habitacion + ' (' + (x.periodo && x.periodo.titulo || '') + '). Para confirmarla, paga la fianza de ' + money(x.pago.importe) + ' (equivalente a 1 mes de alquiler) en este enlace seguro: ' + x.pago.url : '';
+    var payMsg = x.pago ? 'Hola ' + x.nombre + ', te escribimos de BSL. Te hemos admitido para la habitación ' + x.habitacion + ' (' + (x.periodo && x.periodo.titulo || '') + '). Para confirmarla, paga la fianza de ' + money(x.pago.importe) + ' (equivalente a 1 mes de alquiler) en este enlace seguro: ' + x.pago.url + '\n\nO, si lo prefieres, por transferencia a BBVA · IBAN ' + IBAN + ' (en el concepto pon tu nombre y «fianza ' + x.habitacion + '»).' : '';
     dlg.innerHTML = '<form method="dialog" class="dform"><div class="dh"><h3>Solicitud de admisión</h3><button type="button" class="dx" aria-label="Cerrar">✕</button></div>' +
       '<div class="dbody sol">' +
       '<div class="sol-top"><div><b>' + esc(x.nombre + ' ' + x.apellidos) + '</b><small>Recibida el ' + fmt((x.fecha || '').slice(0, 10)) + '</small></div>' + chip(st[0], st[1]) + '</div>' +
@@ -411,6 +411,7 @@
       (x.pago ? '<div class="sol-pay"><b>Enlace de pago · ' + money(x.pago.importe) + '</b><input type="text" readonly value="' + esc(x.pago.url) + '" id="sol-url">' +
         '<div class="sol-row"><button type="button" class="btn plain sm" id="sol-copy">Copiar enlace</button>' +
         '<a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(x.telefono) + '?text=' + encodeURIComponent(payMsg) + '">Enviar por WhatsApp</a></div></div>' : '') +
+      (x.estado === 'aceptada' ? ibanBox({ nombre: x.nombre, apellidos: x.apellidos, telefono: x.telefono }, 'la fianza de la habitación ' + x.habitacion, fianza) : '') +
       '<p class="derr" id="sol-err" hidden></p>' +
       '</div><div class="dfoot sol-actions edit-only">' +
       (x.estado !== 'descartada' ? '<button type="button" class="btn plain danger" id="sol-no">Descartar</button>' : '<button type="button" class="btn plain" id="sol-re">Recuperar</button><button type="button" class="btn plain danger" id="sol-del">Eliminar</button>') +
@@ -518,6 +519,25 @@
     bindPre();
   }
 
+  /* ---------- Pago por transferencia ---------- */
+  function conc(x) { return String(x.concepto || '').replace(/ \(admisión\)$/, '').toLowerCase(); }
+  var IBAN = 'ES89 0182 0401 8302 0155 6275';
+  function transMsg(t, concepto, imp) {
+    return 'Hola ' + ((t && t.nombre) || '') + ', te escribimos de BSL. Puedes pagar ' + concepto + (imp ? ' (' + money(imp) + ')' : '') +
+      ' por transferencia a:\nBBVA · IBAN ' + IBAN + '\nEn el concepto pon por favor: ' + (t ? fullName(t) : '') + ' · ' + concepto + '.\nGracias.';
+  }
+  // Caja con el IBAN; si hay inquilina con teléfono, botón para mandarle los datos por WhatsApp
+  function ibanBox(t, concepto, imp, id) {
+    return '<div class="iban"' + (id ? ' id="' + id + '"' : '') + '><span><small>Transferencia · BBVA</small><b>' + IBAN + '</b></span><span class="sol-row">' +
+      '<button type="button" class="btn plain sm" data-copy="' + IBAN.replace(/ /g, '') + '">Copiar IBAN</button>' +
+      (t && t.telefono && concepto ? '<a class="btn plain sm wa" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(t.telefono) + '?text=' + encodeURIComponent(transMsg(t, concepto, imp)) + '">Enviar por WhatsApp</a>' : '') +
+      '</span></div>';
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-copy]'); if (!b) return;
+    var v = b.getAttribute('data-copy'), done = function () { var o = b.textContent; b.textContent = '¡Copiado!'; setTimeout(function () { b.textContent = o; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(v).then(done, done); else done();
+  });
   function payMini(x) { return '<button type="button" class="mini pay edit-only" data-paylink="' + x.id + '" title="Enlace de pago con tarjeta">' + (x.pago ? '💳 Ver enlace' : '💳 Enlace') + '</button>'; }
   function cobroRows(list, showWho, key) {
     if (!list.length) return '<p class="empty">No hay cobros.</p>';
@@ -598,6 +618,7 @@
       '<details class="payotro"' + (list.length ? '' : ' open') + '><summary>+ Otro importe (llave extra, daños…)</summary><div class="grid2">' +
         '<label><span>Concepto</span><input id="py-con" placeholder="Ej.: llave extra"></label><label><span>Importe (€)</span><input id="py-imp" type="number" step="0.01" min="0"></label></div></details></div>' +
       '<div class="paytot"><span>Total del enlace</span><b id="py-tot">0 €</b></div>' +
+      '<div id="py-trans"></div>' +
       '<div id="py-out"></div>' +
       '<p class="derr" id="py-err" hidden></p>' +
       '</div><div class="dfoot"><span></span><button type="submit" class="btn" id="py-go">Generar enlace</button></div></form>';
@@ -606,13 +627,21 @@
     function picked() { return Array.prototype.map.call(dlg.querySelectorAll('.paylist input:checked'), function (i) { return G.cobros.filter(function (x) { return x.id === i.value; })[0]; }).filter(Boolean); }
     function extra() { return { con: $('py-con').value.trim(), imp: num($('py-imp').value) }; }
     function total() { return picked().reduce(function (s, x) { return s + num(x.importe); }, 0) + extra().imp; }
-    function upd() { var tt = total(); $('py-tot').textContent = money(tt); $('py-go').textContent = tt ? 'Generar enlace de ' + money(tt) : 'Generar enlace'; }
+    function conceptoSel() {
+      var partes = picked().map(function (x) { return conc(x); }), ex = extra(); if (ex.imp && ex.con) partes.push(ex.con.toLowerCase());
+      return partes.length > 2 ? partes.length + ' conceptos (' + partes.join(', ') + ')' : partes.join(' y ');
+    }
+    function upd() {
+      var tt = total(); $('py-tot').textContent = money(tt); $('py-go').textContent = tt ? 'Generar enlace de ' + money(tt) : 'Generar enlace';
+      $('py-trans').innerHTML = '<h4 class="subh">O que pague por transferencia</h4>' + ibanBox(t, conceptoSel() || 'lo pendiente', tt);
+    }
     function showLink(url, imp, concepto) {
-      var msg = 'Hola ' + (t.nombre || '') + ', te escribimos de BSL. Para pagar ' + concepto + ' (' + money(imp) + ') puedes usar este enlace seguro con tarjeta: ' + url;
+      var msg = 'Hola ' + (t.nombre || '') + ', te escribimos de BSL. Para pagar ' + concepto + ' (' + money(imp) + ') puedes usar este enlace seguro con tarjeta: ' + url +
+        '\n\nO, si lo prefieres, por transferencia a BBVA · IBAN ' + IBAN + ' (en el concepto pon: ' + fullName(t) + ' · ' + concepto + ').';
       $('py-out').innerHTML = '<div class="sol-pay"><b>Enlace de pago · ' + money(imp) + '</b><input type="text" readonly value="' + esc(url) + '" id="py-url">' +
         '<div class="sol-row"><button type="button" class="btn plain sm" id="py-copy">Copiar enlace</button>' +
         (t.telefono ? '<a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(t.telefono) + '?text=' + encodeURIComponent(msg) + '">Enviar por WhatsApp</a>' : '') + '</div>' +
-        '<small class="hint">Cuando te pague, marca el cobro como «Cobrado» (forma de pago: Tarjeta).</small></div>';
+        '<small class="hint">El mensaje incluye también el IBAN por si prefiere transferencia. Cuando te pague, marca el cobro como «Cobrado» con su forma de pago.</small></div>';
       $('py-copy').onclick = function () {
         var inp = $('py-url'), b = this; inp.select();
         (navigator.clipboard ? navigator.clipboard.writeText(inp.value) : Promise.reject()).then(function () { b.textContent = '¡Copiado!'; }, function () { document.execCommand('copy'); b.textContent = '¡Copiado!'; });
@@ -628,7 +657,7 @@
       var ps = picked(), ex = extra(), tt = total();
       if (ex.imp && !ex.con) return err('Pon el concepto del otro importe.');
       if (tt < 1) return err('Marca algún cobro o pon un importe.');
-      var partes = ps.map(function (x) { return x.concepto.toLowerCase(); }); if (ex.imp) partes.push(ex.con.toLowerCase());
+      var partes = ps.map(function (x) { return conc(x); }); if (ex.imp) partes.push(ex.con.toLowerCase());
       var concepto = partes.length > 2 ? partes.length + ' conceptos (' + partes.join(', ') + ')' : partes.join(' y ');
       var c = activeContract(tid), hab = c && room(c.habitacionId) ? room(c.habitacionId).nombre : '';
       var b = $('py-go'); b.disabled = true; b.textContent = 'Generando…';
@@ -785,6 +814,9 @@
     var cob = G.cobros.filter(function (x) { return cids.indexOf(x.contratoId) >= 0 || x.inquilinaId === id; });
     var inc = G.incidencias.filter(function (x) { return x.inquilinaId === id; });
     var pend = cob.filter(function (x) { return !x.pagado; }).reduce(function (s, x) { return s + num(x.importe); }, 0);
+    // Lo que toca pagar ya: vencido o que vence en 10 días (si no hay, el próximo cobro)
+    var abiertos = cob.filter(function (x) { return !x.pagado; }).sort(function (a2, b2) { return a2.vence < b2.vence ? -1 : 1; });
+    var ya = abiertos.filter(function (x) { return x.vence <= B.addDays(today(), 10); }); if (!ya.length && abiertos[0]) ya = [abiertos[0]];
     box.innerHTML = '<button type="button" class="back" id="back">← Inquilinas</button>' +
       '<div class="ghead"><h2>' + esc(fullName(t)) + '</h2><div class="gtools">' +
       (t.telefono ? '<a class="btn plain" href="https://wa.me/' + esc(String(t.telefono).replace(/\D/g, '').replace(/^(?!34)(\d{9})$/, '34$1')) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') +
@@ -799,7 +831,8 @@
         return '<button type="button" class="crow" data-c="' + c.id + '"><span><b>' + esc(roomName(c.habitacionId)) + '</b><small>' + fmt(c.desde) + ' → ' + fmt(c.hasta) + ' · ' + money(c.precio) + ' + ' + money(c.gastos) + ' gastos · día ' + (c.diaPago || 5) + ((c.docs || []).length ? ' · 📎 ' + c.docs.length + ' doc.' : '') + '</small>' +
           '<small>Fianza ' + money(c.fianza) + ' · ' + esc({ pendiente: 'pendiente', cobrada: 'cobrada', devuelta: 'devuelta' }[c.fianzaEstado || 'pendiente']) + '</small></span>' + chip(st[0], st[1]) + '</button>';
       }).join('') : '<p class="empty">Sin contratos. Crea uno para asignarle habitación: la web la marcará ocupada y se generarán los cobros.</p>') + '</section>' +
-      '<section class="card"><div class="ch"><h3>Cobros</h3><span class="hint">Pendiente: <b>' + money(pend) + '</b></span></div>' + cobroRows(cob, false, 'cobT') + '</section>' +
+      '<section class="card"><div class="ch"><h3>Cobros</h3><span class="hint">Pendiente: <b>' + money(pend) + '</b></span></div>' +
+        ibanBox(t, ya.length ? ya.map(function (x) { return conc(x); }).join(' y ') : 'tu mensualidad', ya.reduce(function (s2, x) { return s2 + num(x.importe); }, 0)) + cobroRows(cob, false, 'cobT') + '</section>' +
       '<section class="card"><div class="ch"><h3>Incidencias</h3><button class="btn plain" type="button" id="new-i">+ Incidencia</button></div>' + incList(inc, 'incT') + '</section>' +
       '<div class="foot"><span class="hint">Alta: ' + fmt(t.creada) + '</span><button class="btn plain danger" type="button" id="del-t">Borrar inquilina</button></div>';
     $('back').onclick = function () { detail = null; show('inq'); };
@@ -856,7 +889,7 @@
       '<div class="seg2" id="cf">' + [['abiertos', 'Pendientes'], ['vencido', 'Vencidos'], ['pagado', 'Pagados'], ['todos', 'Todos']].map(function (o) {
         return '<button type="button" data-f="' + o[0] + '" aria-current="' + (o[0] === f) + '">' + o[1] + '</button>';
       }).join('') + '</div>' +
-      '<section class="card">' + cobroRows(list, true, 'cob') + '</section>';
+      ibanBox(null) + '<section class="card">' + cobroRows(list, true, 'cob') + '</section>';
     $('cm').onchange = function () { box.dataset.cm = this.value; PAGES.cob = 0; viewCobros(); };
     $('cf').onclick = function (e) { var b = e.target.closest('[data-f]'); if (b) { box.dataset.cf = b.getAttribute('data-f'); PAGES.cob = 0; viewCobros(); } };
     $('pay-x').onclick = function () { payDialog(null, []); };
