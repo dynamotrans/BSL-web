@@ -153,8 +153,8 @@ body{top:0!important}
 .info-tip strong{font-weight:800}
 .info-tip.open{opacity:1;visibility:visible;transform:none}
 @media (hover:hover){.info-i:hover + .info-tip{opacity:1;visibility:visible;transform:none}}
-.hero-price{display:inline-flex;align-items:baseline;gap:5px;margin:0 0 16px;padding:7px 16px 8px;border-radius:999px;background:rgba(15,48,51,.55);border:1px solid rgba(243,239,230,.28);color:rgba(243,239,230,.8);font:500 .85rem/1 var(--sans);letter-spacing:.02em;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.hero-price b{font:400 1.35rem/1 var(--serif);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.04em}
+.hero-price{display:inline-flex;align-items:baseline;gap:7px;margin:0 0 18px;padding:9px 20px 11px;border-radius:999px;background:rgba(15,48,51,.7);border:1.5px solid rgba(240,138,108,.75);color:var(--cream);font:600 1rem/1 var(--sans);letter-spacing:.02em;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 10px 26px -12px rgba(0,0,0,.6)}
+.hero-price b{font:800 1.9rem/1 var(--sans);letter-spacing:-.01em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.04em}
 .load .copy .hero-price{animation:rise 1s .3s var(--ease) both}
 .copy p.addr{margin-top:14px;color:var(--cream)}
 .copy .addr svg{color:var(--coral)}
@@ -1363,7 +1363,7 @@ footer img{height:56px;width:auto}
         '<div class="rc-body"><p class="rc-num">Habitación <strong>individual</strong></p><h3>' + esc(r.nombre) + '</h3>' +
         '<p class="rc-meta">' + B.m2(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
         '<p class="rc-price"><b>' + esc(r.precio) + ' €</b>/mes + ' + esc(r.gastos) + ' € de gastos</p>' +
-        '<p class="rc-inc">Agua, luz, fibra + wifi, limpieza y mantenimiento incluidos</p>' +
+        '<p class="rc-inc">Agua, luz, fibra + wifi, limpieza y mantenimiento de zonas comunes incluidos</p>' +
         '<div class="rc-actions"><span class="btn sm">' + (st.kind === 'ocupada' ? 'Ocupada' : 'Solicitar plaza') + '</span></div></div></article>';
     }).join('') || '<p>No hay habitaciones publicadas ahora mismo.</p>';
     document.getElementById('r-demo').hidden = !data.demo;
