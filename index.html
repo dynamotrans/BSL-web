@@ -445,6 +445,8 @@ footer .maps-l{color:inherit;margin:0}
 .badge .dot{box-shadow:0 0 0 3px color-mix(in srgb,var(--st) 25%,transparent)}
 .room-card.st-ocupada .rc-photo img,.room-card.st-ocupada .rc-ph{filter:grayscale(1) brightness(.72) contrast(.9);opacity:.8}
 .room-card.st-ocupada .rc-photo{background:#8a9496}
+/* Móvil: selector de curso en una línea, leyenda más pegada y foto de la tarjeta más baja, para ver selector y tarjeta juntos */
+@media (max-width:600px){.rooms .seg{flex-wrap:nowrap;display:flex;width:100%;max-width:100%}.rooms .seg button{flex:1 1 0;padding:10px 8px;font-size:.78rem;white-space:nowrap}.legend{margin:0 0 12px;gap:12px;font-size:.8rem}.rc-photo{aspect-ratio:5/4}}
 .rc-body{padding:16px 16px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
 .rc-num{margin:0;font:600 .74rem/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
 .rc-num strong{display:inline-block;margin-left:2px;padding:4px 8px;border-radius:6px;background:var(--accent);color:#fff;font-weight:900;font-size:.82rem;letter-spacing:.1em}
