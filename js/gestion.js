@@ -553,7 +553,7 @@
           '<td class="c-c">' + esc(x.concepto) + '</td><td class="c-m">' + esc(meta) + '</td><td class="r c-i">' + money(x.importe) + '</td>' +
           '<td class="c-e">' + chip(st, st === 'pagado' ? 'Pagado ' + fmt(x.fechaPago) + (x.metodo ? ' · ' + x.metodo : '') : st === 'vencido' ? 'Vencido' : 'Pendiente') + '</td>' +
           '<td class="r c-a">' + (x.pagado ? '' : payMini(x)) +
-          '<button type="button" class="mini" data-cobro="' + x.id + '">' + (x.pagado ? 'Editar' : 'Cobrado') + '</button></td></tr>';
+          '<button type="button" class="mini" data-cobro="' + x.id + '">' + (x.pagado ? 'Editar' : 'Cobrar') + '</button></td></tr>';
       }).join('') + '</tbody></table>' + pager(key, total);
   }
   function bindCobros(root) {
@@ -641,7 +641,7 @@
       $('py-out').innerHTML = '<div class="sol-pay"><b>Enlace de pago · ' + money(imp) + '</b><input type="text" readonly value="' + esc(url) + '" id="py-url">' +
         '<div class="sol-row"><button type="button" class="btn plain sm" id="py-copy">Copiar enlace</button>' +
         (t.telefono ? '<a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(t.telefono) + '?text=' + encodeURIComponent(msg) + '">Enviar por WhatsApp</a>' : '') + '</div>' +
-        '<small class="hint">El mensaje incluye también el IBAN por si prefiere transferencia. Cuando te pague, marca el cobro como «Cobrado» con su forma de pago.</small></div>';
+        '<small class="hint">El mensaje incluye también el IBAN por si prefiere transferencia. Cuando te pague, pulsa «Cobrar» en ese cobro y elige su forma de pago.</small></div>';
       $('py-copy').onclick = function () {
         var inp = $('py-url'), b = this; inp.select();
         (navigator.clipboard ? navigator.clipboard.writeText(inp.value) : Promise.reject()).then(function () { b.textContent = '¡Copiado!'; }, function () { document.execCommand('copy'); b.textContent = '¡Copiado!'; });
