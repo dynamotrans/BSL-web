@@ -1242,15 +1242,6 @@ footer img{height:56px;width:auto}
       </fieldset>
       <p class="avail" id="res-avail"></p>
       <div class="alt" id="res-alt" hidden></div>
-      <label id="res-perfil-l">Soy estudiante de<select id="res-perfil" required>
-        <option value="">Elige una opción…</option>
-        <option value="Universidad Loyola Andalucía">Universidad Loyola Andalucía</option>
-        <option value="Universidad Pablo de Olavide">Universidad Pablo de Olavide</option>
-        <option value="Universidad de Sevilla">Universidad de Sevilla</option>
-        <option value="Máster">Máster</option>
-        <option value="Otro centro docente">Otro centro docente</option>
-      </select></label>
-      <p class="res-err" id="res-perfil-err" hidden>Elige dónde estudias para poder seguir.</p>
       </div>
 
       <div class="rstep" data-step="2" hidden>
@@ -1263,6 +1254,14 @@ footer img{height:56px;width:auto}
           <label>Ciudad<input id="rd-prov" placeholder="Ej.: Córdoba" autocomplete="address-level2"></label>
           <div class="full tel-wrap"><label class="tel-l">Teléfono (WhatsApp)<span class="tel-in"><span class="tel-p"><span class="tel-f" id="rd-flag" aria-hidden="true"></span><input id="rd-pref" value="+34" inputmode="tel" autocomplete="off" aria-label="Prefijo del país" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="rd-pref-list"></span><input id="rd-tel" type="tel" autocomplete="tel-national" inputmode="tel" placeholder="600 000 000"></span></label><ul class="cbx-list" id="rd-pref-list" role="listbox" hidden></ul></div>
           <label>Edad<select id="rd-edad"><option value="">Elige</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option></select></label>
+          <label id="res-perfil-l">Soy estudiante de<select id="res-perfil">
+        <option value="">Elige una opción…</option>
+        <option value="Universidad Loyola Andalucía">Universidad Loyola Andalucía</option>
+        <option value="Universidad Pablo de Olavide">Universidad Pablo de Olavide</option>
+        <option value="Universidad de Sevilla">Universidad de Sevilla</option>
+        <option value="Máster">Máster</option>
+        <option value="Otro centro docente">Otro centro docente</option>
+      </select></label>
         </div>
         <button type="button" class="linkbtn rd-msg-open" id="rd-msg-open">+ Añadir un mensaje (opcional)</button>
         <label class="full" id="rd-msg-box" hidden>Mensaje (opcional)<textarea id="rd-msg" rows="3" placeholder="Fecha de llegada, dudas…"></textarea></label>
@@ -1617,7 +1616,6 @@ footer img{height:56px;width:auto}
     [80, 350].forEach(function (ms) { setTimeout(function () { var y = resDlg.scrollTop; resDlg.scrollTop = y + 1; resDlg.scrollTop = y; }, ms); });
   });
   resDown.addEventListener('click', function () { resDlg.scrollBy({ top: resDlg.clientHeight * 0.7, behavior: 'smooth' }); });
-  document.getElementById('res-perfil').addEventListener('change', function () { if (this.value) { document.getElementById('res-perfil-err').hidden = true; document.getElementById('res-perfil-l').classList.remove('bad'); } });
   /* Pasos: 1 habitación · 2 datos · 3 pago (el pago con Stripe se activa cuando la cuenta esté lista) */
   var rstep = 1, pm = 'card';
   function $r(id) { return document.getElementById(id); }
@@ -1676,7 +1674,7 @@ footer img{height:56px;width:auto}
   resDlg.addEventListener('input', function (e) { var l = e.target.closest && e.target.closest('label.bad'); if (l) l.classList.remove('bad'); });
   resDlg.addEventListener('change', function (e) { var l = e.target.closest && e.target.closest('label.bad'); if (l) l.classList.remove('bad'); });
   function checkDatos() {
-    var need = [['rd-nombre', 'el nombre'], ['rd-apellidos', 'los apellidos'], ['rd-pais', 'el país de procedencia'], ['rd-prov', 'la ciudad'], ['rd-tel', 'el teléfono'], ['rd-edad', 'la edad']];
+    var need = [['rd-nombre', 'el nombre'], ['rd-apellidos', 'los apellidos'], ['rd-pais', 'el país de procedencia'], ['rd-prov', 'la ciudad'], ['rd-tel', 'el teléfono'], ['rd-edad', 'la edad'], ['res-perfil', 'indicar dónde estudias']];
     for (var i = 0; i < need.length; i++) if (!val(need[i][0])) { stepErr('rd-err', 'Falta ' + need[i][1] + '.', $r(need[i][0])); return false; }
     if (!/^\+\d{1,4}$/.test(val('rd-pref'))) { stepErr('rd-err', 'Revisa el prefijo del teléfono (por ejemplo +34).', $r('rd-pref')); return false; }
     if (val('rd-tel').replace(/\D/g, '').length < 9) { stepErr('rd-err', 'Revisa el teléfono.', $r('rd-tel')); return false; }
@@ -1685,17 +1683,7 @@ footer img{height:56px;width:auto}
   document.getElementById('res-form').addEventListener('submit', function (e) {
     e.preventDefault();
     var c = chosen(); if (!c || c.o.st.kind === 'ocupada') return;
-    if (rstep === 1) {
-      var perfil = $r('res-perfil'), pErr = $r('res-perfil-err');
-      if (!perfil.value) {
-        pErr.hidden = false; $r('res-perfil-l').classList.add('bad');
-        perfil.scrollIntoView({ block: 'center' }); perfil.focus();
-        // Abre el desplegable para que elija directamente (si el navegador lo permite)
-        try { if (perfil.showPicker) perfil.showPicker(); } catch (x) { /* sin soporte: queda marcado en rojo */ }
-        return;
-      }
-      pErr.hidden = true; $r('res-perfil-l').classList.remove('bad'); return goStep(2);
-    }
+    if (rstep === 1) return goStep(2);
     if (sent) { resDlg.close(); return; }
     if (sending) return;
     var body = {
