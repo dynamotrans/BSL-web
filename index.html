@@ -1685,8 +1685,17 @@ footer img{height:56px;width:auto}
       focus.focus(); focus.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }
   }
-  resDlg.addEventListener('input', function (e) { var l = e.target.closest && e.target.closest('label.bad'); if (l) l.classList.remove('bad'); });
-  resDlg.addEventListener('change', function (e) { var l = e.target.closest && e.target.closest('label.bad'); if (l) l.classList.remove('bad'); });
+  // Al rellenar o elegir el campo marcado, se quita al instante el borde rojo y su aviso
+  function clearBad(e) {
+    var l = e.target.closest && e.target.closest('label.bad'); if (!l) return;
+    var v = String(e.target.value || '').trim(); if (!v) return;
+    if (e.target.id === 'rd-tel' && v.replace(/\D/g, '').length < 9) return;
+    if (e.target.id === 'rd-pref' && !/^\+\d{1,4}$/.test(v)) return;
+    l.classList.remove('bad');
+    var p = $r('rd-err'); if (p && !p.hidden && !resDlg.querySelector('label.bad')) p.hidden = true;
+  }
+  resDlg.addEventListener('input', clearBad);
+  resDlg.addEventListener('change', clearBad);
   function checkDatos() {
     var need = [['rd-nombre', 'el nombre'], ['rd-apellidos', 'los apellidos'], ['rd-pais', 'el país de procedencia'], ['rd-prov', 'la ciudad'], ['rd-tel', 'el teléfono'], ['rd-edad', 'la edad'], ['res-perfil', 'indicar dónde estudias']];
     for (var i = 0; i < need.length; i++) if (!val(need[i][0])) { stepErr('rd-err', 'Falta ' + need[i][1] + '.', $r(need[i][0])); return false; }
