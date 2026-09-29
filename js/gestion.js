@@ -1064,7 +1064,7 @@
       months.map(function (m) { return '<span>' + B.MESES[m] + '</span>'; }).join('') + '</div></div>' + rows + '</div></div>' +
       '<p class="legend2"><span><i class="bar-s"></i>Contrato (nombre de la inquilina)</span><span><i class="bar-s man"></i>Ocupada a mano</span>' +
       '<span><i class="bar-s adm"></i>Admitida, sin contrato</span><span><i class="bar-s pen"></i>Pendiente de admisión</span><span><i class="now-s"></i>Hoy</span></p>' +
-      '<p class="hint">Solo el contrato y la ocupación a mano ocupan la habitación en la web. Las admitidas sin contrato y las pendientes se ven aquí para organizarte, pero no la bloquean. Pulsa una solicitud para abrirla.</p></section>';
+      '<p class="hint"><b>Solo el contrato y la ocupación a mano ocupan la habitación en la web.</b> Las admitidas sin contrato y las pendientes se ven aquí para organizarte, pero no la bloquean. Pulsa una solicitud para abrirla.</p></section>';
     $('oy').onchange = function () { box.dataset.oy = this.value; viewOcupacion(); };
     bindSol();
     if (SOL === null) loadSol();
