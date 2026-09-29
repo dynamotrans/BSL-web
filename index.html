@@ -1540,6 +1540,7 @@ footer img{height:56px;width:auto}
       }
     });
     setPref(byName['España']);
+    window.bslResetPais = function () { pais.value = 'España'; setPref(byName['España']); };
   })();
   function chosen() {
     var i = optsBox.querySelector('input:checked'), room = byId(resRoom.value);
@@ -1596,9 +1597,18 @@ footer img{height:56px;width:auto}
     resRoom.value = b.getAttribute('data-alt'); drawOpts(key);
     resDlg.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(downState, 400);
   });
+  function clearDatos() {
+    ['rd-nombre', 'rd-apellidos', 'rd-prov', 'rd-tel', 'rd-msg', 'rd-edad', 'res-perfil'].forEach(function (k) { var el = document.getElementById(k); if (el) el.value = ''; });
+    if (window.bslResetPais) window.bslResetPais();
+    document.getElementById('rd-msg-box').hidden = true; document.getElementById('rd-msg-open').hidden = false;
+    var er = document.getElementById('rd-err'); if (er) er.hidden = true;
+    resDlg.querySelectorAll('label.bad').forEach(function (l) { l.classList.remove('bad'); });
+  }
   function showReserve(id) {
     resRoom.innerHTML = active().map(function (r) { return '<option value="' + r.id + '">' + esc(r.nombre) + ' · ' + esc(r.precio) + ' €/mes</option>'; }).join('');
     if (id) resRoom.value = id;
+    // Si la anterior reserva ya se envió, el formulario empieza vacío para la siguiente
+    if (savedSig) clearDatos();
     rstep = 1; sent = false; sending = false; savedSig = '';
     drawOpts(view);
     goStep(1);
