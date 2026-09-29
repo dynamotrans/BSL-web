@@ -312,7 +312,7 @@
         if (G.cobros.length > n) { nuevo = true; if (x.pago && fx) fx.pago = x.pago; }
       });
       if (nuevo) { save(); if (tab === 'cob') viewCobros(); }
-      renderTabs(); if (tab === 'inq' && !detail) viewTenants(); if (tab === 'res') viewResumen(); }, function (err) {
+      renderTabs(); if (tab === 'inq' && !detail) viewTenants(); if (tab === 'res') viewResumen(); if (tab === 'ocu') viewOcupacion(); }, function (err) {
       if (err.status === 401) return A.expired(); SOL = SOL || [];
     });
   }
@@ -986,7 +986,22 @@
         return '<span class="obar man" style="left:' + a + '%;width:' + Math.max(1, b - a) + '%" title="Marcada a mano en Habitaciones">Ocupada</span>';
       }).join('');
       if (B.dayState(r, t) !== 'ocupada' && r.activa) libresHoy.push('Nº ' + r.num);
-      return '<div class="orow"><span class="olab">Nº ' + r.num + '<small>' + esc(r.nombre) + '</small></span><div class="otrack">' + manual + bars +
+      // Solicitudes pendientes y admitidas sin contrato: solo se ven aquí, no ocupan la habitación en la web
+      var sols = (SOL || []).filter(function (x) {
+        if (x.habitacionId !== r.id || !x.periodo || !x.periodo.desde || !x.periodo.hasta) return false;
+        if (x.periodo.desde > end || x.periodo.hasta < start) return false;
+        if (x.estado === 'nueva') return true;
+        return x.estado === 'aceptada' && !G.contratos.some(function (c) { return c.inquilinaId === x.inquilinaId; });
+      }).sort(function (a2, b2) { return a2.periodo.desde < b2.periodo.desde ? -1 : 1; });
+      var lanes = [], solBars = sols.map(function (x) {
+        var a = pos(x.periodo.desde < start ? start : x.periodo.desde), b = pos(B.addDays(x.periodo.hasta > end ? end : x.periodo.hasta, 1));
+        var ln = 0; while (lanes[ln] != null && lanes[ln] > a) ln++; lanes[ln] = b;
+        var adm = x.estado === 'aceptada';
+        return '<span class="obar sol ' + (adm ? 'adm' : 'pen') + '" data-sol="' + esc(x.id) + '" role="button" tabindex="0" style="left:' + a + '%;width:' + Math.max(1, b - a) + '%;top:' + (34 + ln * 26) + 'px" title="' +
+          esc((adm ? 'Admitida, sin contrato' : 'Pendiente de admisión') + ' · ' + x.nombre + ' ' + x.apellidos + ' · ' + fmt(x.periodo.desde) + ' → ' + fmt(x.periodo.hasta)) + '">' + (adm ? '✓ ' : '? ') + esc(x.nombre) + '</span>';
+      }).join('');
+      var h = lanes.length ? ' style="height:' + (34 + lanes.length * 26 + 4) + 'px"' : '';
+      return '<div class="orow"><span class="olab">Nº ' + r.num + '<small>' + esc(r.nombre) + '</small></span><div class="otrack' + (lanes.length ? ' two' : '') + '"' + h + '>' + manual + bars + solBars +
         (t >= start && t <= end ? '<i class="onow" style="left:' + pos(t) + '%"></i>' : '') + '</div></div>';
     }).join('');
     var ys = []; for (var k = -2; k <= 3; k++) ys.push((B.courseOf(today()) || B.nextFullCourse(today()) - 1) + k);
@@ -994,8 +1009,12 @@
       '<p class="hint">Libres hoy: <b>' + (libresHoy.length ? libresHoy.join(', ') : 'ninguna') + '</b></p>' +
       '<section class="card"><div class="tscroll"><div class="occgrid"><div class="orow ohead"><span class="olab"></span><div class="otrack">' +
       months.map(function (m) { return '<span>' + B.MESES[m] + '</span>'; }).join('') + '</div></div>' + rows + '</div></div>' +
-      '<p class="legend2"><span><i class="bar-s"></i>Contrato (nombre de la inquilina)</span><span><i class="bar-s man"></i>Ocupada a mano</span><span><i class="now-s"></i>Hoy</span></p></section>';
+      '<p class="legend2"><span><i class="bar-s"></i>Contrato (nombre de la inquilina)</span><span><i class="bar-s man"></i>Ocupada a mano</span>' +
+      '<span><i class="bar-s adm"></i>Admitida, sin contrato</span><span><i class="bar-s pen"></i>Pendiente de admisión</span><span><i class="now-s"></i>Hoy</span></p>' +
+      '<p class="hint">Solo el contrato y la ocupación a mano ocupan la habitación en la web. Las admitidas sin contrato y las pendientes se ven aquí para organizarte, pero no la bloquean. Pulsa una solicitud para abrirla.</p></section>';
     $('oy').onchange = function () { box.dataset.oy = this.value; viewOcupacion(); };
+    bindSol();
+    if (SOL === null) loadSol();
   }
 
   /* ---------- Ajustes ---------- */
