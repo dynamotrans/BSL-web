@@ -443,6 +443,9 @@
       '<div class="sol-row">' +
       '<a class="btn plain sm" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(x.telefono) + '?text=' + encodeURIComponent('Hola ' + x.nombre + ', te escribimos de BSL. Hemos recibido tu solicitud de admisión para la habitación ' + x.habitacion + '.') + '">WhatsApp</a>' +
       (x.estado !== 'aceptada' ? '<button type="button" class="btn sm" id="sol-ok">Admitir como inquilina</button>' : '') +
+      (x.estado === 'aceptada' && x.inquilinaId && tenant(x.inquilinaId) ? (G.contratos.some(function (c) { return c.inquilinaId === x.inquilinaId; })
+        ? '<button type="button" class="btn plain sm" id="sol-ten">Ver inquilina y contrato</button>'
+        : '<button type="button" class="btn sm" id="sol-con">📄 Crear contrato</button>') : '') +
       (x.estado === 'aceptada' ? '<button type="button" class="btn sm" id="sol-pay">' + (x.pago ? 'Solicitar pago de nuevo' : 'Solicitar pago de la fianza (' + money(fianza) + ')') + '</button>' : '') +
       '</div></div></form>';
     var err = function (m) { var p = $('sol-err'); p.textContent = m; p.hidden = !m; if (m) p.scrollIntoView({ block: 'center', behavior: 'smooth' }); };
@@ -477,6 +480,11 @@
         }, function (e) { b.disabled = false; b.textContent = 'Guardar'; if (e.status === 401) return A.expired(); err(e.message); });
       };
     }
+    if ($('sol-con')) $('sol-con').onclick = function () {
+      contractForm(x.inquilinaId, null, { habitacionId: x.habitacionId, desde: x.periodo && x.periodo.desde, hasta: x.periodo && x.periodo.hasta, fromSol: true,
+        docs: docsOf(x).map(function (d, i) { return { id: uid(), nombre: (x.tipoDoc || 'Documento') + (docsOf(x).length > 1 ? ' ' + (i + 1) : ''), tipo: d.tipo, path: d.path, fecha: today() }; }) });
+    };
+    if ($('sol-ten')) $('sol-ten').onclick = function () { dlg.close(); detail = x.inquilinaId; show('inq'); };
     if ($('sol-no')) $('sol-no').onclick = function () {
       if (!window.confirm('¿Descartar esta solicitud?')) return;
       setEstado('descartada').then(function () { dlg.close(); refresh(); }, function (e) { err(e.message); });
@@ -1159,6 +1167,8 @@
           .sort(function (a, b) { return a.desde < b.desde ? 1 : -1; });
         if (!cs.length) throw new Error('No encuentro el contrato de ' + op.inquilina + '.');
         c = cs[0]; if (op.hasta < c.desde) throw new Error('La salida es anterior a la entrada.');
+        var clash2 = G.contratos.filter(function (o) { return o !== c && o.habitacionId === c.habitacionId && o.desde <= op.hasta && o.hasta >= c.desde; })[0];
+        if (clash2) throw new Error('Con esa salida se pisaría con el contrato de ' + fullName(tenant(clash2.inquilinaId)) + ' (' + fmt(clash2.desde) + ' → ' + fmt(clash2.hasta) + ').');
         c.hasta = op.hasta; genCobros(c);
         return;
       case 'cobro-pagado':
