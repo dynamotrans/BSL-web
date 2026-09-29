@@ -563,6 +563,7 @@ dialog.sheet.legal{width:min(620px,calc(100% - 24px))}
 .okbox{border-radius:16px;padding:22px 16px 20px;background:linear-gradient(135deg,#1f9d63,#16784b);color:#fff;text-align:center;display:grid;justify-items:center;gap:6px;box-shadow:0 10px 26px -10px rgba(22,120,75,.6);animation:okPop .55s cubic-bezier(.34,1.56,.64,1) both}
 .okbox b{font:700 2rem/1.1 var(--serif);color:#fff;letter-spacing:.01em}
 .okbox p{margin:0;color:rgba(255,255,255,.92);font-size:.95rem}
+.okbox p b{font:inherit;font-weight:800;color:#fff;letter-spacing:0}
 .ok-ic{display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:#fff;color:#1f9d63;box-shadow:0 0 0 6px rgba(255,255,255,.22);animation:okPop .6s .15s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes okPop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.okbox,.ok-ic{animation:none}}
@@ -1132,7 +1133,7 @@ footer img{height:56px;width:auto}
         <div class="head rv">
           <p class="eyebrow">Disponibilidad</p>
           <h2>Elige tu <em>habitación <b>individual</b></em></h2>
-          <p>Mira qué habitaciones quedan libres para el próximo curso o durante este curso. Pulsa en la habitación que te guste y envía tu solicitud de admisión: la revisamos y te escribimos.</p>
+          <p>Mira qué habitaciones quedan libres para el próximo curso o durante este curso. Pulsa en la habitación que te guste y resérvala: tu reserva queda sujeta a admisión previa; la revisamos y te escribimos.</p>
           <p class="addr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="notranslate" translate="no">Calle Canónigo · Dos Hermanas · Sevilla</span><a class="maps-l" href="https://maps.app.goo.gl/VNDkkathCcGhzhDj8" target="_blank" rel="noopener">Ver en Google Maps ↗</a></p>
         </div>
       </div>
@@ -1163,7 +1164,7 @@ footer img{height:56px;width:auto}
     <a class="admin-link" href="admin.html" rel="nofollow">Admin</a>
     <p class="legal-note">BSL (Boutique Student Living) es la marca comercial para la difusión de alquiler de habitaciones de temporada en vivienda compartida, sujeto a la Ley de Arrendamientos Urbanos (LAU). La actividad no constituye un establecimiento de hospedaje ni presta servicios propios de la industria hotelera. <strong>No somos una residencia de estudiantes.</strong></p>
     <p class="legal-note pf-foot">Los perfiles de «¿Encajas en BSL?» son de ejemplo: nombres y datos no corresponden a inquilinas reales.</p>
-    <nav class="legal-links" aria-label="Textos legales"><a href="/aviso-legal.html">Aviso legal</a><a href="/privacidad.html">Privacidad</a><a href="/cookies.html">Cookies</a><a href="/condiciones-solicitud.html">Condiciones de la solicitud</a></nav>
+    <nav class="legal-links" aria-label="Textos legales"><a href="/aviso-legal.html">Aviso legal</a><a href="/privacidad.html">Privacidad</a><a href="/cookies.html">Cookies</a><a href="/condiciones-solicitud.html">Condiciones de la reserva</a></nav>
   </div>
 </footer>
 
@@ -1194,19 +1195,19 @@ footer img{height:56px;width:auto}
 
 
 <dialog class="sheet legal" id="legal-dlg" aria-labelledby="legal-t">
-  <div class="sh-head"><h3 id="legal-t">Condiciones de la solicitud</h3><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
+  <div class="sh-head"><h3 id="legal-t">Condiciones de la reserva</h3><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
   <div class="sh-body legal-body">
-    <h4>1. Qué es esta solicitud</h4>
-    <p>Enviar este formulario es una <b>solicitud de admisión</b>, no una reserva. No tiene coste y no obliga a ninguna de las partes. BSL · Boutique Student Living revisa cada solicitud y decide libremente si ofrece plaza, según la disponibilidad y el perfil de convivencia de la casa.</p>
+    <h4>1. Cómo funciona la reserva</h4>
+    <p>Al pulsar «Reservar» nos envías una <b>reserva sujeta a admisión previa</b>. No tiene coste y no obliga a ninguna de las partes. BSL · Boutique Student Living revisa cada reserva y decide libremente si la acepta, según la disponibilidad y el perfil de convivencia de la casa. Te respondemos por WhatsApp o por teléfono.</p>
     <h4>2. A quién va dirigida</h4>
-    <p>La vivienda es exclusivamente para <b>chicas estudiantes</b> (universidad, máster u otros centros docentes). Si eres menor de 18 años, la solicitud debe hacerla o autorizarla tu madre, padre o tutor legal.</p>
-    <h4>3. Si se te ofrece plaza</h4>
-    <p>La plaza solo queda confirmada cuando se firma el contrato de arrendamiento de habitación y se abona la fianza, equivalente a una mensualidad de alquiler. Hasta entonces, la habitación puede ofrecerse a otras solicitantes.</p>
+    <p>La vivienda es exclusivamente para <b>chicas estudiantes</b> (universidad, máster u otros centros docentes). Tienes que ser mayor de edad.</p>
+    <h4>3. Cuándo queda confirmada la plaza</h4>
+    <p>Si aceptamos tu reserva, te enviamos el contrato y la forma de pagar la fianza, equivalente a una mensualidad de alquiler (con tarjeta o por transferencia). <b>La plaza solo queda confirmada cuando se firma el contrato de arrendamiento de habitación y se abona la fianza.</b> Hasta entonces, la habitación puede ofrecerse a otras interesadas.</p>
     <h4>4. Veracidad de los datos</h4>
-    <p>Declaras que los datos que envías son ciertos y te pertenecen. Una información falsa es motivo para no admitir la solicitud o resolver el contrato.</p>
+    <p>Declaras que los datos que envías son ciertos y te pertenecen. Una información falsa es motivo para no admitir la reserva o resolver el contrato.</p>
     <h4>5. Protección de datos</h4>
     <p><b>Responsable:</b> Álvaro Blanco Morillo, NIF 49029123T, titular de la marca BSL · Boutique Student Living, Calle Canónigo, 41701 Dos Hermanas (Sevilla). Contacto: teléfono y WhatsApp +34 672 33 89 22.</p>
-    <p><b>Finalidad:</b> estudiar tu solicitud de admisión, contactarte y, si se te ofrece plaza, preparar el contrato.</p>
+    <p><b>Finalidad:</b> estudiar tu reserva y tu admisión, contactarte y, si se acepta, preparar el contrato.</p>
     <p><b>Base legal:</b> tu consentimiento y la aplicación de medidas precontractuales a petición tuya (art. 6.1.a y 6.1.b del Reglamento General de Protección de Datos).</p>
     <p><b>Conservación:</b> si no se formaliza el contrato, tus datos se eliminan en un plazo máximo de 6 meses. Si se formaliza, se conservan durante la relación contractual y los plazos legales posteriores.</p>
     <p><b>Destinatarios:</b> no se ceden a terceros salvo obligación legal. Se guardan en servidores de proveedores tecnológicos con garantías adecuadas.</p>
@@ -1217,7 +1218,7 @@ footer img{height:56px;width:auto}
 
 <dialog class="sheet" id="res-dlg" aria-labelledby="res-title">
   <form method="dialog" id="res-form" novalidate>
-    <div class="sh-head"><div><h3 id="res-title">Solicitud de admisión</h3><p class="sh-sub"><i></i>Solo chicas estudiantes</p></div><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
+    <div class="sh-head"><div><h3 id="res-title">Reserva de habitación</h3><p class="sh-sub"><i></i>Solo chicas estudiantes · Sujeta a admisión</p></div><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
     <div class="sh-body">
       <ol class="rsteps" aria-label="Pasos de la reserva"><li data-s="1"><b>1</b>Habitación</li><li data-s="2"><b>2</b>Tus datos</li><li data-s="3"><b>3</b>Enviada</li></ol>
 
@@ -1257,12 +1258,12 @@ footer img{height:56px;width:auto}
         <label class="full" id="rd-msg-box" hidden>Mensaje (opcional)<textarea id="rd-msg" rows="3" placeholder="Fecha de llegada, dudas…"></textarea></label>
         <input type="text" id="rd-web" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
         <p class="rd-adm"><b>Reserva sujeta a admisión previa.</b> Tu reserva tiene que ser aceptada por BSL antes de quedar confirmada: revisamos tu perfil y, si encajas en la casa, te confirmamos la plaza por WhatsApp o por teléfono.</p>
-        <p class="rd-legal">Al reservar aceptas las <a href="#" class="linkbtn" data-legal>condiciones de la solicitud y la información sobre protección de datos</a>.</p>
+        <p class="rd-legal">Al reservar aceptas las <a href="#" class="linkbtn" data-legal>condiciones de la reserva y la información sobre protección de datos</a>.</p>
         <p class="res-err" id="rd-err" hidden></p>
       </div>
 
       <div class="rstep" data-step="3" hidden>
-        <div class="okbox" id="res-ok"><span class="ok-ic" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><b>¡Solicitud enviada!</b><p>Ya la tenemos. Gracias por confiar en BSL.</p></div>
+        <div class="okbox" id="res-ok"><span class="ok-ic" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><b>¡Reserva enviada!</b><p>Ya la tenemos. Queda <b>pendiente de admisión</b>: te confirmamos pronto.</p></div>
         <div class="okbox fail" id="res-fail" hidden><b>No hemos podido guardarla</b><p>Ha habido un problema con la conexión. Pulsa «Avisar por WhatsApp» para mandárnosla y no se pierda.</p></div>
         <div class="wanote" id="res-wanote">
           <b>¿Quieres que la veamos antes?</b>
@@ -1273,10 +1274,10 @@ footer img{height:56px;width:auto}
         <div class="rsum" id="res-sum"></div>
         <div class="nextbox">
           <b>¿Qué pasa después?</b>
-          <ol><li>Revisamos tu solicitud de admisión y tu perfil.</li><li>Te escribimos por WhatsApp o te llamamos para confirmar.</li><li>Entonces te enviamos el contrato y los pasos para formalizarlo.</li></ol>
+          <ol><li>Revisamos tu reserva y tu perfil (admisión).</li><li>Te escribimos por WhatsApp o te llamamos para confirmar.</li><li>Entonces te enviamos el contrato y los pasos para formalizarlo.</li></ol>
           <small>Sin coste y sin compromiso: la plaza queda confirmada al firmar el contrato.</small>
         </div>
-        <div class="sent" id="res-sent" hidden><b>¡Solicitud registrada!</b><p>Gracias. Ahora se abre WhatsApp con tu solicitud: solo tienes que pulsar enviar. Te contestamos muy pronto.</p><a class="btn wa-btn" id="res-sent-wa" href="#" target="_blank" rel="noopener">Abrir WhatsApp</a></div>
+        <div class="sent" id="res-sent" hidden><b>¡Reserva enviada!</b><p>Gracias. Ahora se abre WhatsApp con tu reserva: solo tienes que pulsar enviar. Te contestamos muy pronto.</p><a class="btn wa-btn" id="res-sent-wa" href="#" target="_blank" rel="noopener">Abrir WhatsApp</a></div>
       </div>
 
       <div class="msg" id="res-msg" hidden></div>
@@ -1636,7 +1637,7 @@ footer img{height:56px;width:auto}
     var c = chosen(); if (!c) return;
     var r = c.room, fianza = +r.precio || 0;
     $r('res-sum').innerHTML =
-      '<h4>Resumen de tu solicitud</h4>' +
+      '<h4>Resumen de tu reserva</h4>' +
       '<dl><dt>Habitación</dt><dd>' + esc(r.nombre) + '<small>Individual</small></dd>' +
       '<dt>Periodo</dt><dd>' + esc(c.o.title) + '<small>Del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + '</small></dd>' +
       '<dt>Estudiante</dt><dd>' + esc(val('rd-nombre') + ' ' + val('rd-apellidos')) + '<small>' + esc(val('rd-edad') + ' años · ' + val('res-perfil')) + '</small></dd>' +
@@ -1711,7 +1712,7 @@ footer img{height:56px;width:auto}
       return;
     }
     // Paso 3: la solicitud ya está guardada; el botón solo abre WhatsApp con el resumen
-    var waText = 'Hola BSL 👋 Acabo de enviar mi solicitud de admisión desde la web.\n\n' +
+    var waText = 'Hola BSL 👋 Acabo de hacer una reserva desde la web (pendiente de admisión).\n\n' +
       '*Habitación:* ' + c.room.nombre + ' · ' + c.o.title + ' (del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + ')\n' +
       '*Nombre:* ' + body.nombre + ' ' + body.apellidos + ' (' + body.edad + ' años)\n' +
       '*Estudio en:* ' + body.universidad + '\n' +
