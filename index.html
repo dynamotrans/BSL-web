@@ -567,6 +567,7 @@ dialog.sheet.legal{width:min(620px,calc(100% - 24px))}
 .wanote{border-radius:14px;padding:14px 16px;border:2px solid #25d366;background:color-mix(in srgb,#25d366 8%,var(--surface));display:grid;gap:6px;font-size:.92rem}
 .wanote p{margin:0;color:var(--ink)}
 .wanote .wa-best{font-weight:800;color:#128c4a}
+.wanote .wa-in{justify-self:stretch;justify-content:center;display:inline-flex;align-items:center;gap:8px;margin-top:4px}
 .sent{border-radius:14px;padding:22px 18px;background:color-mix(in srgb,var(--free,#2c9a6a) 12%,var(--surface));text-align:center;display:grid;gap:6px}
 .sent b{font:400 1.6rem/1.1 var(--serif);color:#1f7a53}
 .sent p{margin:0;color:var(--ink)}
@@ -1261,6 +1262,7 @@ footer img{height:56px;width:auto}
           <b>¿Quieres que la veamos antes?</b>
           <p>Avísanos por <strong>WhatsApp</strong>: nos llega <strong>al momento</strong>. Si no, la veremos en nuestro panel, que revisamos <strong>cada 1 o 2 días</strong>.</p>
           <p class="wa-best">Si nos escribes por WhatsApp, mucho mejor 😊</p>
+          <button class="btn wa-btn wa-in" type="submit"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l2 .9c.3.1.5.2.5.3.1.2.1.7-.2 1.3z"/></svg> Avisar por WhatsApp</button>
         </div>
         <div class="rsum" id="res-sum"></div>
         <div class="nextbox">
@@ -1620,6 +1622,8 @@ footer img{height:56px;width:auto}
     send.classList.toggle('wa-btn', rstep === 3 && !sent);
     send.textContent = sent ? 'Cerrar' : rstep === 1 ? (busy ? 'No disponible en esas fechas' : 'Continuar') : rstep === 2 ? (sending ? 'Guardando…' : 'Continuar') : 'Avisar por WhatsApp';
     back.hidden = rstep === 1 || sent;
+    // En el paso 3 el botón de WhatsApp está dentro del aviso verde (si se guardó bien)
+    send.hidden = rstep === 3 && !sent && !!savedSig;
   }
   function money(n) { return (+n || 0).toLocaleString('es-ES') + ' €'; }
   function drawSum() {
