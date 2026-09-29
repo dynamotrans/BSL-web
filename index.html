@@ -586,6 +586,7 @@ dialog.sheet{overflow-x:hidden;border:0;padding:0;border-radius:18px;background:
 .rd-msg-open:hover{opacity:1;text-decoration:underline}
 .rd-adm{margin:16px 0 0;padding:12px 14px;border-radius:12px;background:#fff6e0;border:1px solid #f1cf7c;color:#5c4200;font-size:.88rem;line-height:1.5}
 .rd-adm b{color:#8a5a00}
+.rd-adm a{color:inherit;white-space:nowrap;text-decoration:underline;text-underline-offset:2px}
 .rd-legal{margin:14px 0 0;padding-top:14px;border-top:1px solid var(--line);font-size:.8rem;line-height:1.5;color:var(--muted)}
 .rd-legal .linkbtn{display:inline;font-weight:600;color:var(--muted);text-decoration:underline}
 .res-info .rd-photos{margin:0;border-radius:12px}
@@ -1257,7 +1258,7 @@ footer img{height:56px;width:auto}
         <button type="button" class="linkbtn rd-msg-open" id="rd-msg-open">+ Añadir un mensaje (opcional)</button>
         <label class="full" id="rd-msg-box" hidden>Mensaje (opcional)<textarea id="rd-msg" rows="3" placeholder="Fecha de llegada, dudas…"></textarea></label>
         <input type="text" id="rd-web" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
-        <p class="rd-adm"><b>Reserva sujeta a admisión previa.</b> Tu reserva tiene que ser aceptada por BSL antes de quedar confirmada: revisamos tu perfil y, si encajas en la casa, te confirmamos la plaza por WhatsApp o por teléfono.</p>
+        <p class="rd-adm"><b>Reserva sujeta a admisión previa.</b> Tu reserva tiene que ser aceptada por BSL antes de quedar confirmada: revisamos tu perfil y, si encajas en la casa, <b>te confirmamos la plaza por WhatsApp o por teléfono en un máximo de 24 h. También puedes llamarnos al <a class="js-tel notranslate" translate="no" href="tel:+34672338922">+34 672 33 89 22</a>.</b></p>
         <p class="rd-legal">Al reservar aceptas las <a href="#" class="linkbtn" data-legal>condiciones de la reserva y la información sobre protección de datos</a>.</p>
         <p class="res-err" id="rd-err" hidden></p>
       </div>
@@ -1737,6 +1738,15 @@ footer img{height:56px;width:auto}
 <script>
 // Número de WhatsApp de BSL en formato internacional sin "+" (ej. 34600111222). Vacío = pendiente.
 var WA_NUMBER = (window.BSL_CONFIG && window.BSL_CONFIG.whatsapp) || '';
+
+// Teléfono visible en la web: sale del mismo número de configuración (js/rooms.js), así se actualiza solo
+(function () {
+  var d = String(WA_NUMBER || '').replace(/\D/g, ''); if (!d) return;
+  var local = d.indexOf('34') === 0 && d.length === 11 ? d.slice(2) : d;
+  var nice = (d.indexOf('34') === 0 && d.length === 11 ? '+34 ' : '+') + (local.length === 9 ? local.replace(/(\d{3})(\d{2})(\d{2})(\d{2})/, '$1 $2 $3 $4') : local);
+  document.querySelectorAll('.js-tel').forEach(function (a) { a.textContent = nice; a.href = 'tel:+' + d; });
+  document.querySelectorAll('.fab-act.a-call').forEach(function (a) { a.href = 'tel:+' + d; a.setAttribute('data-label', 'Llamar · ' + nice); a.setAttribute('aria-label', 'Llamar al ' + nice); });
+})();
 
 (function () {
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
