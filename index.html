@@ -560,6 +560,13 @@ dialog.sheet.legal{width:min(620px,calc(100% - 24px))}
 .nextbox{border-radius:14px;padding:16px;background:var(--tint);display:grid;gap:8px;font-size:.92rem}
 .nextbox ol{margin:0;padding-left:20px;display:grid;gap:4px;color:var(--ink)}
 .nextbox small{color:var(--muted)}
+.okbox{border-radius:14px;padding:18px 16px;background:color-mix(in srgb,var(--free,#2c9a6a) 12%,var(--surface));text-align:center;display:grid;gap:4px}
+.okbox b{font:400 1.7rem/1.1 var(--serif);color:#1f7a53}
+.okbox p{margin:0;color:var(--ink);font-size:.92rem}
+.okbox.fail{background:color-mix(in srgb,var(--coral) 14%,var(--surface))}.okbox.fail b{color:#b0442a;font-size:1.3rem}
+.wanote{border-radius:14px;padding:14px 16px;border:2px solid #25d366;background:color-mix(in srgb,#25d366 8%,var(--surface));display:grid;gap:6px;font-size:.92rem}
+.wanote p{margin:0;color:var(--ink)}
+.wanote .wa-best{font-weight:800;color:#128c4a}
 .sent{border-radius:14px;padding:22px 18px;background:color-mix(in srgb,var(--free,#2c9a6a) 12%,var(--surface));text-align:center;display:grid;gap:6px}
 .sent b{font:400 1.6rem/1.1 var(--serif);color:#1f7a53}
 .sent p{margin:0;color:var(--ink)}
@@ -1206,7 +1213,7 @@ footer img{height:56px;width:auto}
   <form method="dialog" id="res-form" novalidate>
     <div class="sh-head"><div><h3 id="res-title">Solicitud de admisión</h3><p class="sh-sub"><i></i>Solo chicas estudiantes</p></div><button class="sh-x" type="button" data-close aria-label="Cerrar">✕</button></div>
     <div class="sh-body">
-      <ol class="rsteps" aria-label="Pasos de la reserva"><li data-s="1"><b>1</b>Habitación</li><li data-s="2"><b>2</b>Tus datos</li><li data-s="3"><b>3</b>Enviar</li></ol>
+      <ol class="rsteps" aria-label="Pasos de la reserva"><li data-s="1"><b>1</b>Habitación</li><li data-s="2"><b>2</b>Tus datos</li><li data-s="3"><b>3</b>Enviada</li></ol>
 
       <div class="rstep" data-step="1">
       <label>Habitación individual<select id="res-room"></select></label>
@@ -1248,11 +1255,18 @@ footer img{height:56px;width:auto}
       </div>
 
       <div class="rstep" data-step="3" hidden>
+        <div class="okbox" id="res-ok"><b>¡Solicitud enviada!</b><p>Ya la tenemos. Gracias por confiar en BSL.</p></div>
+        <div class="okbox fail" id="res-fail" hidden><b>No hemos podido guardarla</b><p>Ha habido un problema con la conexión. Pulsa «Avisar por WhatsApp» para mandárnosla y no se pierda.</p></div>
+        <div class="wanote" id="res-wanote">
+          <b>¿Quieres que la veamos antes?</b>
+          <p>Avísanos por <strong>WhatsApp</strong>: nos llega <strong>al momento</strong>. Si no, la veremos en nuestro panel, que revisamos <strong>cada 1 o 2 días</strong>.</p>
+          <p class="wa-best">Si nos escribes por WhatsApp, mucho mejor 😊</p>
+        </div>
         <div class="rsum" id="res-sum"></div>
         <div class="nextbox">
           <b>¿Qué pasa después?</b>
           <ol><li>Revisamos tu solicitud de admisión y tu perfil.</li><li>Si hay plaza para ti, te escribimos por WhatsApp.</li><li>Entonces te enviamos el contrato y los pasos para formalizarlo.</li></ol>
-          <small>Tu solicitud ya está registrada. Pulsa el botón para avisarnos por WhatsApp y te contestamos antes. No es una reserva: no tiene coste ni te compromete a nada.</small>
+          <small>No es una reserva: no tiene coste ni te compromete a nada.</small>
         </div>
         <div class="sent" id="res-sent" hidden><b>¡Solicitud registrada!</b><p>Gracias. Ahora se abre WhatsApp con tu solicitud: solo tienes que pulsar enviar. Te contestamos muy pronto.</p><a class="btn wa-btn" id="res-sent-wa" href="#" target="_blank" rel="noopener">Abrir WhatsApp</a></div>
       </div>
@@ -1622,6 +1636,7 @@ footer img{height:56px;width:auto}
       '';
     $r('res-sent').hidden = !sent;
     $r('res-sum').hidden = sent; resDlg.querySelector('.nextbox').hidden = sent;
+    $r('res-ok').hidden = sent || !savedSig; $r('res-fail').hidden = sent || !!savedSig; $r('res-wanote').hidden = sent || !savedSig;
   }
   var sending = false, sent = false, savedSig = '';
   $r('res-back').addEventListener('click', function () { goStep(rstep - 1); });
