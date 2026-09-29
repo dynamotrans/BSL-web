@@ -718,11 +718,17 @@
 
   function contractForm(tid, c, preset) {
     var isNew = !c; c = c || {}; preset = preset || {};
+    // Contrato nuevo: si la inquilina vino de una reserva de la web, se rellenan habitación y fechas con lo que pidió (se pueden cambiar)
+    if (isNew && !preset.desde && SOL) {
+      var sr = SOL.filter(function (x) { return x.inquilinaId === tid && x.estado === 'aceptada' && x.periodo; })[0];
+      if (sr) preset = Object.assign({ habitacionId: sr.habitacionId, desde: sr.periodo.desde, hasta: sr.periodo.hasta, fromSol: true }, preset);
+    }
     var y0 = B.courseOf(today()), yn = B.nextFullCourse(today());
     var r0 = room(c.habitacionId || preset.habitacionId) || rooms()[0];
     var quick = '<div class="quick"><span class="hint">Rellenar fechas:</span>' +
       [yn, yn + 1].map(function (y) { return '<button type="button" data-q="' + y + '">Curso ' + B.courseLabel(y) + '</button>'; }).join('') +
-      (y0 !== null ? '<button type="button" data-q="resto">Desde hoy hasta 31 jul ' + (y0 + 1) + '</button>' : '') + '</div>';
+      (y0 !== null ? '<button type="button" data-q="resto">Desde hoy hasta 31 jul ' + (y0 + 1) + '</button>' : '') + '</div>' +
+      (preset.fromSol ? '<p class="hint fromsol">✓ Habitación y fechas rellenadas con su reserva de la web. Puedes cambiarlas.</p>' : '');
     var f = openForm({
       title: isNew ? 'Nuevo contrato' : 'Editar contrato',
       fields: [
