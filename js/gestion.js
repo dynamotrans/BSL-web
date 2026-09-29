@@ -449,9 +449,9 @@
       '<div class="sol-row">' +
       '<a class="btn plain sm" target="_blank" rel="noopener" href="https://wa.me/' + waPhone(x.telefono) + '?text=' + encodeURIComponent('Hola ' + x.nombre + ', te escribimos de BSL. Hemos recibido tu solicitud de admisión para la habitación ' + x.habitacion + '.') + '">WhatsApp</a>' +
       (x.estado !== 'aceptada' ? '<button type="button" class="btn sm" id="sol-ok">Admitir como inquilina</button>' : '') +
-      (x.estado === 'aceptada' && x.inquilinaId && tenant(x.inquilinaId) ? (G.contratos.some(function (c) { return c.inquilinaId === x.inquilinaId; })
+      (x.estado === 'aceptada' ? (x.inquilinaId && tenant(x.inquilinaId) && G.contratos.some(function (c) { return c.inquilinaId === x.inquilinaId; })
         ? '<button type="button" class="btn plain sm" id="sol-ten">Ver inquilina y contrato</button>'
-        : '<button type="button" class="btn sm" id="sol-con">📄 Crear contrato</button>') : '') +
+        : '<button type="button" class="btn sm" id="sol-con">📄 ' + (x.inquilinaId && tenant(x.inquilinaId) ? 'Crear contrato' : 'Crear ficha y contrato') + '</button>') : '') +
       (x.estado === 'aceptada' ? '<button type="button" class="btn sm" id="sol-pay">' + (x.pago ? 'Solicitar pago de nuevo' : 'Solicitar pago de la fianza (' + money(fianza) + ')') + '</button>' : '') +
       '</div></div></form>';
     var err = function (m) { var p = $('sol-err'); p.textContent = m; p.hidden = !m; if (m) p.scrollIntoView({ block: 'center', behavior: 'smooth' }); };
@@ -487,8 +487,10 @@
       };
     }
     if ($('sol-con')) $('sol-con').onclick = function () {
-      contractForm(x.inquilinaId, null, { habitacionId: x.habitacionId, desde: x.periodo && x.periodo.desde, hasta: x.periodo && x.periodo.hasta, fromSol: true,
-        docs: docsOf(x).map(function (d, i) { return { id: uid(), nombre: (x.tipoDoc || 'Documento') + (docsOf(x).length > 1 ? ' ' + (i + 1) : ''), tipo: d.tipo, path: d.path, fecha: today() }; }) });
+      if (x.inquilinaId && tenant(x.inquilinaId)) return contractForm(x.inquilinaId, null, solPreset());
+      // Se borró su ficha: se crea de nuevo con los datos de la solicitud y se abre el contrato
+      var t = newTenant(), b = this; b.disabled = true;
+      setEstado('aceptada', { inquilinaId: t.id }).then(function () { x.inquilinaId = t.id; contractForm(t.id, null, solPreset()); }, function (e) { b.disabled = false; err(e.message); });
     };
     if ($('sol-ten')) $('sol-ten').onclick = function () { dlg.close(); detail = x.inquilinaId; show('inq'); };
     if ($('sol-no')) $('sol-no').onclick = function () {
@@ -505,17 +507,25 @@
         }, function (e) { if (e.status === 401) return A.expired(); err(e.message); });
       });
     };
-    if ($('sol-ok')) $('sol-ok').onclick = function () {
-      // Crea la inquilina con sus datos y abre el contrato con la habitación, fechas y el DNI adjunto
+    // Ficha de inquilina a partir de la solicitud (al admitir, o de nuevo si se borró la ficha)
+    function newTenant() {
       var t = { id: uid(), creada: today(), nombre: x.nombre, apellidos: x.apellidos, doc: x.documento, nacimiento: x.nacimiento, telefono: x.telefono, email: x.email,
         universidad: uniToTenant(x.universidad), estudios: [x.universidad !== uniToTenant(x.universidad) ? x.universidad : '', x.estudios].filter(Boolean).join(' · '),
         nacionalidad: x.pais, direccion: [x.provincia, x.pais].filter(Boolean).join(', '),
-        emergNombre: x.familiar, emergTelefono: x.familiarTel, notas: ['Instagram: @' + ig, x.mensaje ? 'Mensaje: ' + x.mensaje : ''].filter(Boolean).join('\n') };
+        emergNombre: x.familiar, emergTelefono: x.familiarTel, notas: [ig ? 'Instagram: @' + ig : '', x.mensaje ? 'Mensaje: ' + x.mensaje : ''].filter(Boolean).join('\n') };
       G.inquilinas.push(t); fianzaAdmision(t.id, fianza, today(), x.id); save();
+      return t;
+    }
+    function solPreset() {
+      return { habitacionId: x.habitacionId, desde: x.periodo && x.periodo.desde, hasta: x.periodo && x.periodo.hasta, fromSol: true,
+        docs: docsOf(x).map(function (d, i) { return { id: uid(), nombre: (x.tipoDoc || 'Documento') + (docsOf(x).length > 1 ? ' ' + (i + 1) : ''), tipo: d.tipo, path: d.path, fecha: today() }; }) };
+    }
+    if ($('sol-ok')) $('sol-ok').onclick = function () {
+      // Crea la inquilina con sus datos y abre el contrato con la habitación, fechas y el DNI adjunto
+      var t = newTenant();
       setEstado('aceptada', { inquilinaId: t.id }).then(function () {
         dlg.close(); detail = t.id; show('inq');
-        contractForm(t.id, null, { habitacionId: x.habitacionId, desde: x.periodo && x.periodo.desde, hasta: x.periodo && x.periodo.hasta,
-          docs: docsOf(x).map(function (d, i) { return { id: uid(), nombre: (x.tipoDoc || 'Documento') + (docsOf(x).length > 1 ? ' ' + (i + 1) : ''), tipo: d.tipo, path: d.path, fecha: today() }; }) });
+        contractForm(t.id, null, solPreset());
       }, function (e) { err(e.message); });
     };
     if ($('sol-pay')) $('sol-pay').onclick = function () {
@@ -924,7 +934,7 @@
     function delTenant() {
       G.inquilinas = G.inquilinas.filter(function (x) { return x !== t; });
       G.contratos = G.contratos.filter(function (c) { return c.inquilinaId !== id; });
-      G.cobros = G.cobros.filter(function (x) { return cids.indexOf(x.contratoId) < 0; });
+      G.cobros = G.cobros.filter(function (x) { return cids.indexOf(x.contratoId) < 0 && x.inquilinaId !== id; });
       G.incidencias.forEach(function (x) { if (x.inquilinaId === id) x.inquilinaId = ''; });
       syncRooms(); save(); detail = null; show('inq');
     }
