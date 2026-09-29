@@ -560,10 +560,13 @@ dialog.sheet.legal{width:min(620px,calc(100% - 24px))}
 .nextbox{border-radius:14px;padding:16px;background:var(--tint);display:grid;gap:8px;font-size:.92rem}
 .nextbox ol{margin:0;padding-left:20px;display:grid;gap:4px;color:var(--ink)}
 .nextbox small{color:var(--muted)}
-.okbox{border-radius:14px;padding:18px 16px;background:color-mix(in srgb,var(--free,#2c9a6a) 12%,var(--surface));text-align:center;display:grid;gap:4px}
-.okbox b{font:400 1.7rem/1.1 var(--serif);color:#1f7a53}
-.okbox p{margin:0;color:var(--ink);font-size:.92rem}
-.okbox.fail{background:color-mix(in srgb,var(--coral) 14%,var(--surface))}.okbox.fail b{color:#b0442a;font-size:1.3rem}
+.okbox{border-radius:16px;padding:22px 16px 20px;background:linear-gradient(135deg,#1f9d63,#16784b);color:#fff;text-align:center;display:grid;justify-items:center;gap:6px;box-shadow:0 10px 26px -10px rgba(22,120,75,.6);animation:okPop .55s cubic-bezier(.34,1.56,.64,1) both}
+.okbox b{font:700 2rem/1.1 var(--serif);color:#fff;letter-spacing:.01em}
+.okbox p{margin:0;color:rgba(255,255,255,.92);font-size:.95rem}
+.ok-ic{display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:#fff;color:#1f9d63;box-shadow:0 0 0 6px rgba(255,255,255,.22);animation:okPop .6s .15s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes okPop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.okbox,.ok-ic{animation:none}}
+.okbox.fail{background:color-mix(in srgb,var(--coral) 14%,var(--surface));box-shadow:none;animation:none}.okbox.fail b{color:#b0442a;font-size:1.3rem}.okbox.fail p{color:var(--ink)}
 .wanote{border-radius:14px;padding:14px 16px;border:2px solid #25d366;background:color-mix(in srgb,#25d366 8%,var(--surface));display:grid;gap:6px;font-size:.92rem}
 .wanote p{margin:0;color:var(--ink)}
 .wanote .wa-best{font-weight:800;color:#128c4a}
@@ -1256,7 +1259,7 @@ footer img{height:56px;width:auto}
       </div>
 
       <div class="rstep" data-step="3" hidden>
-        <div class="okbox" id="res-ok"><b>¡Solicitud enviada!</b><p>Ya la tenemos. Gracias por confiar en BSL.</p></div>
+        <div class="okbox" id="res-ok"><span class="ok-ic" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><b>¡Solicitud enviada!</b><p>Ya la tenemos. Gracias por confiar en BSL.</p></div>
         <div class="okbox fail" id="res-fail" hidden><b>No hemos podido guardarla</b><p>Ha habido un problema con la conexión. Pulsa «Avisar por WhatsApp» para mandárnosla y no se pierda.</p></div>
         <div class="wanote" id="res-wanote">
           <b>¿Quieres que la veamos antes?</b>
