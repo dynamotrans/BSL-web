@@ -346,15 +346,25 @@
     function block(cls, title, sub, list, empty) {
       return '<section class="card solblk ' + cls + '"><div class="prer-h"><h3>' + title + ' <span class="chip2 k-' + (cls === 'b-new' ? 'pendiente' : cls === 'b-adm' ? 'pagado' : 'fin') + '">' + list.length + '</span></h3></div>' +
         (sub ? '<p class="hint">' + sub + '</p>' : '') +
-        (list.length ? '<div class="plist">' + list.map(solCard).join('') + '</div>' : '<p class="empty">' + empty + '</p>') + '</section>';
+        (list.length ? byRoom(list) : '<p class="empty">' + empty + '</p>') + '</section>';
+    }
+    // Agrupadas por habitación, de la Nº 1 a la 8 (si varias piden la misma, se ven juntas)
+    function byRoom(list) {
+      var groups = rooms().map(function (rm) { return { r: rm, l: list.filter(function (x) { return x.habitacionId === rm.id; }) }; });
+      var otras = list.filter(function (x) { return !room(x.habitacionId); });
+      if (otras.length) groups.push({ r: null, l: otras });
+      return groups.filter(function (g) { return g.l.length; }).map(function (g) {
+        return '<div class="rgroup"><h4 class="rg-h">' + (g.r ? 'Nº ' + g.r.num + ' · ' + esc(g.r.nombre) : 'Sin habitación') +
+          (g.l.length > 1 ? ' <span class="chip2 k-vencido">' + g.l.length + ' piden esta</span>' : '') + '</h4><div class="plist">' + g.l.map(solCard).join('') + '</div></div>';
+      }).join('');
     }
     box.innerHTML = '<div class="ghead"><h2>Solicitudes de admisión</h2><div class="gtools"><input type="search" id="sq" placeholder="Buscar por nombre, teléfono, universidad…" value="' + esc(box.dataset.sq || '') + '"></div></div>' +
       '<div class="tiles soltiles"><div class="t-new"><small>Por revisar</small><b>' + nuevas.length + '</b></div><div><small>Admitidas sin contrato</small><b>' + admSin.length + '</b></div>' +
       '<div><small>Ya con contrato</small><b>' + admCon.length + '</b></div><div><small>Descartadas</small><b>' + desc.length + '</b></div></div>' +
       block('b-new', 'Por revisar', 'Solicitudes nuevas desde la web. Ábrelas para admitir, descartar o escribir por WhatsApp.', nuevas, 'No hay solicitudes nuevas. 👌') +
       block('b-adm', 'Admitidas, pendientes de contrato', 'Ya son inquilinas; falta crear el contrato (y cobrar la fianza).', admSin, 'Ninguna pendiente de contrato.') +
-      (admCon.length ? '<details class="card solfold"' + (q ? ' open' : '') + '><summary>Ya con contrato · ' + admCon.length + ' <span class="hint">(están en Inquilinas)</span></summary><div class="plist">' + admCon.map(solCard).join('') + '</div></details>' : '') +
-      (desc.length ? '<details class="card solfold"' + (q ? ' open' : '') + '><summary>Descartadas · ' + desc.length + '</summary><div class="plist">' + desc.map(solCard).join('') + '</div></details>' : '');
+      (admCon.length ? '<details class="card solfold"' + (q ? ' open' : '') + '><summary>Ya con contrato · ' + admCon.length + ' <span class="hint">(están en Inquilinas)</span></summary><div class="solfold-b">' + byRoom(admCon) + '</div></details>' : '') +
+      (desc.length ? '<details class="card solfold"' + (q ? ' open' : '') + '><summary>Descartadas · ' + desc.length + '</summary><div class="solfold-b">' + byRoom(desc) + '</div></details>' : '');
     $('sq').oninput = function () { box.dataset.sq = this.value; var pos = this.selectionStart; viewSolicitudes(); $('sq').focus(); $('sq').setSelectionRange(pos, pos); };
     bindSol();
   }
@@ -366,7 +376,7 @@
       '<span class="pinfo"><b>' + esc(x.nombre + ' ' + x.apellidos) + (ed !== null ? ' <em>' + ed + ' años</em>' : '') + '</b>' +
       '<small>' + esc(x.universidad) + (x.estudios ? ' · ' + esc(x.estudios) : '') + '</small>' +
       '<small>' + esc([[x.provincia, x.pais].filter(Boolean).join(', '), x.documento ? (x.tipoDoc || 'Doc.') + ' ' + x.documento : ''].filter(Boolean).join(' · ')) + '</small>' +
-      '<small>' + esc(x.habitacion) + ' · ' + esc(x.periodo && x.periodo.titulo || '') + '</small>' +
+      '<small>' + esc(x.habitacion) + ' · ' + esc(x.periodo && x.periodo.titulo || '') + (x.habitacionOriginal ? ' <em class="porig">(pidió ' + esc(x.habitacionOriginal) + ')</em>' : '') + '</small>' +
       (x.mensaje ? '<small class="pmsg">«' + esc(x.mensaje.slice(0, 120)) + (x.mensaje.length > 120 ? '…' : '') + '»</small>' : '') +
       '<span class="prow">' + chip(st[0], st[1] + (x.pago ? ' · enlace enviado' : '')) +
       (ig ? '<a class="pig" href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank" rel="noopener">@' + esc(ig) + '</a>' : '') + '</span></span></div>';
@@ -404,7 +414,10 @@
       '<div class="dbody sol">' +
       '<div class="sol-top"><div><b>' + esc(x.nombre + ' ' + x.apellidos) + '</b><small>Recibida el ' + fmt((x.fecha || '').slice(0, 10)) + '</small></div>' + chip(st[0], st[1]) + '</div>' +
       '<dl class="sol-dl">' +
-      row('Habitación', esc(x.habitacion) + ' · ' + money(x.precio) + '/mes') +
+      '<dt>Habitación</dt><dd><span id="sol-hab-v">' + esc(x.habitacion) + ' · ' + money(x.precio) + '/mes' + (x.habitacionOriginal ? '<small>Pidió al principio: ' + esc(x.habitacionOriginal) + '</small>' : '') + '</span>' +
+        (x.estado !== 'descartada' ? ' <button type="button" class="mini edit-only" id="sol-hab">Cambiar habitación</button>' : '') +
+        '<span id="sol-hab-f" hidden><select id="sol-hab-s">' + rooms().map(function (rm) { return '<option value="' + esc(rm.id) + '"' + (rm.id === x.habitacionId ? ' selected' : '') + '>Nº ' + rm.num + ' · ' + esc(rm.nombre) + ' · ' + money(rm.precio) + '/mes</option>'; }).join('') +
+        '</select> <button type="button" class="mini" id="sol-hab-ok">Guardar</button> <button type="button" class="mini" id="sol-hab-no">Cancelar</button></span></dd>' +
       row('Periodo', esc(x.periodo && x.periodo.titulo || '') + '<small>' + fmt(x.periodo && x.periodo.desde) + ' → ' + fmt(x.periodo && x.periodo.hasta) + '</small>') +
       row('Estudia', esc(x.universidad) + (x.estudios ? '<small>' + esc(x.estudios) + '</small>' : '')) +
       row('Teléfono', '<a href="tel:' + esc(x.telefono) + '">' + esc(x.telefono) + '</a>') +
@@ -448,6 +461,21 @@
       return B.store.updateSolicitud(Object.assign({ id: x.id, estado: estado }, extra || {})).then(function (upd) {
         SOL = SOL.map(function (o) { return o.id === upd.id ? upd : o; }); renderTabs(); return upd;
       });
+    }
+    if ($('sol-hab')) {
+      $('sol-hab').onclick = function () { this.hidden = true; $('sol-hab-v').hidden = true; $('sol-hab-f').hidden = false; $('sol-hab-s').focus(); };
+      $('sol-hab-no').onclick = function () { solDialog(x.id); };
+      $('sol-hab-ok').onclick = function () {
+        var rm = room($('sol-hab-s').value); if (!rm || rm.id === x.habitacionId) return solDialog(x.id);
+        var b = this; b.disabled = true; b.textContent = 'Guardando…';
+        B.store.updateSolicitud({ id: x.id, habitacionId: rm.id, habitacion: rm.nombre, precio: rm.precio, gastos: rm.gastos }).then(function (upd) {
+          SOL = SOL.map(function (o) { return o.id === upd.id ? upd : o; });
+          // Si ya estaba admitida y la fianza aún no se ha pagado, se ajusta al precio de la nueva habitación
+          var fx = x.inquilinaId && G.cobros.filter(function (c) { return c.tipo === 'fianza' && !c.pagado && !c.contratoId && c.inquilinaId === x.inquilinaId; })[0];
+          if (fx && num(fx.importe) !== num(rm.precio)) { fx.importe = num(rm.precio); delete fx.pago; save(); }
+          refresh(); solDialog(x.id);
+        }, function (e) { b.disabled = false; b.textContent = 'Guardar'; if (e.status === 401) return A.expired(); err(e.message); });
+      };
     }
     if ($('sol-no')) $('sol-no').onclick = function () {
       if (!window.confirm('¿Descartar esta solicitud?')) return;

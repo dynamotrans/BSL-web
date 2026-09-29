@@ -51,6 +51,14 @@ export default async function handler(req, res) {
     if (b.estado === 'aceptada' && s.estado !== 'aceptada') s.admitida = new Date().toISOString();
     if (['nueva', 'aceptada', 'descartada'].includes(b.estado)) s.estado = b.estado;
     if (typeof b.nota === 'string') s.nota = b.nota.slice(0, 1000);
+    // Cambio de habitación hablado con la chica (se guarda cuál pidió al principio)
+    if (typeof b.habitacionId === 'string' && /^[a-z0-9_-]{1,40}$/i.test(b.habitacionId) && b.habitacionId !== s.habitacionId) {
+      if (!s.habitacionOriginal) s.habitacionOriginal = s.habitacion;
+      s.habitacionId = b.habitacionId;
+      s.habitacion = String(b.habitacion || '').slice(0, 60);
+      if (Number.isFinite(Number(b.precio))) s.precio = Number(b.precio);
+      if (Number.isFinite(Number(b.gastos))) s.gastos = Number(b.gastos);
+    }
     if (typeof b.inquilinaId === 'string') s.inquilinaId = b.inquilinaId.slice(0, 40);
     if (b.pago && typeof b.pago.url === 'string' && /^https:\/\//.test(b.pago.url)) s.pago = { url: b.pago.url.slice(0, 300), importe: Number(b.pago.importe) || 0, fecha: new Date().toISOString() };
     s.actualizada = new Date().toISOString();
