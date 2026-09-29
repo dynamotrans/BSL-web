@@ -175,7 +175,13 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var err = o.onSave(read());
-      if (err) { var p = $('fx-err'); p.textContent = err; p.hidden = false; return; }
+      if (err) {
+        var p = $('fx-err'); p.textContent = err; p.hidden = false;
+        // El aviso puede quedar al final de un formulario largo: se lleva a la vista para que no parezca que se ha guardado
+        p.classList.remove('shake'); void p.offsetWidth; p.classList.add('shake');
+        p.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        return;
+      }
       dlg.close();
     });
     if (o.onDelete) $('fx-del').onclick = function () {
@@ -761,11 +767,12 @@
       ok: isNew ? 'Crear contrato' : 'Guardar',
       onChange: function (e) {
         if (e.target.id === 'fx-habitacionId' && isNew) { var r = room(e.target.value); if (r) { $('fx-precio').value = r.precio; $('fx-gastos').value = r.gastos; $('fx-fianza').value = r.precio; } }
+        liveClash();
       },
       onSave: function (v) {
         if (!v.desde || !v.hasta || v.desde > v.hasta) return 'Pon la fecha de entrada y la de salida (la salida después de la entrada).';
         var clash = G.contratos.filter(function (o) { return o.id !== c.id && o.habitacionId === v.habitacionId && o.desde <= v.hasta && o.hasta >= v.desde; })[0];
-        if (clash) return 'Esa habitación ya tiene un contrato en esas fechas (' + fullName(tenant(clash.inquilinaId)) + ', ' + fmt(clash.desde) + ' → ' + fmt(clash.hasta) + ').';
+        if (clash) return 'Esa habitación ya tiene un contrato en esas fechas (' + fullName(tenant(clash.inquilinaId)) + ', ' + fmt(clash.desde) + ' → ' + fmt(clash.hasta) + '). Cambia la habitación o las fechas.';
         delete v.q; delete v.docs;
         Object.keys(v).forEach(function (k) { c[k] = v[k]; });
         c.docs = docs.slice();
@@ -855,7 +862,18 @@
       var q = b.getAttribute('data-q');
       if (q === 'resto') { $('fx-desde').value = today(); $('fx-hasta').value = (y0 + 1) + '-07-31'; }
       else { var rg = B.periodRange('curso', +q); $('fx-desde').value = rg.from; $('fx-hasta').value = rg.to; }
+      liveClash();
     };
+    // Aviso al momento si la habitación ya tiene contrato en esas fechas (antes de pulsar el botón)
+    function liveClash() {
+      var h = $('fx-habitacionId').value, d1 = $('fx-desde').value, d2 = $('fx-hasta').value, p = $('fx-err');
+      var cl = d1 && d2 && G.contratos.filter(function (o) { return o.id !== c.id && o.habitacionId === h && o.desde <= d2 && o.hasta >= d1; })[0];
+      ['fx-habitacionId', 'fx-desde', 'fx-hasta'].forEach(function (k) { $(k).closest('label').classList.toggle('bad', !!cl); });
+      var sb = dlg.querySelector('.dfoot [type=submit]'); if (sb) { sb.disabled = !!cl; sb.title = cl ? 'Fechas ocupadas por otro contrato' : ''; }
+      if (cl) { $('fx-hasta').closest('label').after(p); p.style.gridColumn = '1 / -1'; p.textContent = 'Esa habitación ya tiene un contrato en esas fechas (' + fullName(tenant(cl.inquilinaId)) + ', ' + fmt(cl.desde) + ' → ' + fmt(cl.hasta) + '). Cambia la habitación o las fechas.'; p.hidden = false; }
+      else if (/ya tiene un contrato/.test(p.textContent)) p.hidden = true;
+    }
+    liveClash();
     return f;
   }
 
