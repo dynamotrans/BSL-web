@@ -1290,7 +1290,11 @@
       dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
       $('tabs').onclick = function (e) { var b = e.target.closest('[data-t]'); if (b) { detail = null; show(b.getAttribute('data-t')); if (b.getAttribute('data-t') === 'sol') loadSol(); } };
       return B.store.loadGestion().then(function (g) {
-        G = g; G.cambios = G.cambios || []; renderTabs(); show(tab);
+        G = g; G.cambios = G.cambios || [];
+        // Limpieza: cobros pendientes que se quedaron sin inquilina ni contrato (de fichas borradas)
+        var huerf = G.cobros.filter(function (x) { return !x.pagado && !contract(x.contratoId) && !tenant(x.inquilinaId); });
+        if (huerf.length && !document.body.classList.contains('ro')) { G.cobros = G.cobros.filter(function (x) { return huerf.indexOf(x) < 0; }); save(); }
+        renderTabs(); show(tab);
         B.store.loadCambios().then(function (list) { PEND = list; renderPend(); });
         loadSol();
       }, function (err) {
