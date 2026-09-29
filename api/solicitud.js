@@ -30,6 +30,8 @@ export default async function handler(req, res) {
     habitacionId: str(b.habitacionId, 20), habitacion: str(b.habitacion, 80), precio: Number(b.precio) || 0, gastos: Number(b.gastos) || 0,
     periodo: { titulo: str(b.periodo && b.periodo.titulo, 80), desde: iso(b.periodo && b.periodo.desde), hasta: iso(b.periodo && b.periodo.hasta) }
   };
+  // Todo lo escrito se guarda en MAYÚSCULAS (salvo email e Instagram)
+  ['nombre', 'apellidos', 'pais', 'provincia', 'estudios', 'familiar', 'mensaje', 'documento'].forEach((k) => { if (typeof d[k] === 'string') d[k] = d[k].toLocaleUpperCase('es-ES'); });
   const faltan = [];
   if (!d.nombre || !d.apellidos) faltan.push('nombre y apellidos');
   if (d.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) d.email = '';

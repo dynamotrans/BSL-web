@@ -180,7 +180,13 @@
     if (o.onChange) form.addEventListener('change', function (e) { o.onChange(e, read); });
     function read() {
       var out = {};
-      o.fields.forEach(function (f) { var el = $('fx-' + f.k); if (el) out[f.k] = f.type === 'number' ? num(el.value) : el.value.trim(); });
+      o.fields.forEach(function (f) {
+        var el = $('fx-' + f.k); if (!el) return;
+        var v = f.type === 'number' ? num(el.value) : el.value.trim();
+        // Los textos escritos se guardan en MAYÚSCULAS (no emails, fechas ni desplegables)
+        if (typeof v === 'string' && (!f.type || f.type === 'text' || f.type === 'textarea')) v = v.toLocaleUpperCase('es-ES');
+        out[f.k] = v;
+      });
       return out;
     }
     form.addEventListener('submit', function (e) {
