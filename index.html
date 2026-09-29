@@ -416,6 +416,15 @@ footer .maps-l{color:inherit;margin:0}
 .seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px;gap:2px;flex-wrap:wrap}
 .seg button{border:0;background:transparent;color:var(--muted);font:600 .86rem/1 var(--sans);padding:9px 14px;border-radius:999px;transition:background .25s ease,color .25s ease}
 .seg button[aria-checked="true"]{background:var(--teal);color:var(--cream)}
+/* «Próximo curso»: punto que late y brillo suave para que se vea que se puede mirar */
+.seg button.nx{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.nx-dot{width:8px;height:8px;border-radius:50%;background:var(--coral);flex:none;animation:nxPulse 1.4s ease-in-out infinite}
+.seg button.nx[aria-checked="false"]{color:var(--ink);animation:nxGlow 2.2s ease-in-out infinite}
+.seg button.nx[aria-checked="true"] .nx-dot{background:var(--sun);animation:none}
+@keyframes nxPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(240,138,108,.55)}50%{transform:scale(1.25);box-shadow:0 0 0 6px rgba(240,138,108,0)}}
+@keyframes nxGlow{0%,100%{background:transparent}50%{background:rgba(240,138,108,.16)}}
+@media (prefers-reduced-motion:reduce){.nx-dot,.seg button.nx{animation:none!important}}
+@media (max-width:600px){.rooms .seg button.nx{gap:4px;padding-left:6px;padding-right:6px}.nx-dot{width:7px;height:7px}}
 .legend{display:flex;flex-wrap:wrap;gap:16px;margin:0 0 22px;font-size:.85rem;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:7px}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
@@ -1352,7 +1361,7 @@ footer img{height:56px;width:auto}
     var segs = B.visibleCourses(data.ajustes, now).map(function (y) { return ['curso-' + y, (y === yn ? 'Próximo curso ' : 'Curso ') + B.courseLabel(y)]; });
     if (inCourse !== null && !(data.ajustes && data.ajustes.entrarYa === false)) segs.unshift(['resto', 'Actual curso ' + B.courseLabel(inCourse)]);
     if (!segs.some(function (x) { return x[0] === view; })) view = segs[0][0];
-    seg.innerHTML = segs.map(function (x) { return '<button type="button" role="radio" aria-checked="' + (x[0] === view) + '" data-p="' + x[0] + '">' + x[1] + '</button>'; }).join('');
+    seg.innerHTML = segs.map(function (x) { return '<button type="button" role="radio" aria-checked="' + (x[0] === view) + '" data-p="' + x[0] + '"' + (x[0] === 'curso-' + yn ? ' class="nx"' : '') + '>' + (x[0] === 'curso-' + yn ? '<i class="nx-dot" aria-hidden="true"></i>' : '') + x[1] + '</button>'; }).join('');
   }
   seg.addEventListener('click', function (e) {
     var b = e.target.closest('[data-p]'); if (!b) return;
