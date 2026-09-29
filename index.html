@@ -1064,7 +1064,7 @@ footer img{height:56px;width:auto}
         <p>Cada habitación es de uso individual. No se admiten parejas.</p>
       </div>
       <ul class="amen">
-        <li class="rv"><b>Cama</b><span>105 o 140 cm según habitación</span></li>
+        <li class="rv"><b>Cama</b><span><span class="js-camas">105 o 140</span> cm según habitación</span></li>
         <li class="rv"><b>Zona de estudio</b><span>Escritorio y silla ergonómica junto a la ventana</span></li>
         <li class="rv"><b>Smart TV 32″</b><span>Con wifi, en cada habitación</span></li>
         <li class="rv"><b>Cerradura propia</b><span>Tu habitación, solo para ti</span></li>
@@ -1456,6 +1456,10 @@ footer img{height:56px;width:auto}
 
   // «Desde X €»: siempre el precio más bajo de las habitaciones activas del panel
   function setMin() {
+    // Medidas de cama reales de las habitaciones activas (ej.: «90, 105 o 140»)
+    var cs = data.rooms.filter(function (r) { return r.activa && +r.cama > 0; }).map(function (r) { return +r.cama; })
+      .filter(function (v, i, a) { return a.indexOf(v) === i; }).sort(function (a, b) { return a - b; });
+    if (cs.length) { var txt = cs.length > 1 ? cs.slice(0, -1).join(', ') + ' o ' + cs[cs.length - 1] : String(cs[0]); document.querySelectorAll('.js-camas').forEach(function (el) { el.textContent = txt; }); }
     var ps = data.rooms.filter(function (r) { return r.activa && +r.precio > 0; }).map(function (r) { return +r.precio; });
     if (!ps.length) return;
     var m = Math.min.apply(null, ps);
