@@ -52,6 +52,17 @@
   function money(n) { n = num(n); return n.toLocaleString('es-ES', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }) + ' €'; }
   function today() { return B.today(); }
   function fmt(iso) { return iso ? B.fmt(iso, true) : '—'; }
+  // Fecha y hora de registro (hora de España)
+  function now() { return new Date().toISOString(); }
+  function fmtDT(iso) {
+    if (!iso) return '';
+    if (iso.length <= 10) return fmt(iso);
+    try {
+      var d = new Date(iso), p = new Intl.DateTimeFormat('es-ES', { timeZone: 'Europe/Madrid', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).formatToParts(d);
+      var g = function (t) { return (p.filter(function (x) { return x.type === t; })[0] || {}).value || ''; };
+      return g('day') + ' ' + g('month').replace('.', '').replace('sept', 'sep') + ' ' + g('year') + ', ' + g('hour') + ':' + g('minute') + ' h';
+    } catch (e) { return fmt(iso.slice(0, 10)); }
+  }
   function mesLabel(ym) { var p = ym.split('-'); return MES_LARGO[+p[1] - 1] + ' ' + p[0]; }
   function daysIn(y, m) { return new Date(Date.UTC(y, m, 0)).getUTCDate(); } // m: 1-12
   function rooms() { return A.data().rooms.slice().sort(function (a, b) { return a.num - b.num; }); }
@@ -123,7 +134,7 @@
     var cids = G.contratos.filter(function (c) { return c.inquilinaId === tid; }).map(function (c) { return c.id; });
     var ya = G.cobros.filter(function (x) { return x.tipo === 'fianza' && (x.inquilinaId === tid || cids.indexOf(x.contratoId) >= 0); })[0];
     if (ya || !(num(importe) > 0)) return ya || null;
-    var x = { id: uid(), contratoId: '', inquilinaId: tid, solicitudId: solId || '', tipo: 'fianza', mes: dia.slice(0, 7), concepto: 'Fianza (admisión)', importe: num(importe), vence: dia, pagado: false };
+    var x = { id: uid(), contratoId: '', inquilinaId: tid, solicitudId: solId || '', tipo: 'fianza', mes: dia.slice(0, 7), concepto: 'Fianza (admisión)', importe: num(importe), vence: dia, pagado: false, creadoEn: now() };
     G.cobros.push(x); return x;
   }
   function genCobros(c) {
@@ -380,6 +391,7 @@
     return '<div class="pcard" role="button" tabindex="0" data-sol="' + esc(x.id) + '">' +
       (x.doc ? '<span class="pthumb' + (img ? '' : ' pdf') + '"' + (docsOf(x).length > 1 ? ' data-n="' + docsOf(x).length + '"' : '') + (img ? ' data-thumb="' + esc(x.doc.path) + '"' : '') + '>' + (img ? '' : 'PDF') + '</span>' : '') +
       '<span class="pinfo"><b>' + esc(x.nombre + ' ' + x.apellidos) + (ed !== null ? ' <em>' + ed + ' años</em>' : '') + '</b>' +
+      '<small class="stamp">Recibida el ' + fmtDT(x.fecha) + '</small>' +
       '<small>' + esc(x.universidad) + (x.estudios ? ' · ' + esc(x.estudios) : '') + '</small>' +
       '<small>' + esc([[x.provincia, x.pais].filter(Boolean).join(', '), x.documento ? (x.tipoDoc || 'Doc.') + ' ' + x.documento : ''].filter(Boolean).join(' · ')) + '</small>' +
       '<small>' + esc(x.habitacion) + ' · ' + esc(x.periodo && x.periodo.titulo || '') + (x.habitacionOriginal ? ' <em class="porig">(pidió ' + esc(x.habitacionOriginal) + ')</em>' : '') + '</small>' +
@@ -418,7 +430,7 @@
     var payMsg = x.pago ? 'Hola ' + x.nombre + ', te escribimos de BSL. Te hemos admitido para la habitación ' + x.habitacion + ' (' + (x.periodo && x.periodo.titulo || '') + '). Para confirmarla, paga la fianza de ' + money(x.pago.importe) + ' (equivalente a 1 mes de alquiler) en este enlace seguro: ' + x.pago.url + '\n\nO, si lo prefieres, por transferencia a BBVA · IBAN ' + IBAN + ' (en el concepto pon tu nombre y «fianza ' + x.habitacion + '»).' : '';
     dlg.innerHTML = '<form method="dialog" class="dform"><div class="dh"><h3>Solicitud de admisión</h3><button type="button" class="dx" aria-label="Cerrar">✕</button></div>' +
       '<div class="dbody sol">' +
-      '<div class="sol-top"><div><b>' + esc(x.nombre + ' ' + x.apellidos) + '</b><small>Recibida el ' + fmt((x.fecha || '').slice(0, 10)) + '</small></div>' + chip(st[0], st[1]) + '</div>' +
+      '<div class="sol-top"><div><b>' + esc(x.nombre + ' ' + x.apellidos) + '</b><small>Recibida el ' + fmtDT(x.fecha) + (x.admitida ? ' · Admitida el ' + fmtDT(x.admitida) : '') + (x.pago && x.pago.fecha ? ' · Pago solicitado el ' + fmtDT(x.pago.fecha) : '') + '</small></div>' + chip(st[0], st[1]) + '</div>' +
       '<dl class="sol-dl">' +
       '<dt>Habitación</dt><dd><span id="sol-hab-v">' + esc(x.habitacion) + ' · ' + money(x.precio) + '/mes' + (x.habitacionOriginal ? '<small>Pidió al principio: ' + esc(x.habitacionOriginal) + '</small>' : '') + '</span>' +
         (x.estado !== 'descartada' ? ' <button type="button" class="mini edit-only" id="sol-hab">Cambiar habitación</button>' : '') +
@@ -509,7 +521,7 @@
     };
     // Ficha de inquilina a partir de la solicitud (al admitir, o de nuevo si se borró la ficha)
     function newTenant() {
-      var t = { id: uid(), creada: today(), nombre: x.nombre, apellidos: x.apellidos, doc: x.documento, nacimiento: x.nacimiento, telefono: x.telefono, email: x.email,
+      var t = { id: uid(), creada: today(), creadaEn: now(), nombre: x.nombre, apellidos: x.apellidos, doc: x.documento, nacimiento: x.nacimiento, telefono: x.telefono, email: x.email,
         universidad: uniToTenant(x.universidad), estudios: [x.universidad !== uniToTenant(x.universidad) ? x.universidad : '', x.estudios].filter(Boolean).join(' · '),
         nacionalidad: x.pais, direccion: [x.provincia, x.pais].filter(Boolean).join(', '),
         emergNombre: x.familiar, emergTelefono: x.familiarTel, notas: [ig ? 'Instagram: @' + ig : '', x.mensaje ? 'Mensaje: ' + x.mensaje : ''].filter(Boolean).join('\n') };
@@ -533,7 +545,7 @@
       B.store.crearPago({ id: x.id, importe: fianza, concepto: 'Fianza habitación ' + x.habitacion + ' · BSL · ' + x.nombre + ' ' + x.apellidos })
         .then(function (url) {
           var fx = x.inquilinaId && tenant(x.inquilinaId) ? fianzaAdmision(x.inquilinaId, fianza, (x.admitida || x.actualizada || today()).slice(0, 10), x.id) : null;
-          if (fx && !fx.pagado) { fx.pago = { url: url, importe: fianza, fecha: today() }; save(); }
+          if (fx && !fx.pagado) { fx.pago = { url: url, importe: fianza, fecha: now() }; save(); }
           return setEstado('aceptada', { pago: { url: url, importe: fianza } });
         })
         .then(function () { solDialog(x.id); }, function (e) { b.disabled = false; b.textContent = 'Solicitar pago'; if (e.status === 401) return A.expired(); err(e.message); });
@@ -573,7 +585,7 @@
     $('new-t').onclick = function () {
       openForm({ title: 'Nueva inquilina', fields: TENANT_FIELDS, values: {}, ok: 'Crear', onSave: function (v) {
         if (!v.nombre) return 'Pon al menos el nombre.';
-        v.id = uid(); v.creada = today(); G.inquilinas.push(v); save(); detail = v.id; show('inq');
+        v.id = uid(); v.creada = today(); v.creadaEn = now(); G.inquilinas.push(v); save(); detail = v.id; show('inq');
       } });
     };
     box.querySelectorAll('.tcard').forEach(function (b) {
@@ -614,7 +626,8 @@
         var meta = 'Vence ' + fmt(x.vence) + (showWho ? ' · ' + fullName(t) + ' · ' + hab : '');
         return '<tr><td class="c-v">' + fmt(x.vence) + '</td>' + (showWho ? '<td class="c-q">' + esc(fullName(t)) + '</td><td class="c-h">' + esc(hab) + '</td>' : '') +
           '<td class="c-c">' + esc(x.concepto) + '</td><td class="c-m">' + esc(meta) + '</td><td class="r c-i">' + money(x.importe) + '</td>' +
-          '<td class="c-e">' + chip(st, st === 'pagado' ? 'Pagado ' + fmt(x.fechaPago) + (x.metodo ? ' · ' + x.metodo : '') : st === 'vencido' ? 'Vencido' : 'Pendiente') + '</td>' +
+          '<td class="c-e">' + chip(st, st === 'pagado' ? 'Pagado ' + fmt(x.fechaPago) + (x.metodo ? ' · ' + x.metodo : '') : st === 'vencido' ? 'Vencido' : 'Pendiente') +
+          (x.cobradoEn ? '<small class="stamp">Registrado el ' + fmtDT(x.cobradoEn) + '</small>' : x.pago && x.pago.fecha ? '<small class="stamp">Pago solicitado el ' + fmtDT(x.pago.fecha) + '</small>' : '') + '</td>' +
           '<td class="r c-a">' + (x.pagado ? '' : payMini(x)) +
           '<button type="button" class="mini" data-cobro="' + x.id + '">' + (x.pagado ? 'Editar' : 'Cobrar') + '</button></td></tr>';
       }).join('') + '</tbody></table>' + pager(key, total);
@@ -639,7 +652,9 @@
           values: { pagado: 'si', fechaPago: x.fechaPago || today(), metodo: x.metodo || 'Transferencia', importe: x.importe, vence: x.vence, nota: x.nota || '' },
           ok: 'Guardar',
           onSave: function (v) {
+            var eraPagado = !!x.pagado;
             x.pagado = v.pagado === 'si'; x.fechaPago = x.pagado ? v.fechaPago : ''; x.metodo = x.pagado ? v.metodo : '';
+            if (x.pagado && !eraPagado) x.cobradoEn = now(); if (!x.pagado) delete x.cobradoEn; x.editadoEn = now();
             x.importe = v.importe; x.vence = v.vence; x.nota = v.nota;
             var cx = x.tipo === 'fianza' && contract(x.contratoId); if (cx && cx.fianzaEstado !== 'devuelta') cx.fianzaEstado = x.pagado ? 'cobrada' : 'pendiente';
             save(); refresh();
@@ -726,9 +741,9 @@
       var b = $('py-go'); b.disabled = true; b.textContent = 'Generando…';
       B.store.crearPago({ id: tid, importe: Math.round(tt * 100) / 100, concepto: (concepto.charAt(0).toUpperCase() + concepto.slice(1)) + (hab ? ' · habitación ' + hab : '') + ' · BSL · ' + fullName(t) })
         .then(function (url) {
-          var pago = { url: url, importe: Math.round(tt * 100) / 100, fecha: today() };
+          var pago = { url: url, importe: Math.round(tt * 100) / 100, fecha: now() };
           if (ex.imp) { // el otro importe queda apuntado como cobro para no perderlo
-            var nx = { id: uid(), contratoId: c ? c.id : '', inquilinaId: tid, tipo: 'otro', mes: today().slice(0, 7), concepto: ex.con, importe: ex.imp, vence: today(), pagado: false };
+            var nx = { id: uid(), contratoId: c ? c.id : '', inquilinaId: tid, tipo: 'otro', mes: today().slice(0, 7), concepto: ex.con, importe: ex.imp, vence: today(), pagado: false, creadoEn: now() };
             G.cobros.push(nx); ps.push(nx);
           }
           ps.forEach(function (x) { x.pago = pago; });
@@ -787,8 +802,8 @@
         Object.keys(v).forEach(function (k) { c[k] = v[k]; });
         c.docs = docs.slice();
         c.diaPago = Math.min(28, Math.max(1, num(v.diaPago) || 5));
-        if (isNew) { c.id = uid(); c.inquilinaId = tid; G.contratos.push(c); }
-        if (c.fianzaEstado === 'cobrada') G.cobros.forEach(function (x) { if (x.contratoId === c.id && x.tipo === 'fianza' && !x.pagado) { x.pagado = true; x.fechaPago = today(); } });
+        if (isNew) { c.id = uid(); c.inquilinaId = tid; c.creadoEn = now(); G.contratos.push(c); } else c.editadoEn = now();
+        if (c.fianzaEstado === 'cobrada') G.cobros.forEach(function (x) { if (x.contratoId === c.id && x.tipo === 'fianza' && !x.pagado) { x.pagado = true; x.fechaPago = today(); x.cobradoEn = now(); } });
         genCobros(c); syncRooms(); save(); refresh();
       },
       needKey: 'Vas a borrar este contrato: la habitación quedará libre en la web y se quitarán sus cobros pendientes.',
@@ -910,12 +925,13 @@
       (cs.length ? cs.map(function (c) {
         var now = today(), st = c.hasta < now ? ['fin', 'Terminado'] : c.desde > now ? ['pendiente', 'Próximo'] : ['pagado', 'En curso'];
         return '<button type="button" class="crow" data-c="' + c.id + '"><span><b>' + esc(roomName(c.habitacionId)) + '</b><small>' + fmt(c.desde) + ' → ' + fmt(c.hasta) + ' · ' + money(c.precio) + ' + ' + money(c.gastos) + ' gastos · día ' + (c.diaPago || 5) + ((c.docs || []).length ? ' · 📎 ' + c.docs.length + ' doc.' : '') + '</small>' +
-          '<small>Fianza ' + money(c.fianza) + ' · ' + esc({ pendiente: 'pendiente', cobrada: 'cobrada', devuelta: 'devuelta' }[c.fianzaEstado || 'pendiente']) + '</small></span>' + chip(st[0], st[1]) + '</button>';
+          '<small>Fianza ' + money(c.fianza) + ' · ' + esc({ pendiente: 'pendiente', cobrada: 'cobrada', devuelta: 'devuelta' }[c.fianzaEstado || 'pendiente']) + '</small>' +
+          (c.creadoEn || c.editadoEn ? '<small class="stamp">' + (c.creadoEn ? 'Creado el ' + fmtDT(c.creadoEn) : '') + (c.editadoEn ? (c.creadoEn ? ' · ' : '') + 'Modificado el ' + fmtDT(c.editadoEn) : '') + '</small>' : '') + '</span>' + chip(st[0], st[1]) + '</button>';
       }).join('') : '<p class="empty">Sin contratos. Crea uno para asignarle habitación: la web la marcará ocupada y se generarán los cobros.</p>') + '</section>' +
       '<section class="card"><div class="ch"><h3>Cobros</h3><span class="hint">Pendiente: <b>' + money(pend) + '</b></span></div>' +
         ibanBox(t, ya.length ? ya.map(function (x) { return conc(x); }).join(' y ') : 'tu mensualidad', ya.reduce(function (s2, x) { return s2 + num(x.importe); }, 0)) + cobroRows(cob, false, 'cobT') + '</section>' +
       '<section class="card"><div class="ch"><h3>Incidencias</h3><button class="btn plain" type="button" id="new-i">+ Incidencia</button></div>' + incList(inc, 'incT') + '</section>' +
-      '<div class="foot"><span class="hint">Alta: ' + fmt(t.creada) + '</span><button class="btn plain danger" type="button" id="del-t">Borrar inquilina</button></div>';
+      '<div class="foot"><span class="hint">Alta: ' + (t.creadaEn ? fmtDT(t.creadaEn) : fmt(t.creada)) + '</span><button class="btn plain danger" type="button" id="del-t">Borrar inquilina</button></div>';
     $('back').onclick = function () { detail = null; show('inq'); };
     $('edit-t').onclick = function () {
       openForm({ title: 'Datos de ' + fullName(t), fields: TENANT_FIELDS, values: t, onSave: function (v) {
@@ -984,7 +1000,7 @@
         values: { vence: today() }, ok: 'Añadir',
         onSave: function (v) {
           if (!v.concepto || !v.importe) return 'Pon el concepto y el importe.';
-          G.cobros.push({ id: uid(), contratoId: v.contratoId, tipo: 'otro', mes: v.vence.slice(0, 7), concepto: v.concepto, importe: v.importe, vence: v.vence, pagado: false });
+          G.cobros.push({ id: uid(), contratoId: v.contratoId, tipo: 'otro', mes: v.vence.slice(0, 7), concepto: v.concepto, importe: v.importe, vence: v.vence, pagado: false, creadoEn: now() });
           save(); refresh();
         } });
     };
@@ -1001,7 +1017,8 @@
       var s = INC_ST[x.estado] || INC_ST.abierta;
       return '<button type="button" class="crow" data-i="' + x.id + '"><span><b>' + esc(x.titulo) + '</b><small>' + fmt(x.fecha) + ' · ' + esc(roomName(x.habitacionId)) +
         (x.inquilinaId ? ' · ' + esc(fullName(tenant(x.inquilinaId))) : '') + (num(x.coste) ? ' · ' + money(x.coste) : '') + '</small>' +
-        (x.detalle ? '<small>' + esc(x.detalle.slice(0, 140)) + '</small>' : '') + '</span>' + chip(s[0], s[1]) + '</button>';
+        (x.detalle ? '<small>' + esc(x.detalle.slice(0, 140)) + '</small>' : '') +
+        (x.creadaEn || x.editadaEn ? '<small class="stamp">' + (x.creadaEn ? 'Registrada el ' + fmtDT(x.creadaEn) : '') + (x.editadaEn ? (x.creadaEn ? ' · ' : '') + 'Modificada el ' + fmtDT(x.editadaEn) : '') + '</small>' : '') + '</span>' + chip(s[0], s[1]) + '</button>';
     }).join('') + pager(key, total);
   }
   function bindInc(root) {
@@ -1025,7 +1042,7 @@
         if (!v.titulo) return 'Describe brevemente la incidencia.';
         if (v.estado === 'resuelta' && x.estado !== 'resuelta') v.cierre = today();
         Object.keys(v).forEach(function (k) { x[k] = v[k]; });
-        if (isNew) { x.id = uid(); G.incidencias.push(x); }
+        if (isNew) { x.id = uid(); x.creadaEn = now(); G.incidencias.push(x); } else x.editadaEn = now();
         save(); refresh();
       },
       onDelete: isNew ? null : function () { G.incidencias = G.incidencias.filter(function (o) { return o !== x; }); save(); refresh(); }
