@@ -191,12 +191,12 @@
   }
 
   /* ---------- Pestañas ---------- */
-  var TABS = [['res', 'Panel de control'], ['ocu', 'Ocupación'], ['hab', 'Habitaciones'], ['inq', 'Inquilinas'], ['cob', 'Cobros'], ['inc', 'Incidencias'], ['aju', 'Ajustes']];
+  var TABS = [['res', 'Panel de control'], ['sol', 'Solicitudes'], ['ocu', 'Ocupación'], ['hab', 'Habitaciones'], ['inq', 'Inquilinas'], ['cob', 'Cobros'], ['inc', 'Incidencias'], ['aju', 'Ajustes']];
   function renderTabs() {
     $('tabs').innerHTML = TABS.map(function (t) {
       var badge = '';
       if (t[0] === 'cob') { var n = G.cobros.filter(function (x) { return cobroState(x) === 'vencido'; }).length; if (n) badge = '<i>' + n + '</i>'; }
-      if (t[0] === 'inq' && SOL) { var ns = SOL.filter(function (x) { return x.estado === 'nueva'; }).length; if (ns) badge = '<i>' + ns + '</i>'; }
+      if (t[0] === 'sol' && SOL) { var ns = SOL.filter(function (x) { return x.estado === 'nueva'; }).length; if (ns) badge = '<i>' + ns + '</i>'; }
       if (t[0] === 'inc') { var k = G.incidencias.filter(function (x) { return x.estado !== 'resuelta'; }).length; if (k) badge = '<i>' + k + '</i>'; }
       return '<button type="button" data-t="' + t[0] + '" aria-current="' + (t[0] === tab) + '">' + t[1] + badge + '</button>';
     }).join('');
@@ -206,7 +206,7 @@
     renderTabs();
     $('tab-hab').hidden = t !== 'hab'; box.hidden = t === 'hab';
     if (t === 'hab') { A.refresh(); return; }
-    ({ res: viewResumen, inq: viewTenants, cob: viewCobros, inc: viewIncidencias, ocu: viewOcupacion, aju: viewAjustes })[t]();
+    ({ res: viewResumen, sol: viewSolicitudes, inq: viewTenants, cob: viewCobros, inc: viewIncidencias, ocu: viewOcupacion, aju: viewAjustes })[t]();
     window.scrollTo(0, 0);
   }
   function refresh() { renderTabs(); if (tab !== 'hab') show(tab); }
@@ -301,7 +301,7 @@
   }
 
   /* ---------- Solicitudes de admisión (enviadas desde la web) ---------- */
-  var SOL = null, preAll = false;
+  var SOL = null;
   function loadSol() {
     return B.store.loadSolicitudes().then(function (list) {
       SOL = list;
@@ -312,7 +312,7 @@
         if (G.cobros.length > n) { nuevo = true; if (x.pago && fx) fx.pago = x.pago; }
       });
       if (nuevo) { save(); if (tab === 'cob') viewCobros(); }
-      renderTabs(); if (tab === 'inq' && !detail) viewTenants(); if (tab === 'res') viewResumen(); if (tab === 'ocu') viewOcupacion(); }, function (err) {
+      renderTabs(); if (tab === 'sol') viewSolicitudes(); if (tab === 'res') viewResumen(); if (tab === 'ocu') viewOcupacion(); }, function (err) {
       if (err.status === 401) return A.expired(); SOL = SOL || [];
     });
   }
@@ -332,15 +332,31 @@
       B.store.fetchDoc(path).then(function (blob) { THUMBS[path] = URL.createObjectURL(blob); put(THUMBS[path]); }, function () { /* sin miniatura */ });
     });
   }
-  function preHtml() {
-    if (!SOL) return '<section class="card prer"><h3>Solicitudes de admisión</h3><p class="hint">Cargando…</p></section>';
-    var list = SOL.filter(function (x) { return preAll || x.estado !== 'descartada'; });
-    var nuevas = SOL.filter(function (x) { return x.estado === 'nueva'; }).length;
-    return '<section class="card prer"><div class="prer-h"><h3>Solicitudes de admisión' + (nuevas ? ' <span class="chip2 k-pendiente">' + nuevas + ' nueva' + (nuevas > 1 ? 's' : '') + '</span>' : '') + '</h3>' +
-      '<button type="button" class="mini" id="pre-all">' + (preAll ? 'Ocultar descartadas' : 'Ver también descartadas') + '</button></div>' +
-      (list.length ? '<div class="plist">' + list.map(function (x) {
-        return solCard(x);
-      }).join('') + '</div>' : '<p class="empty">Todavía no hay solicitudes. Llegan aquí cuando una chica envía su solicitud de admisión desde la web.</p>') + '</section>';
+  /* ---------- Solicitudes de admisión (pestaña propia) ---------- */
+  function viewSolicitudes() {
+    if (!SOL) { box.innerHTML = '<div class="ghead"><h2>Solicitudes de admisión</h2></div><p class="hint">Cargando…</p>'; return; }
+    var q = (box.dataset.sq || '').toLowerCase();
+    var match = function (x) { return !q || [x.nombre, x.apellidos, x.telefono, x.universidad, x.habitacion, x.provincia].join(' ').toLowerCase().indexOf(q) >= 0; };
+    var byDate = function (a, b) { return (a.fecha || '') < (b.fecha || '') ? 1 : -1; };
+    var nuevas = SOL.filter(function (x) { return x.estado === 'nueva' && match(x); }).sort(byDate);
+    var adm = SOL.filter(function (x) { return x.estado === 'aceptada' && match(x); }).sort(byDate);
+    var desc = SOL.filter(function (x) { return x.estado === 'descartada' && match(x); }).sort(byDate);
+    var conC = function (x) { return x.inquilinaId && G.contratos.some(function (c) { return c.inquilinaId === x.inquilinaId; }); };
+    var admSin = adm.filter(function (x) { return !conC(x); }), admCon = adm.filter(conC);
+    function block(cls, title, sub, list, empty) {
+      return '<section class="card solblk ' + cls + '"><div class="prer-h"><h3>' + title + ' <span class="chip2 k-' + (cls === 'b-new' ? 'pendiente' : cls === 'b-adm' ? 'pagado' : 'fin') + '">' + list.length + '</span></h3></div>' +
+        (sub ? '<p class="hint">' + sub + '</p>' : '') +
+        (list.length ? '<div class="plist">' + list.map(solCard).join('') + '</div>' : '<p class="empty">' + empty + '</p>') + '</section>';
+    }
+    box.innerHTML = '<div class="ghead"><h2>Solicitudes de admisión</h2><div class="gtools"><input type="search" id="sq" placeholder="Buscar por nombre, teléfono, universidad…" value="' + esc(box.dataset.sq || '') + '"></div></div>' +
+      '<div class="tiles soltiles"><div class="t-new"><small>Por revisar</small><b>' + nuevas.length + '</b></div><div><small>Admitidas sin contrato</small><b>' + admSin.length + '</b></div>' +
+      '<div><small>Ya con contrato</small><b>' + admCon.length + '</b></div><div><small>Descartadas</small><b>' + desc.length + '</b></div></div>' +
+      block('b-new', 'Por revisar', 'Solicitudes nuevas desde la web. Ábrelas para admitir, descartar o escribir por WhatsApp.', nuevas, 'No hay solicitudes nuevas. 👌') +
+      block('b-adm', 'Admitidas, pendientes de contrato', 'Ya son inquilinas; falta crear el contrato (y cobrar la fianza).', admSin, 'Ninguna pendiente de contrato.') +
+      (admCon.length ? '<details class="card solfold"' + (q ? ' open' : '') + '><summary>Ya con contrato · ' + admCon.length + ' <span class="hint">(están en Inquilinas)</span></summary><div class="plist">' + admCon.map(solCard).join('') + '</div></details>' : '') +
+      (desc.length ? '<details class="card solfold"' + (q ? ' open' : '') + '><summary>Descartadas · ' + desc.length + '</summary><div class="plist">' + desc.map(solCard).join('') + '</div></details>' : '');
+    $('sq').oninput = function () { box.dataset.sq = this.value; var pos = this.selectionStart; viewSolicitudes(); $('sq').focus(); $('sq').setSelectionRange(pos, pos); };
+    bindSol();
   }
   function solCard(x) {
     var st = PRE_ST[x.estado] || PRE_ST.nueva, ig = String(x.instagram || '').replace(/^@+/, ''), ed = x.edad || edad(x.nacimiento);
@@ -371,13 +387,9 @@
     var n = act.filter(function (x) { return x.estado === 'nueva'; }).length;
     return '<section class="card solres' + (n ? ' hot' : '') + '"><div class="prer-h"><h3>Solicitudes de admisión <span class="chip2 k-' + (n ? 'pendiente' : 'pagado') + '">' +
       (n ? n + (n > 1 ? ' nuevas por revisar' : ' nueva por revisar') : act.length + ' en curso') + '</span></h3>' +
-      '<button type="button" class="mini" data-go="inq">Ver todas →</button></div>' +
+      '<button type="button" class="mini" data-go="sol">Ver todas →</button></div>' +
       '<div class="solcar">' + act.map(solCard).join('') + '</div>' +
       (act.length > 1 ? '<p class="hint solhint">Desliza para ver las ' + act.length + ' →</p>' : '') + '</section>';
-  }
-  function bindPre() {
-    var all = $('pre-all'); if (all) all.onclick = function () { preAll = !preAll; viewTenants(); };
-    bindSol();
   }
   function docsOf(x) { return x.docs && x.docs.length ? x.docs : x.doc ? [x.doc] : []; }
   function waPhone(t) { var d = String(t || '').replace(/\D/g, ''); if (d.indexOf('00') === 0) d = d.slice(2); if (d.length === 9) d = '34' + d; return d; }
@@ -439,7 +451,7 @@
     }
     if ($('sol-no')) $('sol-no').onclick = function () {
       if (!window.confirm('¿Descartar esta solicitud?')) return;
-      setEstado('descartada').then(function () { dlg.close(); viewTenants(); }, function (e) { err(e.message); });
+      setEstado('descartada').then(function () { dlg.close(); refresh(); }, function (e) { err(e.message); });
     };
     if ($('sol-re')) $('sol-re').onclick = function () { setEstado('nueva').then(function () { solDialog(x.id); }, function (e) { err(e.message); }); };
     if ($('sol-del')) $('sol-del').onclick = function () {
@@ -447,7 +459,7 @@
         if (!ok) return;
         B.store.updateSolicitud({ id: x.id, borrar: true }).then(function () {
           SOL = SOL.filter(function (o) { return o.id !== x.id; }); renderTabs(); dlg.close();
-          if (tab === 'res') viewResumen(); else viewTenants();
+          refresh();
         }, function (e) { if (e.status === 401) return A.expired(); err(e.message); });
       });
     };
@@ -494,7 +506,7 @@
     var list = G.inquilinas.filter(function (t) { return !q || (fullName(t) + ' ' + (t.telefono || '') + ' ' + (t.doc || '')).toLowerCase().indexOf(q) >= 0; })
       .map(function (t) { var c = activeContract(t.id), r = c && room(c.habitacionId); return { t: t, c: c, n: r ? r.num : 99 }; })
       .sort(function (a, b) { return (a.n - b.n) || fullName(a.t).localeCompare(fullName(b.t)); });
-    box.innerHTML = '<div class="ghead"><h2>Inquilinas</h2><div class="gtools"><input type="search" id="q" placeholder="Buscar por nombre, teléfono o DNI" value="' + esc(box.dataset.q || '') + '"><button class="btn" type="button" id="new-t">+ Nueva inquilina</button></div></div>' + preHtml() +
+    box.innerHTML = '<div class="ghead"><h2>Inquilinas</h2><div class="gtools"><input type="search" id="q" placeholder="Buscar por nombre, teléfono o DNI" value="' + esc(box.dataset.q || '') + '"><button class="btn" type="button" id="new-t">+ Nueva inquilina</button></div></div>' +
       (list.length ? '<section class="card tt-card"><table class="tt"><thead><tr><th>Habitación</th><th>Inquilina</th><th>Entrada</th><th>Salida</th><th>Estudia en</th><th>Estado</th></tr></thead><tbody>' +
         pageOf(list, 'inq', 20).map(function (x) {
           var t = x.t, c = x.c, d = debt(t.id), r = c && room(c.habitacionId);
@@ -516,7 +528,6 @@
       b.onclick = function () { detail = b.getAttribute('data-id'); PAGES.cobT = 0; PAGES.incT = 0; show('inq'); };
       b.onkeydown = function (e) { if (e.key === 'Enter') b.onclick(); };
     });
-    bindPre();
   }
 
   /* ---------- Pago por transferencia ---------- */
@@ -1182,7 +1193,7 @@
         show(tab); window.scrollTo(0, Math.max(0, top));
       });
       dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
-      $('tabs').onclick = function (e) { var b = e.target.closest('[data-t]'); if (b) { detail = null; show(b.getAttribute('data-t')); if (b.getAttribute('data-t') === 'inq') loadSol(); } };
+      $('tabs').onclick = function (e) { var b = e.target.closest('[data-t]'); if (b) { detail = null; show(b.getAttribute('data-t')); if (b.getAttribute('data-t') === 'sol') loadSol(); } };
       return B.store.loadGestion().then(function (g) {
         G = g; G.cambios = G.cambios || []; renderTabs(); show(tab);
         B.store.loadCambios().then(function (list) { PEND = list; renderPend(); });
