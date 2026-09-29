@@ -491,7 +491,7 @@
     };
     if ($('sol-re')) $('sol-re').onclick = function () { setEstado('nueva').then(function () { solDialog(x.id); }, function (e) { err(e.message); }); };
     if ($('sol-del')) $('sol-del').onclick = function () {
-      confirmKey('Vas a eliminar para siempre la solicitud de ' + x.nombre + ' ' + x.apellidos + ' y sus documentos. No se puede deshacer.').then(function (ok) {
+      Promise.resolve(window.confirm('¿Eliminar para siempre la solicitud de ' + x.nombre + ' ' + x.apellidos + '? No se puede deshacer.')).then(function (ok) {
         if (!ok) return;
         B.store.updateSolicitud({ id: x.id, borrar: true }).then(function () {
           SOL = SOL.filter(function (o) { return o.id !== x.id; }); renderTabs(); dlg.close();
