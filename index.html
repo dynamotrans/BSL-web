@@ -583,6 +583,7 @@ dialog.sheet.legal{width:min(620px,calc(100% - 24px))}
 .wanote{border-radius:14px;padding:14px 16px;border:2px solid #25d366;background:color-mix(in srgb,#25d366 8%,var(--surface));display:grid;gap:6px;font-size:.92rem}
 .wanote p{margin:0;color:var(--ink)}
 .wanote .wa-best{font-weight:800;color:#128c4a}
+.close-big{flex:1 1 100%;width:100%;justify-content:center}
 .wanote .wa-in{justify-self:stretch;justify-content:center;display:inline-flex;align-items:center;gap:8px;margin-top:4px}
 .sent{border-radius:14px;padding:22px 18px;background:color-mix(in srgb,var(--free,#2c9a6a) 12%,var(--surface));text-align:center;display:grid;gap:6px}
 .sent b{font:400 1.6rem/1.1 var(--serif);color:#1f7a53}
@@ -1648,11 +1649,13 @@ footer img{height:56px;width:auto}
     var send = $r('res-send'), back = $r('res-back'), c = chosen(), busy = c && c.o.st.kind === 'ocupada';
     back.hidden = rstep === 1;
     send.disabled = (rstep === 1 && !!busy) || sending;
-    send.classList.toggle('wa-btn', rstep === 3 && !sent);
-    send.textContent = sent ? 'Cerrar' : rstep === 1 ? (busy ? 'No disponible en esas fechas' : 'Continuar') : rstep === 2 ? (sending ? 'Reservando…' : 'Reservar') : 'Avisar por WhatsApp';
-    back.hidden = rstep === 1 || sent;
-    // En el paso 3 el botón de WhatsApp está dentro del aviso verde (si se guardó bien)
-    send.hidden = rstep === 3 && !sent && !!savedSig;
+    // Paso 3 con la reserva ya guardada: sin «Atrás», solo un botón grande «Cerrar» (WhatsApp va dentro del aviso verde)
+    var done = sent || (rstep === 3 && !!savedSig);
+    send.classList.toggle('wa-btn', rstep === 3 && !done);
+    send.classList.toggle('close-big', done);
+    send.textContent = done ? 'Cerrar' : rstep === 1 ? (busy ? 'No disponible en esas fechas' : 'Continuar') : rstep === 2 ? (sending ? 'Reservando…' : 'Reservar') : 'Avisar por WhatsApp';
+    back.hidden = rstep === 1 || done;
+    send.hidden = false;
   }
   function money(n) { return (+n || 0).toLocaleString('es-ES') + ' €'; }
   function drawSum() {
@@ -1707,7 +1710,8 @@ footer img{height:56px;width:auto}
     e.preventDefault();
     var c = chosen(); if (!c || c.o.st.kind === 'ocupada') return;
     if (rstep === 1) return goStep(2);
-    if (sent) { resDlg.close(); return; }
+    var bySend = (e.submitter || document.activeElement || {}).id === 'res-send';
+    if (sent || (rstep === 3 && savedSig && bySend)) { resDlg.close(); return; }
     if (sending) return;
     var body = {
       nombre: val('rd-nombre'), apellidos: val('rd-apellidos'), telefono: val('rd-pref') + ' ' + val('rd-tel'),
