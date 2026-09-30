@@ -1131,7 +1131,9 @@
       '<div class="checks">' + cands.map(function (y) { return '<label class="switch"><input type="checkbox" data-y="' + y + '"' + (vis.indexOf(y) >= 0 ? ' checked' : '') + '> Curso ' + B.courseLabel(y) + ' <small>(1 sep ' + y + ' – 31 jul ' + (y + 1) + ')</small></label>'; }).join('') + '</div>' +
       '<label class="switch"><input type="checkbox" id="aj-ya"' + (aj.entrarYa !== false ? ' checked' : '') + '> Mostrar el botón "Actual curso" (habitaciones que ya están libres o que quedan libres en una fecha del curso en marcha, hasta el 31 de julio)</label></section>' +
       '<section class="card" id="backup-card"><h3>Copia de seguridad</h3><p class="hint">Descarga en un archivo todas las habitaciones, inquilinas, contratos, cobros e incidencias. Guárdalo en un sitio seguro: contiene datos personales.</p>' +
-      '<div><button class="btn plain" type="button" id="backup">Descargar copia</button></div></section>';
+      '<div><button class="btn plain" type="button" id="backup">Descargar copia</button></div></section>' +
+      '<section class="card" id="export-card"><h3>Descargar todo en una carpeta</h3><p class="hint">Un archivo ZIP con un <b>Excel</b> (habitaciones, inquilinas, contratos, cobros, incidencias y solicitudes), las <b>fotos de cada habitación</b> y los <b>documentos</b> (DNI, contratos…) de cada inquilina y solicitud, con nombres claros. Contiene datos personales: guárdalo en un sitio seguro.</p>' +
+      '<div><button class="btn" type="button" id="export-all">📦 Descargar carpeta completa</button> <span class="hint" id="export-st"></span></div></section>';
     box.querySelectorAll('[data-y]').forEach(function (c) {
       c.onchange = function () {
         var ys = []; box.querySelectorAll('[data-y]').forEach(function (x) { if (x.checked) ys.push(+x.getAttribute('data-y')); });
@@ -1140,11 +1142,96 @@
       };
     });
     $('aj-ya').onchange = function () { aj.entrarYa = this.checked; A.saveRooms(); };
+    $('export-all').onclick = function () { exportAll(this, $('export-st')); };
     $('backup').onclick = function () {
       var blob = new Blob([JSON.stringify({ fecha: new Date().toISOString(), habitaciones: A.data(), gestion: G }, null, 2)], { type: 'application/json' });
       var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'bsl-copia-' + today() + '.json';
       document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
     };
+  }
+
+  /* ---------- Descarga completa: ZIP con Excel + fotos + documentos ---------- */
+  function loadLib(url, test) {
+    if (test()) return Promise.resolve();
+    return new Promise(function (ok, ko) { var sc = document.createElement('script'); sc.src = url; sc.onload = function () { ok(); }; sc.onerror = function () { ko(new Error('No se ha podido cargar ' + url.split('/').pop())); }; document.head.appendChild(sc); });
+  }
+  // Nombre de archivo limpio: MAYÚSCULAS, sin tildes ni símbolos raros
+  function fname(t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[ºª]/g, '').replace(/[^\w\-]+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '').toUpperCase().slice(0, 60) || 'SIN_NOMBRE'; }
+  function extOf(blob, path) {
+    var t = (blob && blob.type) || '', m = { 'application/pdf': 'pdf', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }[t];
+    if (m) return m; var e = /\.(\w{2,4})(?:$|\?)/.exec(path || ''); return e ? e[1].toLowerCase() : 'bin';
+  }
+  function dd(iso) { return iso ? String(iso).slice(0, 10).split('-').reverse().join('/') : ''; }
+  function exportAll(btn, st) {
+    var hoy = today(), root = 'BSL_' + hoy, fails = [];
+    btn.disabled = true; var say = function (t) { st.textContent = t; };
+    say('Cargando herramientas…');
+    Promise.all([
+      loadLib('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js', function () { return !!window.JSZip; }),
+      loadLib('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js', function () { return !!window.XLSX; }),
+      SOL ? Promise.resolve(SOL) : B.store.loadSolicitudes().then(function (l) { SOL = l; return l; })
+    ]).then(function () {
+      var zip = new JSZip(), top = zip.folder(root), rs = rooms();
+      var hab = function (id) { var rm = room(id); return rm ? 'Nº ' + rm.num + ' · ' + rm.nombre : (id === 'comun' ? 'Zonas comunes' : ''); };
+      var who = function (x) { var t = tenantOfCobro(x); return t ? fullName(t) : ''; };
+      // 1) Excel
+      var wb = XLSX.utils.book_new();
+      function sheet(name, rows) { var ws = XLSX.utils.json_to_sheet(rows.length ? rows : [{ '': 'Sin datos' }]);
+        ws['!cols'] = Object.keys(rows[0] || { '': 1 }).map(function (k) { return { wch: Math.min(50, Math.max(10, k.length + 2, ...rows.map(function (o) { return String(o[k] == null ? '' : o[k]).length + 1; }))) }; });
+        XLSX.utils.book_append_sheet(wb, ws, name); }
+      sheet('Habitaciones', rs.map(function (rm) { return { 'Nº': rm.num, 'Nombre': rm.nombre, 'Activa': rm.activa ? 'Sí' : 'No', 'Alquiler €/mes': num(rm.precio), 'Gastos €/mes': num(rm.gastos), 'm²': rm.m2 || '', 'Cama (cm)': rm.cama || '', 'Descripción': rm.descripcion || '', 'Nº fotos': (rm.fotos || []).length }; }));
+      sheet('Inquilinas', G.inquilinas.map(function (t) { var c = activeContract(t.id), o = { 'Nombre completo': fullName(t) };
+        TENANT_FIELDS.forEach(function (f) { var v = t[f.k] || ''; o[f.label] = f.type === 'date' ? dd(v) : v; });
+        o['Habitación actual'] = c ? hab(c.habitacionId) : ''; o['Debe (€)'] = debt(t.id) || 0; o['Alta'] = t.creadaEn ? fmtDT(t.creadaEn) : dd(t.creada); return o; }));
+      sheet('Contratos', G.contratos.slice().sort(function (a, b) { return a.desde < b.desde ? -1 : 1; }).map(function (c) { return { 'Inquilina': fullName(tenant(c.inquilinaId)), 'Habitación': hab(c.habitacionId), 'Entrada': dd(c.desde), 'Salida': dd(c.hasta),
+        'Alquiler €/mes': num(c.precio), 'Gastos €/mes': num(c.gastos), 'Fianza €': num(c.fianza), 'Estado fianza': c.fianzaEstado || 'pendiente', 'Día de pago': c.diaPago || '', 'Notas': c.notas || '', 'Nº documentos': (c.docs || []).length, 'Creado': fmtDT(c.creadoEn) }; }));
+      sheet('Cobros', G.cobros.slice().sort(function (a, b) { return a.vence < b.vence ? -1 : 1; }).map(function (x) { var c = contract(x.contratoId), stt = cobroState(x); return { 'Vence': dd(x.vence), 'Inquilina': who(x), 'Habitación': c ? hab(c.habitacionId) : '',
+        'Concepto': x.concepto, 'Tipo': x.tipo, 'Importe €': num(x.importe), 'Estado': stt === 'pagado' ? 'Pagado' : stt === 'vencido' ? 'Vencido' : 'Pendiente', 'Fecha de pago': dd(x.fechaPago), 'Forma de pago': x.metodo || '',
+        'Registrado': fmtDT(x.cobradoEn), 'Enlace de pago': x.pago ? x.pago.url : '', 'Nota': x.nota || '' }; }));
+      sheet('Incidencias', G.incidencias.map(function (x) { return { 'Fecha': dd(x.fecha), 'Título': x.titulo || '', 'Habitación': hab(x.habitacionId), 'Inquilina': x.inquilinaId ? fullName(tenant(x.inquilinaId)) : '', 'Estado': x.estado || '', 'Coste €': num(x.coste), 'Detalle': x.detalle || '', 'Cierre': dd(x.cierre) }; }));
+      sheet('Solicitudes', (SOL || []).map(function (x) { return { 'Recibida': fmtDT(x.fecha), 'Estado': (PRE_ST[x.estado] || PRE_ST.nueva)[1], 'Nombre': x.nombre, 'Apellidos': x.apellidos, 'Edad': x.edad || edad(x.nacimiento) || '', 'Teléfono': x.telefono || '', 'Email': x.email || '',
+        'País': x.pais || '', 'Ciudad': x.provincia || '', 'Estudia': x.universidad || '', 'Habitación': x.habitacion || '', 'Pidió al principio': x.habitacionOriginal || '', 'Periodo': x.periodo && x.periodo.titulo || '',
+        'Desde': dd(x.periodo && x.periodo.desde), 'Hasta': dd(x.periodo && x.periodo.hasta), 'Precio €/mes': num(x.precio), 'Mensaje': x.mensaje || '', 'Admitida': fmtDT(x.admitida) }; }));
+      top.file(root + '_DATOS.xlsx', XLSX.write(wb, { bookType: 'xlsx', type: 'array' }));
+      top.file(root + '_COPIA_RESTAURAR.json', JSON.stringify({ fecha: new Date().toISOString(), habitaciones: A.data(), gestion: G, solicitudes: SOL }, null, 2));
+      // 2) Lista de archivos a descargar
+      var jobs = [];
+      rs.forEach(function (rm) { (rm.fotos || []).forEach(function (u, i) { jobs.push({ dir: '01_HABITACIONES/N' + rm.num + '_' + fname(rm.nombre), base: 'N' + rm.num + '_' + fname(rm.nombre) + '_FOTO_' + ('0' + (i + 1)).slice(-2), get: function () { return fetch(u).then(function (r) { if (!r.ok) throw new Error(); return r.blob(); }); }, path: u }); }); });
+      G.contratos.forEach(function (c) {
+        var t = tenant(c.inquilinaId), rm = room(c.habitacionId), dir = '02_INQUILINAS/' + fname(fullName(t));
+        (c.docs || []).forEach(function (d, i) { jobs.push({ dir: dir, base: fname(fullName(t)) + '_CONTRATO_' + (rm ? 'N' + rm.num + '_' + fname(rm.nombre) : '') + '_' + (c.desde || '') + '_DOC' + (i + 1) + '_' + fname(String(d.nombre || '').replace(/\.\w{2,4}$/, '')), get: function () { return B.store.fetchDoc(d.path); }, path: d.path }); });
+      });
+      (SOL || []).forEach(function (x) {
+        var dir = '03_SOLICITUDES/' + (x.fecha || '').slice(0, 10) + '_' + fname(x.nombre + ' ' + x.apellidos);
+        docsOf(x).forEach(function (d, i) { jobs.push({ dir: dir, base: fname(x.nombre + ' ' + x.apellidos) + '_SOLICITUD_' + fname(x.tipoDoc || 'DOCUMENTO') + '_' + (i + 1), get: function () { return B.store.fetchDoc(d.path); }, path: d.path }); });
+      });
+      // Carpeta vacía de cada inquilina aunque no tenga documentos (así se ve quién está)
+      G.inquilinas.forEach(function (t) { top.folder('02_INQUILINAS/' + fname(fullName(t))); });
+      var done = 0;
+      function next(i) {
+        if (i >= jobs.length) return Promise.resolve();
+        var j = jobs[i]; say('Descargando archivos… ' + (done + 1) + ' de ' + jobs.length);
+        return j.get().then(function (blob) { top.folder(j.dir).file(j.base + '.' + extOf(blob, j.path), blob); }, function () { fails.push(j.dir + '/' + j.base); })
+          .then(function () { done++; return next(i + 1); });
+      }
+      return next(0).then(function () {
+        top.file('LEEME.txt', 'Copia completa de BSL · Boutique Student Living · ' + fmtDT(new Date().toISOString()) + '\r\n\r\n' +
+          root + '_DATOS.xlsx  → Excel con una hoja por apartado (Habitaciones, Inquilinas, Contratos, Cobros, Incidencias, Solicitudes).\r\n' +
+          '01_HABITACIONES  → fotos de cada habitación (N1_AZAHAR_FOTO_01…).\r\n' +
+          '02_INQUILINAS    → una carpeta por inquilina con los documentos de sus contratos (DNI, contrato firmado…).\r\n' +
+          '03_SOLICITUDES   → documentos que enviaron con la solicitud, por fecha y nombre.\r\n' +
+          root + '_COPIA_RESTAURAR.json → copia técnica para poder recuperar el panel si hiciera falta.\r\n' +
+          (fails.length ? '\r\nNo se pudieron descargar ' + fails.length + ' archivo(s):\r\n' + fails.join('\r\n') + '\r\n' : '') +
+          '\r\nContiene datos personales: guárdalo en un sitio seguro.\r\n');
+        say('Comprimiendo…');
+        return zip.generateAsync({ type: 'blob' }, function (m) { say('Comprimiendo… ' + Math.round(m.percent) + ' %'); });
+      }).then(function (blob) {
+        var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = root + '.zip';
+        document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+        say('✓ Descargado' + (jobs.length ? ' (' + (jobs.length - fails.length) + ' archivos' + (fails.length ? ', ' + fails.length + ' no se pudieron bajar' : '') + ')' : '') + '.');
+        btn.disabled = false;
+      });
+    }).catch(function (e) { btn.disabled = false; if (e && e.status === 401) return A.expired(); say('No se ha podido preparar: ' + (e && e.message || e)); });
   }
 
   /* ---------- Cambios preparados por Claude ---------- */
