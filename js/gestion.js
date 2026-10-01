@@ -973,6 +973,8 @@
     var mesDe = function (x) { return x.mes || (x.vence || '').slice(0, 7); };
     G.cobros.forEach(function (x) { var m = mesDe(x); if (m && meses.indexOf(m) < 0) meses.push(m); }); meses.sort();
     if (sel === 'prox2') sel = 'cur';
+    var lista = []; for (var k = 0; k <= 16; k++) lista.push(shift(cur, k));
+    if (/^\d{4}-\d{2}$/.test(sel) && lista.indexOf(sel) < 0) lista.push(sel), lista.sort(); // mes elegido con el buscador
     var mesSel = rel[sel] || sel;
     var inMes = function (x) { return mesSel === 'todos' || mesDe(x) === mesSel; };
     var delMes = G.cobros.filter(inMes);
@@ -989,7 +991,8 @@
     box.innerHTML = '<div class="ghead"><h2>Cobros</h2><div class="gtools"><select id="cm">' +
       opt('cur', 'Mes actual (' + mesLabel(rel.cur) + ')') + opt('prev', 'Mes pasado (' + mesLabel(rel.prev) + ')') + opt('next', 'Mes próximo (' + mesLabel(rel.next) + ')') +
       opt('todos', 'Todos los meses') + '<option disabled>──────────</option>' +
-      meses.map(function (m) { return opt(m, mesLabel(m) + (m === cur ? ' (mes actual)' : '')); }).join('') +
+      // En el desplegable: el mes actual y los 16 siguientes (el buscador encuentra cualquier mes de 2025 a 2031)
+      lista.map(function (m) { return opt(m, mesLabel(m) + (m === cur ? ' (mes actual)' : '')); }).join('') +
       '</select><span class="mq"><input type="search" id="cm-q" placeholder="Buscar mes: feb 2027…" autocomplete="off"><ul id="cm-l" class="mq-l" hidden></ul></span><button class="btn plain" type="button" id="new-x">+ Cobro manual</button><button class="btn edit-only" type="button" id="pay-x">💳 Solicitar pago</button></div></div>' +
       '<div class="tiles"><div><small>Previsto</small><b>' + money(prev) + '</b></div><div><small>Cobrado</small><b class="ok">' + money(cobrado) + '</b></div>' +
       '<div><small>Por cobrar</small><b>' + money(prev - cobrado) + '</b></div><div><small>Vencido (total)</small><b class="bad">' + money(vencidoTotal) + '</b></div></div>' +
