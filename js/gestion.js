@@ -964,14 +964,17 @@
 
   /* ---------- Cobros ---------- */
   function viewCobros() {
-    var f = box.dataset.cf || 'abiertos', mesSel = box.dataset.cm || 'prox2';
-    // Lista de meses: los anteriores que tengan cobros + el actual y los 24 siguientes
-    var cur = today().slice(0, 7), ahead = [];
-    for (var k = 0; k <= 24; k++) { var yy = +cur.slice(0, 4), mm = +cur.slice(5) + k; yy += Math.floor((mm - 1) / 12); mm = (mm - 1) % 12 + 1; ahead.push(yy + '-' + pad(mm)); }
-    var meses = G.cobros.map(function (x) { return x.mes || (x.vence || '').slice(0, 7); }).filter(function (m) { return m && m < cur; }).concat(ahead)
-      .filter(function (m, i, a) { return a.indexOf(m) === i; }).sort();
+    var f = box.dataset.cf || 'abiertos', sel = box.dataset.cm || 'cur';
+    // Meses: de enero 2025 a diciembre de 2025 + 6 años (y cualquier otro mes que tenga cobros)
+    var cur = today().slice(0, 7);
+    var shift = function (ym, k) { var yy = +ym.slice(0, 4), mm = +ym.slice(5) + k; yy += Math.floor((mm - 1) / 12); mm = ((mm - 1) % 12 + 12) % 12 + 1; return yy + '-' + pad(mm); };
+    var rel = { cur: cur, prev: shift(cur, -1), next: shift(cur, 1) };
+    var meses = []; for (var ym = '2025-01'; ym <= '2031-12'; ym = shift(ym, 1)) meses.push(ym);
     var mesDe = function (x) { return x.mes || (x.vence || '').slice(0, 7); };
-    var inMes = function (x) { return mesSel === 'todos' || (mesSel === 'prox2' ? (mesDe(x) === ahead[0] || mesDe(x) === ahead[1]) : mesDe(x) === mesSel); };
+    G.cobros.forEach(function (x) { var m = mesDe(x); if (m && meses.indexOf(m) < 0) meses.push(m); }); meses.sort();
+    if (sel === 'prox2') sel = 'cur';
+    var mesSel = rel[sel] || sel;
+    var inMes = function (x) { return mesSel === 'todos' || mesDe(x) === mesSel; };
     var delMes = G.cobros.filter(inMes);
     var sum = function (arr) { return arr.reduce(function (s, x) { return s + num(x.importe); }, 0); };
     var prev = sum(delMes), cobrado = sum(delMes.filter(function (x) { return x.pagado; }));
@@ -982,11 +985,12 @@
     });
     // Los vencidos de otros meses también salen en "Pendientes" para no perderlos de vista
     if (f === 'abiertos' || f === 'vencido') G.cobros.forEach(function (x) { if (!inMes(x) && cobroState(x) === 'vencido' && list.indexOf(x) < 0) list.push(x); });
+    var opt = function (v, t) { return '<option value="' + v + '"' + (v === sel ? ' selected' : '') + '>' + t + '</option>'; };
     box.innerHTML = '<div class="ghead"><h2>Cobros</h2><div class="gtools"><select id="cm">' +
-      '<option value="prox2"' + (mesSel === 'prox2' ? ' selected' : '') + '>Próximos 2 meses (' + MES_LARGO[+ahead[0].slice(5) - 1] + ' y ' + MES_LARGO[+ahead[1].slice(5) - 1] + ')</option>' +
-      '<option value="todos"' + (mesSel === 'todos' ? ' selected' : '') + '>Todos los meses</option>' +
-      meses.map(function (m) { return '<option value="' + m + '"' + (m === mesSel ? ' selected' : '') + '>' + mesLabel(m) + '</option>'; }).join('') +
-      '</select><button class="btn plain" type="button" id="new-x">+ Cobro manual</button><button class="btn edit-only" type="button" id="pay-x">💳 Solicitar pago</button></div></div>' +
+      opt('cur', 'Mes actual (' + mesLabel(rel.cur) + ')') + opt('prev', 'Mes pasado (' + mesLabel(rel.prev) + ')') + opt('next', 'Mes próximo (' + mesLabel(rel.next) + ')') +
+      opt('todos', 'Todos los meses') + '<option disabled>──────────</option>' +
+      meses.map(function (m) { return opt(m, mesLabel(m) + (m === cur ? ' (mes actual)' : '')); }).join('') +
+      '</select><span class="mq"><input type="search" id="cm-q" placeholder="Buscar mes: feb 2027…" autocomplete="off"><ul id="cm-l" class="mq-l" hidden></ul></span><button class="btn plain" type="button" id="new-x">+ Cobro manual</button><button class="btn edit-only" type="button" id="pay-x">💳 Solicitar pago</button></div></div>' +
       '<div class="tiles"><div><small>Previsto</small><b>' + money(prev) + '</b></div><div><small>Cobrado</small><b class="ok">' + money(cobrado) + '</b></div>' +
       '<div><small>Por cobrar</small><b>' + money(prev - cobrado) + '</b></div><div><small>Vencido (total)</small><b class="bad">' + money(vencidoTotal) + '</b></div></div>' +
       '<div class="seg2" id="cf">' + [['abiertos', 'Pendientes'], ['vencido', 'Vencidos'], ['pagado', 'Pagados'], ['todos', 'Todos']].map(function (o) {
@@ -994,6 +998,24 @@
       }).join('') + '</div>' +
       ibanBox(null) + '<section class="card">' + cobroRows(list, true, 'cob') + '</section>';
     $('cm').onchange = function () { box.dataset.cm = this.value; PAGES.cob = 0; viewCobros(); };
+    // Buscador de mes: «feb 2027», «febrero 27», «2027», «oct»…
+    var nrm = function (t) { return String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); };
+    var q = $('cm-q'), ul = $('cm-l');
+    function hits() {
+      var toks = nrm(q.value).split(/[\s\/.-]+/).filter(Boolean); if (!toks.length) return [];
+      return meses.filter(function (m) {
+        var words = nrm(mesLabel(m)).split(' '), yy = m.slice(0, 4);
+        return toks.every(function (t) { return /^\d+$/.test(t) ? (yy.indexOf(t) === 0 || (t.length === 2 && yy.slice(2) === t) || +t === +m.slice(5)) : words.some(function (w) { return w.indexOf(t) === 0; }); });
+      }).slice(0, 12);
+    }
+    function pick(m) { box.dataset.cm = m; PAGES.cob = 0; viewCobros(); }
+    q.oninput = function () {
+      var h = hits(); ul.hidden = !q.value.trim();
+      ul.innerHTML = h.length ? h.map(function (m) { return '<li data-m="' + m + '">' + mesLabel(m) + (m === cur ? ' <small>(mes actual)</small>' : '') + '</li>'; }).join('') : '<li class="none">Ningún mes coincide</li>';
+    };
+    q.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); var h = hits(); if (h.length) pick(h[0]); } if (e.key === 'Escape') { q.value = ''; ul.hidden = true; } };
+    ul.onmousedown = function (e) { var li = e.target.closest('[data-m]'); if (li) { e.preventDefault(); pick(li.getAttribute('data-m')); } };
+    q.onblur = function () { setTimeout(function () { ul.hidden = true; }, 150); };
     $('cf').onclick = function (e) { var b = e.target.closest('[data-f]'); if (b) { box.dataset.cf = b.getAttribute('data-f'); PAGES.cob = 0; viewCobros(); } };
     $('pay-x').onclick = function () { payDialog(null, []); };
     $('new-x').onclick = function () {

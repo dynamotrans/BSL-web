@@ -330,6 +330,9 @@ body.ro #cal{pointer-events:none}
 .payc{margin-top:-4px}
 .dform input[type=text][id^="fx-"],.dform textarea[id^="fx-"]{text-transform:uppercase}
 .dform [id^="fx-"]::placeholder{text-transform:none}
+.mq{position:relative}.mq input{min-width:200px!important}
+.mq-l{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px -12px rgba(0,0,0,.35);max-height:260px;overflow:auto}
+.mq-l li{padding:8px 10px;border-radius:8px;cursor:pointer;font-size:.9rem}.mq-l li:hover{background:var(--tint)}.mq-l li.none{color:var(--muted);cursor:default}
 .stamp{display:block;color:var(--muted);font-size:.74rem;font-weight:500;margin-top:3px}
 .solblk.b-new{border:2px solid #f1b23c;background:linear-gradient(#fffaf0,var(--surface) 140px)}
 .solblk.b-adm{border-left:4px solid var(--free,#2c9a6a)}
