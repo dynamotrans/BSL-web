@@ -364,5 +364,13 @@ export default [
       { tipo: 'habitacion', num: 7, set: { fotosIA: true } },
       { tipo: 'habitacion', num: 8, set: { fotosIA: true } }
     ]
+  },
+  {
+    id: '2026-10-05-2',
+    fecha: '2026-10-05',
+    resumen: 'Margarita: sin radiador ni ventilador de techo; tiene aire acondicionado frío/calor (split)',
+    ops: [
+      { tipo: 'habitacion', num: 8, set: { equipamiento: ['Cerradura propia', 'Armario', 'Escritorio y silla ergonómica', 'Smart TV 32″ con wifi', 'Aire acondicionado frío/calor (split)', 'Ropa de cama y toallas'] } }
+    ]
   }
 ];
