@@ -1516,6 +1516,7 @@
       case 'cobro-pagado': return 'Cobro pagado: ' + op.inquilina + ' · ' + op.concepto + (op.metodo ? ' · ' + op.metodo : '') + (op.fecha ? ' · ' + fmt(op.fecha) : '');
       case 'incidencia': return 'Incidencia en ' + (rn || 'zonas comunes') + ': ' + op.titulo;
       case 'factura': return 'Factura de ' + supLabel(op.suministro) + ': ' + money(op.importe) + ' · ' + fmt(op.desde) + ' → ' + fmt(op.hasta) + (op.nota ? ' · ' + op.nota : '');
+      case 'borrar-factura': return 'Borrar factura de ' + supLabel(op.suministro) + ' ' + fmt(op.desde) + ' → ' + fmt(op.hasta) + (op.motivo ? ' · ' + op.motivo : '');
       case 'gasto-fijo': return 'Gasto fijo de ' + supLabel(op.concepto) + ': ' + money(op.importe) + ' al mes desde ' + fmt(op.desde) + (op.hasta ? ' hasta ' + fmt(op.hasta) : '') + (op.nota ? ' · ' + op.nota : '');
       case 'ajustes': return 'Ajustes → ' + sets(op.set);
       default: return 'Operación desconocida: ' + op.tipo;
@@ -1579,6 +1580,12 @@
         if (G.consumos.some(function (f) { return f.tipo === op.suministro && f.desde === op.desde && f.hasta === op.hasta && num(f.importe) === num(op.importe); })) return; // ya estaba
         G.consumos.push({ id: uid(), tipo: SUMIN.some(function (x) { return x[0] === op.suministro; }) ? op.suministro : 'otro', importe: num(op.importe), desde: op.desde, hasta: op.hasta, nota: op.nota || '', docs: [], creadoEn: now() });
         return;
+      case 'borrar-factura':
+        G.consumos = (G.consumos || []).filter(function (f) {
+          var tipoOk = f.tipo === op.suministro || (f.tipo === 'otro' && op.suministro === 'limpieza' && /limpi/.test(norm(f.nota || '')));
+          return !(tipoOk && f.desde === op.desde && f.hasta === op.hasta);
+        });
+        return; // si ya no estaba, no pasa nada
       case 'gasto-fijo':
         if (!(num(op.importe) > 0) || !op.desde) throw new Error('Gasto fijo sin importe o sin fecha de inicio.');
         G.consumosCfg.fijos = G.consumosCfg.fijos || [];

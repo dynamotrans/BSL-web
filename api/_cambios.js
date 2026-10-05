@@ -14,6 +14,7 @@
 //   { tipo: 'ajustes', set: { cursos: [2027, 2028], entrarYa: true } }
 //   { tipo: 'factura', suministro: 'luz' | 'agua' | 'internet' | 'gas' | 'otro', importe: 85.4, desde: 'AAAA-MM-DD', hasta: 'AAAA-MM-DD', nota: 'Endesa…' }
 //   { tipo: 'gasto-fijo', concepto: 'limpieza'|'internet'|…, importe (€/mes), desde, hasta?, nota }
+//   { tipo: 'borrar-factura', suministro, desde, hasta, motivo }
 export default [
   {
     id: '2026-09-25-1',
@@ -399,6 +400,17 @@ export default [
     ops: [
       { tipo: 'gasto-fijo', concepto: 'limpieza', importe: 160, desde: '2026-09-01', nota: 'Limpieza de la casa' },
       { tipo: 'gasto-fijo', concepto: 'internet', importe: 12, desde: '2026-09-01', nota: 'Digi · fibra' }
+    ]
+  },
+  {
+    id: '2026-10-05-6',
+    fecha: '2026-10-05',
+    resumen: 'Consumos: quitar las facturas sueltas de Digi y limpieza de sep y oct (ya van como gastos fijos). Aplica antes «gastos fijos cada mes»',
+    ops: [
+      { tipo: 'borrar-factura', suministro: 'internet', desde: '2026-09-01', hasta: '2026-09-30', motivo: 'ya va como gasto fijo (Digi)' },
+      { tipo: 'borrar-factura', suministro: 'internet', desde: '2026-10-01', hasta: '2026-10-31', motivo: 'ya va como gasto fijo (Digi)' },
+      { tipo: 'borrar-factura', suministro: 'limpieza', desde: '2026-09-01', hasta: '2026-09-30', motivo: 'ya va como gasto fijo (limpieza)' },
+      { tipo: 'borrar-factura', suministro: 'limpieza', desde: '2026-10-01', hasta: '2026-10-31', motivo: 'ya va como gasto fijo (limpieza)' }
     ]
   }
 ];
