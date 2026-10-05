@@ -373,5 +373,14 @@ export default [
     ops: [
       { tipo: 'habitacion', num: 8, set: { equipamiento: ['Cerradura propia', 'Armario', 'Escritorio y silla ergonómica', 'Smart TV 32″ con wifi', 'Aire acondicionado frío/calor (split)', 'Ropa de cama y toallas'] } }
     ]
+  },
+  {
+    id: '2026-10-05-3',
+    fecha: '2026-10-05',
+    resumen: 'Consumos: 2 facturas de luz de Octopus Energy (60,98 € y 8,22 €)',
+    ops: [
+      { tipo: 'factura', suministro: 'luz', importe: 60.98, desde: '2026-07-27', hasta: '2026-09-23', nota: 'Octopus Energy · nº 2026ENX00115277' },
+      { tipo: 'factura', suministro: 'luz', importe: 8.22, desde: '2026-09-24', hasta: '2026-10-01', nota: 'Octopus Energy · nº 2026ENX00119446' }
+    ]
   }
 ];
