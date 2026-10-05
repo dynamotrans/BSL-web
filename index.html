@@ -1894,12 +1894,12 @@ var WA_NUMBER = (window.BSL_CONFIG && window.BSL_CONFIG.whatsapp) || '';
     Array.prototype.forEach.call(el.children, function (s, i) {
       var target = txt[i];
       if (target === ' ' || target === ':') return;
-      var n = 8 + i * 4 + Math.floor(Math.random() * 6);
+      var n = 12 + i * 6 + Math.floor(Math.random() * 6);
       var iv = setInterval(function () {
         if (n-- <= 0) { clearInterval(iv); s.textContent = target; return; }
         s.textContent = CH[Math.floor(Math.random() * 10)];
         s.classList.remove('tick'); void s.offsetWidth; s.classList.add('tick');
-      }, 55);
+      }, 95);
     });
   }
   var flaps = document.querySelectorAll('[data-flap]');
@@ -1926,10 +1926,18 @@ var WA_NUMBER = (window.BSL_CONFIG && window.BSL_CONFIG.whatsapp) || '';
           el.classList.add('in');
         }
         Array.prototype.forEach.call(el.querySelectorAll('[data-count]'), countUp);
-        if (el.classList.contains('board')) Array.prototype.forEach.call(el.querySelectorAll('[data-flap]'), runFlap);
       });
     }, { threshold: 0.18 });
-    Array.prototype.forEach.call(document.querySelectorAll('.rv, .zocalo, .board'), function (el) { io.observe(el); });
+    Array.prototype.forEach.call(document.querySelectorAll('.rv, .zocalo'), function (el) { io.observe(el); });
+    // Panel de salidas: cada fila gira cuando ya está bien dentro de la pantalla (no todas a la vez al asomar el panel)
+    var fo = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        fo.unobserve(e.target);
+        setTimeout(function () { runFlap(e.target); }, 250);
+      });
+    }, { threshold: 1, rootMargin: '0px 0px -22% 0px' });
+    Array.prototype.forEach.call(flaps, function (el) { fo.observe(el); });
   } else {
     Array.prototype.forEach.call(document.querySelectorAll('.rv'), function (el) { el.classList.remove('rv'); });
   }
