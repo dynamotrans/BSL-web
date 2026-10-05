@@ -1052,7 +1052,7 @@
   }
 
   /* ---------- Consumos: facturas de suministros y reparto entre las inquilinas ---------- */
-  var SUMIN = [['luz', 'Luz'], ['agua', 'Agua'], ['internet', 'Internet / fibra'], ['gas', 'Gas'], ['otro', 'Otro']];
+  var SUMIN = [['luz', 'Luz'], ['agua', 'Agua'], ['internet', 'Internet / fibra'], ['gas', 'Gas'], ['limpieza', 'Limpieza'], ['otro', 'Otro']];
   function supLabel(t) { return (SUMIN.filter(function (x) { return x[0] === t; })[0] || ['', 'Otro'])[1]; }
   function eachDay(a, b, fn) { for (var d = a; d <= b; d = B.addDays(d, 1)) fn(d); }
   function dayCount(a, b) { return Math.round((B.toDate(b) - B.toDate(a)) / 864e5) + 1; }
@@ -1063,9 +1063,21 @@
     var cuotaFija = num(cfg.cuota) > 0 ? num(cfg.cuota) : null;
     var fact = G.consumos.filter(function (f) { return f.desde && f.hasta && f.desde <= P1 && f.hasta >= P0; })
       .sort(function (a, b) { return a.desde < b.desde ? -1 : 1; });
-    // Fecha de corte: hasta donde llegan las facturas subidas (para no comparar con cuotas de meses sin factura)
+    var fijos = (cfg.fijos || []).filter(function (x) { return x && num(x.importe) > 0 && x.desde && x.desde <= P1 && (!x.hasta || x.hasta >= P0); });
+    // Fecha de corte: hasta donde llegan las facturas subidas (para no comparar con cuotas de meses sin factura).
+    // Si solo hay gastos fijos, hasta fin del mes en curso.
     var corte = fact.reduce(function (m, f) { return f.hasta > m ? f.hasta : m; }, '');
+    if (!corte && fijos.length) { var hoy = today(); corte = hoy.slice(0, 8) + daysIn(+hoy.slice(0, 4), +hoy.slice(5, 7)); }
     if (corte > P1) corte = P1;
+    // Los gastos fijos (limpieza, internet…) se convierten en una «factura» por mes, hasta la fecha de corte
+    var gastos = fact.slice();
+    if (corte) fijos.forEach(function (x) {
+      for (var i = 0; i < 12; i++) {
+        var yy = i < 4 ? y : y + 1, m = (i + 8) % 12 + 1, ini = yy + '-' + (m < 10 ? '0' : '') + m + '-01', fin = ini.slice(0, 8) + daysIn(yy, m);
+        if (ini > corte || fin < x.desde || (x.hasta && ini > x.hasta)) continue;
+        gastos.push({ tipo: x.tipo, importe: num(x.importe), desde: ini, hasta: fin, fijo: true, tope: corte });
+      }
+    });
     var nHab = rooms().filter(function (rm) { return rm.activa; }).length || 8;
     var conts = G.contratos.filter(function (c) { return c.desde <= P1 && c.hasta >= P0; });
     var per = {}; // por inquilina
@@ -1073,9 +1085,10 @@
     var sinAsignar = 0, totalPeriodo = 0, porTipo = {};
     var meses = {}; // 'YYYY-MM' -> { fact, sin, cuotas }
     function mm(d) { var k = d.slice(0, 7); return meses[k] || (meses[k] = { fact: 0, sin: 0, cuotas: 0 }); }
-    fact.forEach(function (f) {
+    gastos.forEach(function (f) {
       var bd = dayCount(f.desde, f.hasta), diario = num(f.importe) / bd;
       var a = f.desde < P0 ? P0 : f.desde, b = f.hasta > P1 ? P1 : f.hasta;
+      if (f.fijo && b > f.tope) b = f.tope;
       eachDay(a, b, function (d) {
         totalPeriodo += diario; porTipo[f.tipo] = (porTipo[f.tipo] || 0) + diario;
         var md = mm(d); md.fact += diario;
@@ -1102,7 +1115,7 @@
     var ys = []; for (var k = 2025; k <= yDef + 1; k++) ys.push(k);
     // Mes a mes del curso: facturas vs cuotas, con sobrante/faltante y acumulado (solo hasta la última factura)
     function tablaMeses() {
-      if (!fact.length) return '';
+      if (!corte) return '';
       var acum = 0, rows = '';
       for (var i = 0; i < 12; i++) {
         var yy = i < 4 ? y : y + 1, m = (i + 8) % 12 + 1, key = yy + '-' + (m < 10 ? '0' : '') + m, o = meses[key] || { fact: 0, sin: 0, cuotas: 0 };
@@ -1115,13 +1128,13 @@
           '<td>' + (dif > 0.5 ? chip('pagado', 'Sobran ' + money(dif)) : dif < -0.5 ? chip('vencido', 'Faltan ' + money(-dif)) : chip('fin', 'En paz')) + '</td>' +
           '<td class="r"><b class="' + (acum >= 0 ? 'ok' : 'bad') + '">' + (acum > 0 ? '+' : '') + money(acum) + '</b></td></tr>';
       }
-      return '<section class="card"><h3>Mes a mes</h3><div class="tscroll"><table class="kt"><thead><tr><th>Mes</th><th class="r">Facturas</th><th class="r">Ingresos por cuotas</th><th>Sobrante / faltante</th><th class="r">Acumulado</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
-        '<p class="hint">«Facturas» = lo que toca a ese mes de cada factura, repartido por días. «Ingresos por cuotas» = la parte de suministros de las cuotas de ese mes. «Sin repartir» lo asume la propiedad (días o habitaciones sin nadie).</p></section>';
+      return '<section class="card"><h3>Mes a mes</h3><div class="tscroll"><table class="kt"><thead><tr><th>Mes</th><th class="r">Gastos</th><th class="r">Ingresos por cuotas</th><th>Sobrante / faltante</th><th class="r">Acumulado</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+        '<p class="hint">«Facturas» = gastos fijos de cada mes más lo que toca a ese mes de cada factura, repartido por días. «Ingresos por cuotas» = la parte de suministros de las cuotas de ese mes. «Sin repartir» lo asume la propiedad (días o habitaciones sin nadie).</p></section>';
     }
     box.innerHTML = '<div class="ghead"><h2>Consumos</h2><div class="gtools"><select id="ky">' + ys.map(function (c) { return '<option value="' + c + '"' + (c === y ? ' selected' : '') + '>Curso ' + B.courseLabel(c) + (c === y0 ? ' (actual)' : '') + '</option>'; }).join('') + '</select>' +
       '<button class="btn edit-only" type="button" id="k-new">+ Añadir factura</button></div></div>' +
-      '<p class="hint">Sube las facturas de luz, agua, internet… El total se reparte entre las inquilinas según los días que estuvo cada una, y se compara con lo que pagan de gastos. Periodo: 1 sep ' + y + ' – 31 ago ' + (y + 1) + '.</p>' +
-      '<div class="tiles"><div><small>Facturas del periodo</small><b>' + money(r2(totalPeriodo)) + '</b><small>' + (SUMIN.filter(function (x) { return porTipo[x[0]]; }).map(function (x) { return x[1] + ' ' + money(r2(porTipo[x[0]])); }).join(' · ') || 'Sin facturas') + '</small></div>' +
+      '<p class="hint">Sube las facturas de luz y agua, y deja puestos los gastos fijos de cada mes (limpieza, internet…). El total se reparte entre las inquilinas según los días que estuvo cada una, y se compara con lo que pagan de gastos. Periodo: 1 sep ' + y + ' – 31 ago ' + (y + 1) + '.</p>' +
+      '<div class="tiles"><div><small>Gastos del periodo</small><b>' + money(r2(totalPeriodo)) + '</b><small>' + (SUMIN.filter(function (x) { return porTipo[x[0]]; }).map(function (x) { return x[1] + ' ' + money(r2(porTipo[x[0]])); }).join(' · ') || 'Sin facturas') + '</small></div>' +
       '<div><small>Aportado por cuotas</small><b>' + money(r2(totAporta)) + '</b><small>' + (corte ? 'hasta el ' + fmt(corte) + ' (última factura)' : '—') + '</small></div>' +
       '<div><small>Diferencia</small><b class="' + (totAporta - (totalPeriodo - sinAsignar) >= 0 ? 'ok' : 'bad') + '">' + money(r2(totAporta - (totalPeriodo - sinAsignar))) + '</b><small>' + (totAporta - (totalPeriodo - sinAsignar) >= 0 ? 'Las cuotas cubren los consumos' : 'Los consumos superan las cuotas') + '</small></div>' +
       '<div><small>Sin repartir</small><b>' + money(r2(sinAsignar)) + '</b><small>' + (modo === 'habitaciones' ? 'habitaciones vacías (propiedad)' : 'días sin nadie en la casa') + '</small></div></div>' +
@@ -1133,20 +1146,28 @@
           return '<tr><td><b>' + esc(fullName(o.t)) + '</b></td><td>' + esc(o.habs.join(', ')) + '</td><td class="r">' + o.dias + '</td><td class="r">' + money(r2(o.aporta)) + '</td><td class="r">' + money(r2(o.asignado)) + '</td>' +
             '<td>' + (debe ? chip('vencido', 'Debe ' + money(-o.dif)) : sobra ? chip('pagado', 'Le sobran ' + money(o.dif)) : chip('fin', 'En paz')) + '</td>' +
             '<td class="r">' + (debe && o.t ? '<button type="button" class="mini edit-only" data-kcob="' + esc(o.id) + '" data-kimp="' + (-o.dif) + '">Crear cobro</button>' : '') + '</td></tr>';
-        }).join('') + '</tbody></table></div>' : '<p class="empty">' + (fact.length ? 'No hay inquilinas con contrato en este periodo.' : 'Añade la primera factura para ver el reparto.') + '</p>') +
-      '<p class="hint">«Ha aportado» = su cuota de suministros por los días que ha estado, hasta la fecha de la última factura subida. «Le corresponde» = su parte de las facturas por los días que estuvo.</p></section>' +
-      '<section class="card"><h3>Facturas</h3>' + (fact.length ? '<div class="tscroll"><table class="kt"><thead><tr><th>Suministro</th><th>Periodo</th><th class="r">Importe</th><th>Archivos</th><th></th></tr></thead><tbody>' +
+        }).join('') + '</tbody></table></div>' : '<p class="empty">' + (corte ? 'No hay inquilinas con contrato en este periodo.' : 'Añade la primera factura para ver el reparto.') + '</p>') +
+      '<p class="hint">«Ha aportado» = su cuota de gastos por los días que ha estado, hasta la fecha de la última factura subida. «Le corresponde» = su parte de los gastos por los días que estuvo.</p></section>' +
+      '<section class="card"><h3>Gastos fijos cada mes</h3>' + ((cfg.fijos || []).length ? '<div class="tscroll"><table class="kt"><thead><tr><th>Concepto</th><th class="r">€/mes</th><th>Desde</th><th>Hasta</th><th></th></tr></thead><tbody>' +
+        cfg.fijos.map(function (x) {
+          return '<tr><td><b>' + esc(supLabel(x.tipo)) + '</b>' + (x.nota ? '<small class="stamp">' + esc(x.nota) + '</small>' : '') + '</td><td class="r"><b>' + money(x.importe) + '</b></td><td>' + fmt(x.desde) + '</td><td>' + (x.hasta ? fmt(x.hasta) : 'Sin fin') + '</td>' +
+            '<td class="r"><button type="button" class="mini edit-only" data-kfijo="' + esc(x.id) + '">Editar</button></td></tr>';
+        }).join('') + '</tbody></table></div>' : '<p class="empty">Sin gastos fijos.</p>') +
+      '<p class="hint">Se cuentan solos cada mes, sin subir factura. <button type="button" class="linkbtn edit-only" id="k-fijo">+ Añadir gasto fijo</button></p></section>' +
+      '<section class="card"><h3>Facturas</h3>' + (fact.length ? '<div class="tscroll"><table class="kt"><thead><tr><th>Concepto</th><th>Periodo</th><th class="r">Importe</th><th>Archivos</th><th></th></tr></thead><tbody>' +
         fact.map(function (f) {
           return '<tr><td><b>' + esc(supLabel(f.tipo)) + '</b>' + (f.nota ? '<small class="stamp">' + esc(f.nota) + '</small>' : '') + '</td><td>' + fmt(f.desde) + ' → ' + fmt(f.hasta) + '<small class="stamp">' + dayCount(f.desde, f.hasta) + ' días</small></td>' +
             '<td class="r"><b>' + money(f.importe) + '</b></td><td>' + (f.docs || []).map(function (d, i) { return '<button type="button" class="mini" data-kdoc="' + esc(f.id) + ':' + i + '">' + (d.tipo === 'pdf' ? 'PDF' : 'Foto') + ' ' + (i + 1) + '</button>'; }).join(' ') + '</td>' +
             '<td class="r"><button type="button" class="mini edit-only" data-kedit="' + esc(f.id) + '">Editar</button></td></tr>';
         }).join('') + '</tbody></table></div>' : '<p class="empty">Todavía no hay facturas en este curso.</p>') + '</section>' +
       '<section class="card edit-only" id="k-aju"><h3>Ajustes del reparto</h3><div class="grid">' +
-      '<label>Cuota de suministros por inquilina (€/mes)<input type="number" min="0" step="1" id="k-cuota" value="' + esc(cfg.cuota || '') + '" placeholder="Los gastos de cada contrato"></label>' +
+      '<label>Cuota de gastos por inquilina (€/mes)<input type="number" min="0" step="1" id="k-cuota" value="' + esc(cfg.cuota || '') + '" placeholder="Los gastos de cada contrato"></label>' +
       '<label>Cómo se reparte<select id="k-modo"><option value="ocupantes"' + (modo === 'ocupantes' ? ' selected' : '') + '>Entre las inquilinas que hay cada día</option><option value="habitaciones"' + (modo === 'habitaciones' ? ' selected' : '') + '>Entre las ' + nHab + ' habitaciones (las vacías las asume la propiedad)</option></select></label>' +
-      '</div><p class="hint">Si los gastos mensuales incluyen también limpieza u otros servicios, pon aquí solo la parte que es para luz, agua, internet… Vacío = se usa el importe de gastos de cada contrato.</p></section>';
+      '</div><p class="hint">La parte de la cuota mensual que cubre limpieza y suministros (luz, agua, internet…). Vacío = se usa el importe de gastos de cada contrato.</p></section>';
     $('ky').onchange = function () { box.dataset.ky = this.value; viewConsumos(); };
     $('k-new').onclick = function () { facturaForm(null); };
+    $('k-fijo').onclick = function () { fijoForm(null); };
+    box.querySelectorAll('[data-kfijo]').forEach(function (b) { b.onclick = function () { fijoForm(cfg.fijos.filter(function (x) { return x.id === b.getAttribute('data-kfijo'); })[0]); }; });
     box.querySelectorAll('[data-kedit]').forEach(function (b) { b.onclick = function () { facturaForm(G.consumos.filter(function (f) { return f.id === b.getAttribute('data-kedit'); })[0]); }; });
     box.querySelectorAll('[data-kdoc]').forEach(function (b) { b.onclick = function () { var p = b.getAttribute('data-kdoc').split(':'), f = G.consumos.filter(function (x) { return x.id === p[0]; })[0]; if (f) openDoc(f.docs[+p[1]]); }; });
     var kc = $('k-cuota'); if (kc) kc.onchange = function () { cfg.cuota = num(this.value) || ''; save(); viewConsumos(); };
@@ -1162,13 +1183,37 @@
       };
     });
   }
+  function fijoForm(x) {
+    var isNew = !x, cfg = G.consumosCfg; x = x || { tipo: 'limpieza' };
+    openForm({
+      title: isNew ? 'Añadir gasto fijo' : 'Gasto fijo: ' + supLabel(x.tipo),
+      fields: [
+        { k: 'tipo', label: 'Concepto', type: 'select', opts: SUMIN },
+        { k: 'importe', label: 'Importe cada mes (€)', type: 'number', step: '0.01' },
+        { k: 'desde', label: 'Desde', type: 'date' }, { k: 'hasta', label: 'Hasta (vacío = sin fin)', type: 'date' },
+        { k: 'nota', label: 'Compañía o nota', wide: true, ph: 'Ej.: Digi, empresa de limpieza…' }
+      ],
+      values: { tipo: x.tipo, importe: x.importe, desde: x.desde || (B.courseOf(today()) !== null ? B.courseOf(today()) : B.nextFullCourse(today())) + '-09-01', hasta: x.hasta || '', nota: x.nota || '' },
+      ok: isNew ? 'Guardar gasto fijo' : 'Guardar',
+      onSave: function (v) {
+        if (!(num(v.importe) > 0)) return 'Pon el importe de cada mes.';
+        if (!v.desde || (v.hasta && v.hasta < v.desde)) return 'Revisa las fechas.';
+        Object.keys(v).forEach(function (k) { x[k] = v[k]; });
+        cfg.fijos = cfg.fijos || [];
+        if (isNew) { x.id = uid(); x.creadoEn = now(); cfg.fijos.push(x); } else x.editadoEn = now();
+        save(); refresh();
+      },
+      needKey: isNew ? null : 'Vas a borrar el gasto fijo de ' + supLabel(x.tipo) + ' (' + money(x.importe) + ' al mes).',
+      onDelete: isNew ? null : function () { cfg.fijos = cfg.fijos.filter(function (o) { return o !== x; }); save(); refresh(); }
+    });
+  }
   function facturaForm(f) {
     var isNew = !f; f = f || { tipo: 'luz', docs: [] };
     var docs = (f.docs || []).slice();
     openForm({
       title: isNew ? 'Añadir factura' : 'Factura de ' + supLabel(f.tipo),
       fields: [
-        { k: 'tipo', label: 'Suministro', type: 'select', opts: SUMIN },
+        { k: 'tipo', label: 'Concepto', type: 'select', opts: SUMIN },
         { k: 'importe', label: 'Importe total (€)', type: 'number', step: '0.01' },
         { k: 'desde', label: 'Periodo: desde', type: 'date' }, { k: 'hasta', label: 'Periodo: hasta', type: 'date' },
         { k: 'nota', label: 'Compañía o nota', wide: true, ph: 'Ej.: Endesa, factura nº…' },
@@ -1393,6 +1438,7 @@
         'País': x.pais || '', 'Ciudad': x.provincia || '', 'Estudia': x.universidad || '', 'Habitación': x.habitacion || '', 'Pidió al principio': x.habitacionOriginal || '', 'Periodo': x.periodo && x.periodo.titulo || '',
         'Desde': dd(x.periodo && x.periodo.desde), 'Hasta': dd(x.periodo && x.periodo.hasta), 'Precio €/mes': num(x.precio), 'Mensaje': x.mensaje || '', 'Admitida': fmtDT(x.admitida) }; }));
       sheet('Consumos', (G.consumos || []).slice().sort(function (a, b) { return a.desde < b.desde ? -1 : 1; }).map(function (f) { return { 'Suministro': supLabel(f.tipo), 'Desde': dd(f.desde), 'Hasta': dd(f.hasta), 'Importe €': num(f.importe), 'Compañía o nota': f.nota || '', 'Nº archivos': (f.docs || []).length }; }));
+      sheet('Gastos fijos', ((G.consumosCfg || {}).fijos || []).map(function (x) { return { 'Concepto': supLabel(x.tipo), 'Importe €/mes': num(x.importe), 'Desde': dd(x.desde), 'Hasta': x.hasta ? dd(x.hasta) : 'Sin fin', 'Compañía o nota': x.nota || '' }; }));
       top.file(root + '_DATOS.xlsx', XLSX.write(wb, { bookType: 'xlsx', type: 'array' }));
       top.file(root + '_COPIA_RESTAURAR.json', JSON.stringify({ fecha: new Date().toISOString(), habitaciones: A.data(), gestion: G, solicitudes: SOL }, null, 2));
       // 2) Lista de archivos a descargar
@@ -1466,6 +1512,7 @@
       case 'cobro-pagado': return 'Cobro pagado: ' + op.inquilina + ' · ' + op.concepto + (op.metodo ? ' · ' + op.metodo : '') + (op.fecha ? ' · ' + fmt(op.fecha) : '');
       case 'incidencia': return 'Incidencia en ' + (rn || 'zonas comunes') + ': ' + op.titulo;
       case 'factura': return 'Factura de ' + supLabel(op.suministro) + ': ' + money(op.importe) + ' · ' + fmt(op.desde) + ' → ' + fmt(op.hasta) + (op.nota ? ' · ' + op.nota : '');
+      case 'gasto-fijo': return 'Gasto fijo de ' + supLabel(op.concepto) + ': ' + money(op.importe) + ' al mes desde ' + fmt(op.desde) + (op.hasta ? ' hasta ' + fmt(op.hasta) : '') + (op.nota ? ' · ' + op.nota : '');
       case 'ajustes': return 'Ajustes → ' + sets(op.set);
       default: return 'Operación desconocida: ' + op.tipo;
     }
@@ -1527,6 +1574,12 @@
         G.consumos = G.consumos || [];
         if (G.consumos.some(function (f) { return f.tipo === op.suministro && f.desde === op.desde && f.hasta === op.hasta && num(f.importe) === num(op.importe); })) return; // ya estaba
         G.consumos.push({ id: uid(), tipo: SUMIN.some(function (x) { return x[0] === op.suministro; }) ? op.suministro : 'otro', importe: num(op.importe), desde: op.desde, hasta: op.hasta, nota: op.nota || '', docs: [], creadoEn: now() });
+        return;
+      case 'gasto-fijo':
+        if (!(num(op.importe) > 0) || !op.desde) throw new Error('Gasto fijo sin importe o sin fecha de inicio.');
+        G.consumosCfg.fijos = G.consumosCfg.fijos || [];
+        if (G.consumosCfg.fijos.some(function (x) { return x.tipo === op.concepto && x.desde === op.desde && num(x.importe) === num(op.importe); })) return; // ya estaba
+        G.consumosCfg.fijos.push({ id: uid(), tipo: SUMIN.some(function (x) { return x[0] === op.concepto; }) ? op.concepto : 'otro', importe: num(op.importe), desde: op.desde, hasta: op.hasta || '', nota: op.nota || '', creadoEn: now() });
         return;
       case 'incidencia':
         if (!op.titulo) throw new Error('Falta el título de la incidencia.');

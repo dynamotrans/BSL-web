@@ -13,6 +13,7 @@
 //   { tipo: 'incidencia', titulo: '…', num: 4 | 'comun', detalle?, estado?, coste?, fecha? }
 //   { tipo: 'ajustes', set: { cursos: [2027, 2028], entrarYa: true } }
 //   { tipo: 'factura', suministro: 'luz' | 'agua' | 'internet' | 'gas' | 'otro', importe: 85.4, desde: 'AAAA-MM-DD', hasta: 'AAAA-MM-DD', nota: 'Endesa…' }
+//   { tipo: 'gasto-fijo', concepto: 'limpieza'|'internet'|…, importe (€/mes), desde, hasta?, nota }
 export default [
   {
     id: '2026-09-25-1',
@@ -389,6 +390,15 @@ export default [
     resumen: 'Consumos: factura de agua 22/06–25/08/2026 (43,77 €)',
     ops: [
       { tipo: 'factura', suministro: 'agua', importe: 43.77, desde: '2026-06-22', hasta: '2026-08-25', nota: 'Factura nº PE2601732563 · contrato 0441943215' }
+    ]
+  },
+  {
+    id: '2026-10-05-5',
+    fecha: '2026-10-05',
+    resumen: 'Consumos: gastos fijos cada mes — limpieza 160 € e internet Digi 12 €',
+    ops: [
+      { tipo: 'gasto-fijo', concepto: 'limpieza', importe: 160, desde: '2026-09-01', nota: 'Limpieza de la casa' },
+      { tipo: 'gasto-fijo', concepto: 'internet', importe: 12, desde: '2026-09-01', nota: 'Digi · fibra' }
     ]
   }
 ];
