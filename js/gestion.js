@@ -440,7 +440,7 @@
       '<dl class="sol-dl">' +
       '<dt>Habitación</dt><dd><span id="sol-hab-v">' + esc(x.habitacion) + ' · ' + money(x.precio) + '/mes' + (x.habitacionOriginal ? '<small>Pidió al principio: ' + esc(x.habitacionOriginal) + '</small>' : '') + '</span>' +
         (x.estado !== 'descartada' ? ' <button type="button" class="mini edit-only" id="sol-hab">Cambiar habitación</button>' : '') +
-        '<span id="sol-hab-f" hidden><select id="sol-hab-s">' + rooms().map(function (rm) { return '<option value="' + esc(rm.id) + '"' + (rm.id === x.habitacionId ? ' selected' : '') + '>Nº ' + rm.num + ' · ' + esc(rm.nombre) + ' · ' + money(rm.precio) + '/mes</option>'; }).join('') +
+        '<span id="sol-hab-f" hidden><select id="sol-hab-s">' + rooms().map(function (rm) { return '<option value="' + esc(rm.id) + '"' + (rm.id === x.habitacionId ? ' selected' : '') + '>Nº ' + rm.num + ' · ' + esc(rm.nombre) + ' · ' + money(B.priceFor(rm, (x.periodo && x.periodo.desde) || today())) + '/mes</option>'; }).join('') +
         '</select> <button type="button" class="mini" id="sol-hab-ok">Guardar</button> <button type="button" class="mini" id="sol-hab-no">Cancelar</button></span></dd>' +
       row('Periodo', esc(x.periodo && x.periodo.titulo || '') + '<small>' + fmt(x.periodo && x.periodo.desde) + ' → ' + fmt(x.periodo && x.periodo.hasta) + '</small>') +
       row('Estudia', esc(x.universidad) + (x.estudios ? '<small>' + esc(x.estudios) + '</small>' : '')) +
@@ -494,12 +494,13 @@
       $('sol-hab-no').onclick = function () { solDialog(x.id); };
       $('sol-hab-ok').onclick = function () {
         var rm = room($('sol-hab-s').value); if (!rm || rm.id === x.habitacionId) return solDialog(x.id);
+        var pNew = B.priceFor(rm, (x.periodo && x.periodo.desde) || today());
         var b = this; b.disabled = true; b.textContent = 'Guardando…';
-        B.store.updateSolicitud({ id: x.id, habitacionId: rm.id, habitacion: rm.nombre, precio: rm.precio, gastos: rm.gastos }).then(function (upd) {
+        B.store.updateSolicitud({ id: x.id, habitacionId: rm.id, habitacion: rm.nombre, precio: pNew, gastos: rm.gastos }).then(function (upd) {
           SOL = SOL.map(function (o) { return o.id === upd.id ? upd : o; });
           // Si ya estaba admitida y la fianza aún no se ha pagado, se ajusta al precio de la nueva habitación
           var fx = x.inquilinaId && G.cobros.filter(function (c) { return c.tipo === 'fianza' && !c.pagado && !c.contratoId && c.inquilinaId === x.inquilinaId; })[0];
-          if (fx && num(fx.importe) !== num(rm.precio)) { fx.importe = num(rm.precio); delete fx.pago; save(); }
+          if (fx && num(fx.importe) !== num(pNew)) { fx.importe = num(pNew); delete fx.pago; save(); }
           refresh(); solDialog(x.id);
         }, function (e) { b.disabled = false; b.textContent = 'Guardar'; if (e.status === 401) return A.expired(); err(e.message); });
       };
@@ -792,12 +793,13 @@
       ],
       values: {
         habitacionId: c.habitacionId || (r0 && r0.id), desde: c.desde || preset.desde || '', hasta: c.hasta || preset.hasta || '',
-        precio: c.precio != null ? c.precio : r0 && r0.precio, gastos: c.gastos != null ? c.gastos : r0 && r0.gastos,
-        fianza: c.fianza != null ? c.fianza : r0 && r0.precio, fianzaEstado: c.fianzaEstado || 'pendiente', diaPago: c.diaPago || 5, notas: c.notas || ''
+        precio: c.precio != null ? c.precio : r0 && B.priceFor(r0, c.desde || preset.desde || today()), gastos: c.gastos != null ? c.gastos : r0 && r0.gastos,
+        fianza: c.fianza != null ? c.fianza : r0 && B.priceFor(r0, c.desde || preset.desde || today()), fianzaEstado: c.fianzaEstado || 'pendiente', diaPago: c.diaPago || 5, notas: c.notas || ''
       },
       ok: isNew ? 'Crear contrato' : 'Guardar',
       onChange: function (e) {
-        if (e.target.id === 'fx-habitacionId' && isNew) { var r = room(e.target.value); if (r) { $('fx-precio').value = r.precio; $('fx-gastos').value = r.gastos; $('fx-fianza').value = r.precio; } }
+        // Contrato nuevo: al cambiar habitación o fecha de entrada, precio y fianza del curso que toca
+        if ((e.target.id === 'fx-habitacionId' || e.target.id === 'fx-desde') && isNew) setPrecio();
         liveClash();
       },
       onSave: function (v) {
@@ -893,8 +895,10 @@
       var q = b.getAttribute('data-q');
       if (q === 'resto') { $('fx-desde').value = today(); $('fx-hasta').value = (y0 + 1) + '-07-31'; }
       else { var rg = B.periodRange('curso', +q); $('fx-desde').value = rg.from; $('fx-hasta').value = rg.to; }
+      if (isNew) setPrecio();
       liveClash();
     };
+    function setPrecio() { var r = room($('fx-habitacionId').value); if (!r) return; var p = B.priceFor(r, $('fx-desde').value || today()); $('fx-precio').value = p; $('fx-gastos').value = r.gastos; $('fx-fianza').value = p; }
     // Aviso al momento si la habitación ya tiene contrato en esas fechas (antes de pulsar el botón)
     function liveClash() {
       var h = $('fx-habitacionId').value, d1 = $('fx-desde').value, d2 = $('fx-hasta').value, p = $('fx-err');
@@ -1150,11 +1154,14 @@
   function viewAjustes() {
     var d = A.data(); d.ajustes = d.ajustes || {};
     var aj = d.ajustes, yn = B.nextFullCourse(today()), vis = B.visibleCourses(aj, today());
-    var cands = [yn, yn + 1, yn + 2];
+    // Siempre el curso actual y los 3 siguientes (se actualiza solo cada año)
+    var y0 = B.courseOf(today()), base = y0 !== null ? y0 : yn, cands = [base, base + 1, base + 2, base + 3];
     box.innerHTML = '<div class="ghead"><h2>Ajustes</h2></div>' +
-      '<section class="card"><h3>Cursos que se ven en la web</h3><p class="hint">Marca los cursos completos que las chicas pueden reservar. El primero sale como "Principal".</p>' +
-      '<div class="checks">' + cands.map(function (y) { return '<label class="switch"><input type="checkbox" data-y="' + y + '"' + (vis.indexOf(y) >= 0 ? ' checked' : '') + '> Curso ' + B.courseLabel(y) + ' <small>(1 sep ' + y + ' – 31 jul ' + (y + 1) + ')</small></label>'; }).join('') + '</div>' +
-      '<label class="switch"><input type="checkbox" id="aj-ya"' + (aj.entrarYa !== false ? ' checked' : '') + '> Mostrar el botón "Actual curso" (habitaciones que ya están libres o que quedan libres en una fecha del curso en marcha, hasta el 31 de julio)</label></section>' +
+      '<section class="card"><h3>Cursos que se ven en la web</h3><p class="hint">Marca los cursos que las chicas pueden reservar. El primer curso completo marcado sale como «Principal». Siempre salen el curso actual y los 3 siguientes.</p>' +
+      '<div class="checks">' + cands.map(function (y) {
+        if (y === y0) return '<label class="switch"><input type="checkbox" id="aj-ya"' + (aj.entrarYa !== false ? ' checked' : '') + '> Curso ' + B.courseLabel(y) + ' <b>(actual)</b> <small>resto del curso: habitaciones libres ya o que quedan libres antes del 31 jul ' + (y + 1) + '</small></label>';
+        return '<label class="switch"><input type="checkbox" data-y="' + y + '"' + (vis.indexOf(y) >= 0 ? ' checked' : '') + '> Curso ' + B.courseLabel(y) + ' <small>(1 sep ' + y + ' – 31 jul ' + (y + 1) + ')</small></label>';
+      }).join('') + '</div></section>' +
       '<section class="card" id="backup-card"><h3>Copia de seguridad</h3><p class="hint">Descarga en un archivo todas las habitaciones, inquilinas, contratos, cobros e incidencias. Guárdalo en un sitio seguro: contiene datos personales.</p>' +
       '<div><button class="btn plain" type="button" id="backup">Descargar copia</button></div></section>' +
       '<section class="card" id="export-card"><h3>Descargar todo en una carpeta</h3><p class="hint">Un archivo ZIP con un <b>Excel</b> (habitaciones, inquilinas, contratos, cobros, incidencias y solicitudes), las <b>fotos de cada habitación</b> y los <b>documentos</b> (DNI, contratos…) de cada inquilina y solicitud, con nombres claros. Contiene datos personales: guárdalo en un sitio seguro.</p>' +
@@ -1166,7 +1173,7 @@
         aj.cursos = ys; A.saveRooms();
       };
     });
-    $('aj-ya').onchange = function () { aj.entrarYa = this.checked; A.saveRooms(); };
+    if ($('aj-ya')) $('aj-ya').onchange = function () { aj.entrarYa = this.checked; A.saveRooms(); };
     $('export-all').onclick = function () { exportAll(this, $('export-st')); };
     $('backup').onclick = function () {
       var blob = new Blob([JSON.stringify({ fecha: new Date().toISOString(), habitaciones: A.data(), gestion: G }, null, 2)], { type: 'application/json' });
@@ -1204,7 +1211,7 @@
       function sheet(name, rows) { var ws = XLSX.utils.json_to_sheet(rows.length ? rows : [{ '': 'Sin datos' }]);
         ws['!cols'] = Object.keys(rows[0] || { '': 1 }).map(function (k) { return { wch: Math.min(50, Math.max(10, k.length + 2, ...rows.map(function (o) { return String(o[k] == null ? '' : o[k]).length + 1; }))) }; });
         XLSX.utils.book_append_sheet(wb, ws, name); }
-      sheet('Habitaciones', rs.map(function (rm) { return { 'Nº': rm.num, 'Nombre': rm.nombre, 'Activa': rm.activa ? 'Sí' : 'No', 'Alquiler €/mes': num(rm.precio), 'Gastos €/mes': num(rm.gastos), 'm²': rm.m2 || '', 'Cama (cm)': rm.cama || '', 'Descripción': rm.descripcion || '', 'Nº fotos': (rm.fotos || []).length }; }));
+      sheet('Habitaciones', rs.map(function (rm) { return { 'Nº': rm.num, 'Nombre': rm.nombre, 'Activa': rm.activa ? 'Sí' : 'No', 'Alquiler €/mes': num(rm.precio), 'Precio por curso': Object.keys(rm.preciosCurso || {}).sort().map(function (k) { return B.courseLabel(+k) + ': ' + rm.preciosCurso[k] + ' €'; }).join(' · '), 'Gastos €/mes': num(rm.gastos), 'm²': rm.m2 || '', 'Cama (cm)': rm.cama || '', 'Descripción': rm.descripcion || '', 'Nº fotos': (rm.fotos || []).length }; }));
       sheet('Inquilinas', G.inquilinas.map(function (t) { var c = activeContract(t.id), o = { 'Nombre completo': fullName(t) };
         TENANT_FIELDS.forEach(function (f) { var v = t[f.k] || ''; o[f.label] = f.type === 'date' ? dd(v) : v; });
         o['Habitación actual'] = c ? hab(c.habitacionId) : ''; o['Debe (€)'] = debt(t.id) || 0; o['Alta'] = t.creadaEn ? fmtDT(t.creadaEn) : dd(t.creada); return o; }));
@@ -1319,8 +1326,8 @@
         var clash = G.contratos.filter(function (o) { return o.habitacionId === r.id && o.desde <= op.hasta && o.hasta >= op.desde; })[0];
         if (clash) throw new Error('La habitación nº ' + op.num + ' ya tiene contrato en esas fechas (' + fullName(tenant(clash.inquilinaId)) + ').');
         c = { id: uid(), inquilinaId: t.id, habitacionId: r.id, desde: op.desde, hasta: op.hasta,
-          precio: op.precio != null ? op.precio : r.precio, gastos: op.gastos != null ? op.gastos : r.gastos,
-          fianza: op.fianza != null ? op.fianza : r.precio, fianzaEstado: op.fianzaEstado || 'pendiente',
+          precio: op.precio != null ? op.precio : B.priceFor(r, op.desde), gastos: op.gastos != null ? op.gastos : r.gastos,
+          fianza: op.fianza != null ? op.fianza : B.priceFor(r, op.desde), fianzaEstado: op.fianzaEstado || 'pendiente',
           diaPago: op.diaPago || 5, notas: op.notas || '' };
         G.contratos.push(c); genCobros(c);
         return;

@@ -328,6 +328,7 @@ body.ro #cal{pointer-events:none}
 .paytot{display:flex;justify-content:space-between;align-items:baseline;padding:12px 14px;border-radius:12px;background:var(--tint)}
 .paytot b{font:400 1.6rem/1 var(--serif);font-variant-numeric:tabular-nums}
 .payc{margin-top:-4px}
+.pc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.pcurso .subh{margin:6px 0 2px}
 .dform input[type=text][id^="fx-"],.dform textarea[id^="fx-"]{text-transform:uppercase}
 .dform [id^="fx-"]::placeholder{text-transform:none}
 .mq{position:relative}.mq input{min-width:200px!important}
@@ -577,23 +578,25 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
   function alertBox(msg) { var el = $('ed-alert'); if (el) { el.textContent = msg; el.hidden = false; } }
   function room() { return data.rooms.filter(function (r) { return r.id === sel; })[0]; }
 
+  // Curso actual (o el próximo si es agosto) y los 3 siguientes: se actualiza solo cada año
+  function cursos4() { var t = B.today(), y0 = B.courseOf(t), b = y0 !== null ? y0 : B.nextFullCourse(t); return [b, b + 1, b + 2, b + 3]; }
   /* ---------- Lista ---------- */
   function renderList() {
     var y = B.defaultCourse(), rg = B.periodRange('curso', y);
     $('list').innerHTML = data.rooms.slice().sort(function (a, b) { return a.num - b.num; }).map(function (r) {
       var st = B.status(r, rg.from, rg.to);
       return '<button type="button" class="item' + (r.activa ? '' : ' off') + '" data-id="' + r.id + '" aria-current="' + (r.id === sel) + '">' +
-        '<span class="n">' + r.num + '</span><span><b>' + esc(r.nombre) + (+r.precio ? ' <em class="pr">' + esc(r.precio) + ' €/mes</em>' : '') + '</b><small>' + (r.activa ? esc(st.text) + ' · ' + B.courseLabel(y) : 'Oculta en la web') + '</small></span>' +
+        '<span class="n">' + r.num + '</span><span><b>' + esc(r.nombre) + (B.priceFor(r, y) ? ' <em class="pr">' + esc(B.priceFor(r, y)) + ' €/mes</em>' : '') + '</b><small>' + (r.activa ? esc(st.text) + ' · ' + B.courseLabel(y) : 'Oculta en la web') + '</small></span>' +
         '<span class="dot st-' + st.kind + '"></span></button>';
     }).join('') + totalHtml();
   }
   // Totalizador de la lista: suma mensual de todas las habitaciones, sin y con gastos
   function totalHtml() {
-    var act = data.rooms; // todas las habitaciones juntas
-    var alq = act.reduce(function (t, r) { return t + (+r.precio || 0); }, 0);
+    var act = data.rooms, y = B.defaultCourse(); // todas las habitaciones juntas, con el precio del curso que se muestra
+    var alq = act.reduce(function (t, r) { return t + B.priceFor(r, y); }, 0);
     var gas = act.reduce(function (t, r) { return t + (+r.gastos || 0); }, 0);
     var f = function (n) { return n.toLocaleString('es-ES') + ' €'; };
-    return '<div class="rtotal"><span>Total al mes · ' + act.length + ' habitaciones</span>' +
+    return '<div class="rtotal"><span>Total al mes · ' + act.length + ' habitaciones · curso ' + B.courseLabel(y) + '</span>' +
       '<p><small>Sin gastos</small><b>' + f(alq) + '</b></p><p><small>Con gastos</small><b>' + f(alq + gas) + '</b></p></div>';
   }
   $('list').addEventListener('click', function (e) {
@@ -625,10 +628,13 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
 
       '<section class="card"><h3>Datos</h3><div class="grid">' +
       '<label class="wide">Nombre<input type="text" id="f-nombre" value="' + esc(r.nombre) + '"></label>' +
-      '<label>Precio (€/mes)<input type="number" min="0" step="5" id="f-precio" value="' + esc(r.precio) + '"></label>' +
+      '<label>Precio general (€/mes)<input type="number" min="0" step="5" id="f-precio" value="' + esc(r.precio) + '"></label>' +
       '<label>Gastos (€/mes)<input type="number" min="0" step="5" id="f-gastos" value="' + esc(r.gastos) + '"></label>' +
       '<label>Metros cuadrados<input type="number" min="0" step="0.01" inputmode="decimal" id="f-m2" value="' + esc(r.m2) + '"></label>' +
       '<label>Cama<select id="f-cama">' + ['90', '105', '110', '120', '135', '140', '150'].map(function (c) { return '<option value="' + c + '"' + (r.cama === c ? ' selected' : '') + '>' + c + ' cm</option>'; }).join('') + '</select></label>' +
+      '<div class="wide pcurso"><h4 class="subh">Precio por curso</h4><p class="hint">Si un curso tiene otro precio, ponlo aquí. Vacío = precio general. Siempre salen el curso actual y los 3 siguientes.</p><div class="pc-grid">' +
+        cursos4().map(function (cy) { var v = r.preciosCurso && r.preciosCurso[cy]; return '<label>Curso ' + B.courseLabel(cy) + (cy === B.courseOf(B.today()) ? ' · actual' : '') + '<input type="number" min="0" step="5" data-pc="' + cy + '" value="' + esc(v || '') + '" placeholder="' + esc(r.precio || '') + '"></label>'; }).join('') +
+      '</div></div>' +
       '<label class="wide">Descripción<textarea id="f-desc">' + esc(r.descripcion) + '</textarea></label>' +
       '<label class="wide">Equipamiento (uno por línea)<textarea id="f-equip">' + esc((r.equipamiento || []).join('\n')) + '</textarea></label>' +
       '</div></section>' +
@@ -646,6 +652,15 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
     bind('f-m2', 'm2', Number); bind('f-desc', 'descripcion');
     bind('f-equip', 'equipamiento', function (v) { return v.split('\n').map(function (s) { return s.trim(); }).filter(Boolean); });
     $('f-cama').addEventListener('change', function () { r.cama = this.value; dirty(); });
+    document.querySelectorAll('[data-pc]').forEach(function (inp) {
+      inp.addEventListener('input', function () {
+        var cy = this.getAttribute('data-pc'), v = Number(this.value);
+        r.preciosCurso = r.preciosCurso || {};
+        if (v > 0) r.preciosCurso[cy] = v; else delete r.preciosCurso[cy];
+        dirty(); renderList();
+      });
+    });
+    $('f-precio').addEventListener('input', function () { document.querySelectorAll('[data-pc]').forEach(function (i) { i.placeholder = $('f-precio').value; }); });
     $('f-activa').addEventListener('change', function () { r.activa = this.checked; dirty(); renderList(); });
 
     W = { estado: null, periodo: null, desde: '', hasta: '' };

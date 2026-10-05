@@ -68,6 +68,9 @@ export function cleanData(data) {
     nombre: str(r.nombre, 80),
     activa: Boolean(r.activa),
     precio: num(r.precio),
+    // Precio por curso: { "2027": 360, … } (año en que empieza el curso)
+    preciosCurso: Object.fromEntries(Object.entries(r.preciosCurso && typeof r.preciosCurso === 'object' ? r.preciosCurso : {})
+      .filter(([y, p]) => /^20\d\d$/.test(y) && +p > 0 && +p < 10000).slice(0, 12).map(([y, p]) => [y, Math.round(+p * 100) / 100])),
     gastos: num(r.gastos),
     m2: num(r.m2),
     cama: ['90', '105', '110', '120', '135', '140', '150'].includes(String(r.cama)) ? String(r.cama) : '140',

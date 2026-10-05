@@ -93,6 +93,14 @@
     list = list.filter(function (y, i) { return list.indexOf(y) === i; }).sort();
     return list.length ? list : [yn];
   }
+  // Precio de la habitación para un curso (año en que empieza, o una fecha). Si no hay precio propio para ese curso, el general.
+  function courseYear(iso) { var y = +iso.slice(0, 4), m = +iso.slice(5, 7); return m >= 8 ? y : y - 1; }
+  function priceFor(room, ref) {
+    if (!room) return 0;
+    var y = typeof ref === 'string' ? courseYear(ref) : ref;
+    var p = room.preciosCurso && +room.preciosCurso[y];
+    return p > 0 ? p : (+room.precio || 0);
+  }
   function options(room, iso, ajustes) {
     iso = iso || today();
     var out = [], y0 = courseOf(iso);
@@ -298,6 +306,6 @@
   window.BSL = {
     config: CONFIG, store: BSLStore, waLink: waLink,
     PERIODS: PERIODS, periodRange: periodRange, defaultCourse: defaultCourse, courseLabel: courseLabel,
-    dayState: dayState, status: status, options: options, visibleCourses: visibleCourses, FICHAS: FICHAS, applyFichas: applyFichas, needsFichas: needsFichas, m2: m2, periodRange: periodRange, courseOf: courseOf, nextFullCourse: nextFullCourse, addDays: addDays, toDate: toDate, today: today, fmt: fmt, MESES: MESES
+    dayState: dayState, status: status, options: options, visibleCourses: visibleCourses, FICHAS: FICHAS, applyFichas: applyFichas, needsFichas: needsFichas, m2: m2, periodRange: periodRange, courseOf: courseOf, nextFullCourse: nextFullCourse, priceFor: priceFor, courseYear: courseYear, addDays: addDays, toDate: toDate, today: today, fmt: fmt, MESES: MESES
   };
 })();

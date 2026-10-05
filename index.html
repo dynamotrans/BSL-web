@@ -1321,6 +1321,8 @@ footer img{height:56px;width:auto}
   var B = window.BSL; if (!B) return;
   var data = { rooms: [] }, now = B.today(), inCourse = B.courseOf(now), yn = B.nextFullCourse(now);
   var view = null;
+  // Curso que se está viendo (para el precio de cada curso)
+  function vy() { return view === 'resto' ? inCourse : (/^curso-\d+$/.test(view || '') ? +view.slice(6) : (B.visibleCourses(data.ajustes, now)[0])); }
   var INCLUYE = ['Agua', 'Luz', 'Internet fibra + wifi de alta velocidad', 'Limpieza semanal de zonas comunes: baños, cocinas, salón, pasillos…', 'Mantenimiento y reparaciones'];
   function gastosBox(r) {
     return '<div class="gastos"><p><b>Gastos: ' + esc(r.gastos) + ' €/mes</b> · incluyen:</p><ul>' +
@@ -1388,7 +1390,7 @@ footer img{height:56px;width:auto}
     buildSegs();
     var RANK = { libre: 0, parcial: 1, ocupada: 2 };
     grid.innerHTML = active().map(function (r) { return { r: r, st: cardState(r) }; }).sort(function (a, b) {
-      return (RANK[a.st.kind] - RANK[b.st.kind]) || ((+a.r.precio || 0) - (+b.r.precio || 0)) || (a.r.num - b.r.num);
+      return (RANK[a.st.kind] - RANK[b.st.kind]) || (B.priceFor(a.r, vy()) - B.priceFor(b.r, vy())) || (a.r.num - b.r.num);
     }).map(function (x) {
       var r = x.r, st = x.st;
       return '<article class="room-card st-' + st.kind + '" data-reserve="' + r.id + '" role="button" tabindex="0" aria-label="Reservar plaza en ' + esc(r.nombre) + '">' +
@@ -1398,7 +1400,7 @@ footer img{height:56px;width:auto}
         '<span class="badge"><i class="dot"></i>' + esc(st.text) + '</span></div>' +
         '<div class="rc-body"><p class="rc-num">Habitación <strong>individual</strong></p><h3>' + esc(r.nombre) + '</h3>' +
         '<p class="rc-meta">' + B.m2(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</p>' +
-        '<p class="rc-price"><b>' + esc(r.precio) + ' €</b>/mes + ' + esc(r.gastos) + ' € de gastos</p>' +
+        '<p class="rc-price"><b>' + esc(B.priceFor(r, vy())) + ' €</b>/mes + ' + esc(r.gastos) + ' € de gastos</p>' +
         '<p class="rc-inc">Agua, luz, fibra + wifi, limpieza y mantenimiento de zonas comunes incluidos</p>' +
         '<div class="rc-actions"><span class="btn sm">' + (st.kind === 'ocupada' ? 'Ocupada' : 'Reservar plaza') + '</span></div></div></article>';
     }).join('') || '<p>No hay habitaciones publicadas ahora mismo.</p>';
@@ -1453,7 +1455,9 @@ footer img{height:56px;width:auto}
     var cs = data.rooms.filter(function (r) { return r.activa && +r.cama > 0; }).map(function (r) { return +r.cama; })
       .filter(function (v, i, a) { return a.indexOf(v) === i; }).sort(function (a, b) { return a - b; });
     if (cs.length) { var txt = cs.length > 1 ? cs.slice(0, -1).join(', ') + ' o ' + cs[cs.length - 1] : String(cs[0]); document.querySelectorAll('.js-camas').forEach(function (el) { el.textContent = txt; }); }
-    var ps = data.rooms.filter(function (r) { return r.activa && +r.precio > 0; }).map(function (r) { return +r.precio; });
+    // el más bajo entre los cursos que se ofrecen (curso actual y los visibles)
+    var ys = B.visibleCourses(data.ajustes, now).concat(inCourse !== null ? [inCourse] : []), ps = [];
+    data.rooms.forEach(function (r) { if (r.activa) ys.forEach(function (y) { var p = B.priceFor(r, y); if (p > 0) ps.push(p); }); });
     if (!ps.length) return;
     var m = Math.min.apply(null, ps);
     document.querySelectorAll('.js-min').forEach(function (el) { el.textContent = m; if (el.hasAttribute('data-count')) el.setAttribute('data-count', m); });
@@ -1558,7 +1562,7 @@ footer img{height:56px;width:auto}
     document.getElementById('res-info').innerHTML =
       (room.fotos && room.fotos.length ? '<div class="rd-photos">' + photoCar(room.fotos, room.nombre) + '</div>' : '') +
       '<p class="rc-ind">Habitación individual con cerradura</p>' +
-      '<p class="rc-price" style="margin:0"><b>' + esc(room.precio) + ' €</b>/mes + ' + esc(room.gastos) + ' € de gastos · ' + B.m2(room.m2) + ' m² · cama ' + esc(room.cama) + ' cm</p>' +
+      '<p class="rc-price" style="margin:0"><b id="ri-p">' + esc(B.priceFor(room, vy())) + ' €</b>/mes + ' + esc(room.gastos) + ' € de gastos · ' + B.m2(room.m2) + ' m² · cama ' + esc(room.cama) + ' cm</p>' +
       (room.descripcion ? '<p style="margin:0">' + esc(room.descripcion) + '</p>' : '') +
       (room.equipamiento && room.equipamiento.length ? '<ul class="chips">' + room.equipamiento.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '');
     var list = opts(room);
@@ -1575,6 +1579,7 @@ footer img{height:56px;width:auto}
     document.getElementById('res-msg').hidden = true;
     document.getElementById('res-pending').hidden = true;
     if (!c) return;
+    var rp = document.getElementById('ri-p'); if (rp) rp.textContent = B.priceFor(c.room, c.o.y) + ' €';
     av.className = 'avail st-' + c.o.st.kind;
     if (rstep === 1) footer();
     drawAlt(c);
@@ -1592,7 +1597,7 @@ footer img{height:56px;width:auto}
       var r = x.r, foto = r.fotos && r.fotos[0];
       return '<button type="button" class="alt-card" data-alt="' + r.id + '">' +
         (foto ? '<img src="' + esc(foto) + '" alt="" loading="lazy">' : '<span class="alt-ph"></span>') +
-        '<span class="alt-b"><strong>' + esc(r.nombre) + '</strong><small>Individual · ' + esc(r.precio) + ' €/mes + ' + esc(r.gastos) + ' € de gastos · ' + B.m2(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</small>' +
+        '<span class="alt-b"><strong>' + esc(r.nombre) + '</strong><small>Individual · ' + esc(B.priceFor(r, c.o.y)) + ' €/mes + ' + esc(r.gastos) + ' € de gastos · ' + B.m2(r.m2) + ' m² · cama ' + esc(r.cama) + ' cm</small>' +
         '<em class="st-' + x.o.st.kind + '"><i class="dot"></i>' + esc(x.o.st.kind === 'libre' ? 'Libre' : x.o.long) + '</em></span></button>';
     }).join('') + '</div>' : '<b class="alt-t">No quedan habitaciones libres en ese periodo.</b><small>Prueba con otro curso o escríbenos por WhatsApp.</small>';
   }
@@ -1611,7 +1616,7 @@ footer img{height:56px;width:auto}
     resDlg.querySelectorAll('label.bad').forEach(function (l) { l.classList.remove('bad'); });
   }
   function showReserve(id) {
-    resRoom.innerHTML = active().map(function (r) { return '<option value="' + r.id + '">' + esc(r.nombre) + ' · ' + esc(r.precio) + ' €/mes</option>'; }).join('');
+    resRoom.innerHTML = active().map(function (r) { return '<option value="' + r.id + '">' + esc(r.nombre) + ' · ' + esc(B.priceFor(r, vy())) + ' €/mes</option>'; }).join('');
     if (id) resRoom.value = id;
     // Si la anterior reserva ya se envió, el formulario empieza vacío para la siguiente
     if (savedSig) clearDatos();
@@ -1662,13 +1667,13 @@ footer img{height:56px;width:auto}
   function money(n) { return (+n || 0).toLocaleString('es-ES') + ' €'; }
   function drawSum() {
     var c = chosen(); if (!c) return;
-    var r = c.room, fianza = +r.precio || 0;
+    var r = c.room, precio = B.priceFor(r, c.o.y), fianza = precio;
     $r('res-sum').innerHTML =
       '<h4>Resumen de tu reserva</h4>' +
       '<dl><dt>Habitación</dt><dd>' + esc(r.nombre) + '<small>Individual</small></dd>' +
       '<dt>Periodo</dt><dd>' + esc(c.o.title) + '<small>Del ' + B.fmt(c.o.from, true) + ' al ' + B.fmt(c.o.to, true) + '</small></dd>' +
       '<dt>Estudiante</dt><dd>' + esc(val('rd-nombre') + ' ' + val('rd-apellidos')) + '<small>' + esc(val('rd-edad') + ' años · ' + val('res-perfil')) + '</small></dd>' +
-      '<dt>Cada mes</dt><dd>' + money(r.precio) + ' + ' + money(r.gastos) + ' de gastos</dd>' +
+      '<dt>Cada mes</dt><dd>' + money(precio) + ' + ' + money(r.gastos) + ' de gastos</dd>' +
       '<dt>Contacto</dt><dd>' + esc(val('rd-pref') + ' ' + val('rd-tel')) + '<small>WhatsApp</small></dd>' +
       '<dt>Procedencia</dt><dd>' + esc([val('rd-prov'), val('rd-pais')].filter(Boolean).join(', ')) + '</dd></dl>' +
       '';
@@ -1719,7 +1724,7 @@ footer img{height:56px;width:auto}
       nombre: up('rd-nombre'), apellidos: up('rd-apellidos'), telefono: val('rd-pref') + ' ' + val('rd-tel'),
       edad: +val('rd-edad') || 0, pais: up('rd-pais'), provincia: up('rd-prov'), universidad: val('res-perfil'),
       mensaje: up('rd-msg'), web: val('rd-web'), acepta: true,
-      habitacionId: c.room.id, habitacion: c.room.nombre, precio: c.room.precio, gastos: c.room.gastos,
+      habitacionId: c.room.id, habitacion: c.room.nombre, precio: B.priceFor(c.room, c.o.y), gastos: c.room.gastos,
       periodo: { titulo: c.o.title, desde: c.o.from, hasta: c.o.to }
     };
     if (rstep === 2) {
