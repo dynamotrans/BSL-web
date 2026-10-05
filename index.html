@@ -1258,14 +1258,13 @@ footer img{height:56px;width:auto}
           <label>Ciudad<input id="rd-prov" placeholder="Ej.: Córdoba" autocomplete="address-level2"></label>
           <div class="full tel-wrap"><label class="tel-l">Teléfono (WhatsApp)<span class="tel-in"><span class="tel-p"><span class="tel-f" id="rd-flag" aria-hidden="true"></span><input id="rd-pref" value="+34" inputmode="tel" autocomplete="off" aria-label="Prefijo del país" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="rd-pref-list"></span><input id="rd-tel" type="tel" autocomplete="tel-national" inputmode="tel" placeholder="600 000 000"></span></label><ul class="cbx-list" id="rd-pref-list" role="listbox" hidden></ul></div>
           <div class="full edu-row"><label class="edu-age">Edad<select id="rd-edad"><option value="">Elige</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option></select></label>
-          <label id="res-perfil-l">Estudios<select id="res-perfil">
+          <label id="res-perfil-l">Soy estudiante de<select id="res-perfil">
         <option value="">Elige una opción…</option>
         <option value="Universidad Loyola Andalucía">Universidad Loyola Andalucía</option>
         <option value="Universidad Pablo de Olavide">Universidad Pablo de Olavide</option>
         <option value="Universidad de Sevilla">Universidad de Sevilla</option>
         <option value="Máster">Máster</option>
         <option value="Otro centro docente">Otro centro docente</option>
-        <option value="No estudio (trabajo u otra situación)">No estudio (trabajo u otra situación)</option>
       </select></label></div>
         </div>
         <button type="button" class="linkbtn rd-msg-open" id="rd-msg-open">+ Añadir un mensaje (opcional)</button>
@@ -1712,7 +1711,7 @@ footer img{height:56px;width:auto}
   resDlg.addEventListener('input', clearBad);
   resDlg.addEventListener('change', clearBad);
   function checkDatos() {
-    var need = [['rd-nombre', 'el nombre'], ['rd-apellidos', 'los apellidos'], ['rd-pais', 'el país de procedencia'], ['rd-prov', 'la ciudad'], ['rd-tel', 'el teléfono'], ['rd-edad', 'la edad'], ['res-perfil', 'indicar tus estudios']];
+    var need = [['rd-nombre', 'el nombre'], ['rd-apellidos', 'los apellidos'], ['rd-pais', 'el país de procedencia'], ['rd-prov', 'la ciudad'], ['rd-tel', 'el teléfono'], ['rd-edad', 'la edad'], ['res-perfil', 'indicar dónde estudias']];
     for (var i = 0; i < need.length; i++) if (!val(need[i][0])) { stepErr('rd-err', 'Falta ' + need[i][1] + '.', $r(need[i][0])); return false; }
     if (!/^\+\d{1,4}$/.test(val('rd-pref'))) { stepErr('rd-err', 'Revisa el prefijo del teléfono (por ejemplo +34).', $r('rd-pref')); return false; }
     if (val('rd-tel').replace(/\D/g, '').length < 9) { stepErr('rd-err', 'Revisa el teléfono.', $r('rd-tel')); return false; }
