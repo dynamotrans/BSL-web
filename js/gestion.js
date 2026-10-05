@@ -1071,16 +1071,19 @@
     var per = {}; // por inquilina
     function slot(c) { var id = c.inquilinaId; return per[id] || (per[id] = { t: tenant(id), habs: [], dias: 0, aporta: 0, asignado: 0 }); }
     var sinAsignar = 0, totalPeriodo = 0, porTipo = {};
+    var meses = {}; // 'YYYY-MM' -> { fact, sin, cuotas }
+    function mm(d) { var k = d.slice(0, 7); return meses[k] || (meses[k] = { fact: 0, sin: 0, cuotas: 0 }); }
     fact.forEach(function (f) {
       var bd = dayCount(f.desde, f.hasta), diario = num(f.importe) / bd;
       var a = f.desde < P0 ? P0 : f.desde, b = f.hasta > P1 ? P1 : f.hasta;
       eachDay(a, b, function (d) {
         totalPeriodo += diario; porTipo[f.tipo] = (porTipo[f.tipo] || 0) + diario;
+        var md = mm(d); md.fact += diario;
         var occ = conts.filter(function (c) { return c.desde <= d && c.hasta >= d; });
-        if (!occ.length) { sinAsignar += diario; return; }
+        if (!occ.length) { sinAsignar += diario; md.sin += diario; return; }
         var parte = modo === 'habitaciones' ? diario / nHab : diario / occ.length;
         occ.forEach(function (c) { slot(c).asignado += parte; });
-        if (modo === 'habitaciones') sinAsignar += diario - parte * occ.length;
+        if (modo === 'habitaciones') { sinAsignar += diario - parte * occ.length; md.sin += diario - parte * occ.length; }
       });
     });
     // Lo que cada una ha aportado con su cuota de gastos, día a día hasta la fecha de corte
@@ -1089,7 +1092,7 @@
       var rm = room(c.habitacionId); if (rm && s0.habs.indexOf(rm.nombre) < 0) s0.habs.push(rm.nombre);
       var a = c.desde < P0 ? P0 : c.desde, b = c.hasta < corte ? c.hasta : corte;
       if (a > b) return;
-      eachDay(a, b, function (d) { s0.dias++; s0.aporta += cuota / daysIn(+d.slice(0, 4), +d.slice(5, 7)); });
+      eachDay(a, b, function (d) { var q = cuota / daysIn(+d.slice(0, 4), +d.slice(5, 7)); s0.dias++; s0.aporta += q; mm(d).cuotas += q; });
     });
     var filas = Object.keys(per).map(function (k) { var o = per[k]; o.id = k; o.dif = Math.round((o.aporta - o.asignado) * 100) / 100; return o; })
       .filter(function (o) { return o.dias || o.asignado; })
@@ -1097,6 +1100,24 @@
     var totAporta = filas.reduce(function (t, o) { return t + o.aporta; }, 0);
     var r2 = function (n) { return Math.round(n * 100) / 100; };
     var ys = []; for (var k = 2025; k <= yDef + 1; k++) ys.push(k);
+    // Mes a mes del curso: facturas vs cuotas, con sobrante/faltante y acumulado (solo hasta la última factura)
+    function tablaMeses() {
+      if (!fact.length) return '';
+      var acum = 0, rows = '';
+      for (var i = 0; i < 12; i++) {
+        var yy = i < 4 ? y : y + 1, m = (i + 8) % 12 + 1, key = yy + '-' + (m < 10 ? '0' : '') + m, o = meses[key] || { fact: 0, sin: 0, cuotas: 0 };
+        var ini = key + '-01', fin = key + '-' + daysIn(yy, m), nombre = MES_LARGO[m - 1].charAt(0).toUpperCase() + MES_LARGO[m - 1].slice(1) + ' ' + yy;
+        if (ini > corte) { rows += '<tr class="kfut"><td>' + nombre + '</td><td colspan="4">Sin facturas todavía</td></tr>'; continue; }
+        var dif = r2(o.cuotas - (o.fact - o.sin)); acum = r2(acum + dif);
+        rows += '<tr><td><b>' + nombre + '</b>' + (corte < fin ? '<small class="stamp">hasta el ' + fmt(corte) + '</small>' : '') + '</td>' +
+          '<td class="r">' + money(r2(o.fact)) + (o.sin > 0.005 ? '<small class="stamp">' + money(r2(o.sin)) + ' sin repartir</small>' : '') + '</td>' +
+          '<td class="r">' + money(r2(o.cuotas)) + '</td>' +
+          '<td>' + (dif > 0.5 ? chip('pagado', 'Sobran ' + money(dif)) : dif < -0.5 ? chip('vencido', 'Faltan ' + money(-dif)) : chip('fin', 'En paz')) + '</td>' +
+          '<td class="r"><b class="' + (acum >= 0 ? 'ok' : 'bad') + '">' + (acum > 0 ? '+' : '') + money(acum) + '</b></td></tr>';
+      }
+      return '<section class="card"><h3>Mes a mes</h3><div class="tscroll"><table class="kt"><thead><tr><th>Mes</th><th class="r">Facturas</th><th class="r">Ingresos por cuotas</th><th>Sobrante / faltante</th><th class="r">Acumulado</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+        '<p class="hint">«Facturas» = lo que toca a ese mes de cada factura, repartido por días. «Ingresos por cuotas» = la parte de suministros de las cuotas de ese mes. «Sin repartir» lo asume la propiedad (días o habitaciones sin nadie).</p></section>';
+    }
     box.innerHTML = '<div class="ghead"><h2>Consumos</h2><div class="gtools"><select id="ky">' + ys.map(function (c) { return '<option value="' + c + '"' + (c === y ? ' selected' : '') + '>Curso ' + B.courseLabel(c) + (c === y0 ? ' (actual)' : '') + '</option>'; }).join('') + '</select>' +
       '<button class="btn edit-only" type="button" id="k-new">+ Añadir factura</button></div></div>' +
       '<p class="hint">Sube las facturas de luz, agua, internet… El total se reparte entre las inquilinas según los días que estuvo cada una, y se compara con lo que pagan de gastos. Periodo: 1 sep ' + y + ' – 31 ago ' + (y + 1) + '.</p>' +
@@ -1104,6 +1125,7 @@
       '<div><small>Aportado por cuotas</small><b>' + money(r2(totAporta)) + '</b><small>' + (corte ? 'hasta el ' + fmt(corte) + ' (última factura)' : '—') + '</small></div>' +
       '<div><small>Diferencia</small><b class="' + (totAporta - (totalPeriodo - sinAsignar) >= 0 ? 'ok' : 'bad') + '">' + money(r2(totAporta - (totalPeriodo - sinAsignar))) + '</b><small>' + (totAporta - (totalPeriodo - sinAsignar) >= 0 ? 'Las cuotas cubren los consumos' : 'Los consumos superan las cuotas') + '</small></div>' +
       '<div><small>Sin repartir</small><b>' + money(r2(sinAsignar)) + '</b><small>' + (modo === 'habitaciones' ? 'habitaciones vacías (propiedad)' : 'días sin nadie en la casa') + '</small></div></div>' +
+      tablaMeses() +
       '<section class="card"><h3>Reparto por inquilina</h3>' +
       (filas.length ? '<div class="tscroll"><table class="kt"><thead><tr><th>Inquilina</th><th>Habitación</th><th class="r">Días</th><th class="r">Ha aportado</th><th class="r">Le corresponde</th><th>Resultado</th><th></th></tr></thead><tbody>' +
         filas.map(function (o) {
