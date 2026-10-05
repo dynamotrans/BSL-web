@@ -1069,46 +1069,45 @@
     var corte = fact.reduce(function (m, f) { return f.hasta > m ? f.hasta : m; }, '');
     if (!corte && fijos.length) { var hoy = today(); corte = hoy.slice(0, 8) + daysIn(+hoy.slice(0, 4), +hoy.slice(5, 7)); }
     if (corte > P1) corte = P1;
-    // Los gastos fijos (limpieza, internet…) se convierten en una «factura» por mes, hasta la fecha de corte
-    var gastos = fact.slice();
-    if (corte) fijos.forEach(function (x) {
-      for (var i = 0; i < 12; i++) {
-        var yy = i < 4 ? y : y + 1, m = (i + 8) % 12 + 1, ini = yy + '-' + (m < 10 ? '0' : '') + m + '-01', fin = ini.slice(0, 8) + daysIn(yy, m);
-        if (ini > corte || fin < x.desde || (x.hasta && ini > x.hasta)) continue;
-        gastos.push({ tipo: x.tipo, importe: num(x.importe), desde: ini, hasta: fin, fijo: true, tope: corte });
-      }
+    // Meses del curso. Un mes está «cerrado» cuando las facturas llegan hasta su último día: solo esos cuentan.
+    var MES = [];
+    for (var i = 0; i < 12; i++) {
+      var yy = i < 4 ? y : y + 1, m = (i + 8) % 12 + 1, key = yy + '-' + (m < 10 ? '0' : '') + m;
+      MES.push({ key: key, ini: key + '-01', fin: key + '-' + daysIn(yy, m), nombre: MES_LARGO[m - 1].charAt(0).toUpperCase() + MES_LARGO[m - 1].slice(1) + ' ' + yy, fact: 0, porTipo: {}, cuotas: 0, sin: 0, chicas: 0 });
+    }
+    var meses = {}; MES.forEach(function (o) { meses[o.key] = o; o.cerrado = !!corte && o.fin <= corte; o.curso = !!corte && !o.cerrado && o.ini <= corte; });
+    var cierre = MES.reduce(function (c, o) { return o.cerrado ? o.fin : c; }, '');
+    // Facturas: lo que toca a cada mes, repartido por días
+    fact.forEach(function (f) {
+      var diario = num(f.importe) / dayCount(f.desde, f.hasta);
+      eachDay(f.desde < P0 ? P0 : f.desde, f.hasta > P1 ? P1 : f.hasta, function (d) { var o = meses[d.slice(0, 7)]; o.fact += diario; o.porTipo[f.tipo] = (o.porTipo[f.tipo] || 0) + diario; });
+    });
+    // Gastos fijos (limpieza, internet…): el importe entero cada mes
+    fijos.forEach(function (x) {
+      MES.forEach(function (o) { if ((o.cerrado || o.curso) && o.fin >= x.desde && (!x.hasta || o.ini <= x.hasta)) { o.fact += num(x.importe); o.porTipo[x.tipo] = (o.porTipo[x.tipo] || 0) + num(x.importe); } });
     });
     var nHab = rooms().filter(function (rm) { return rm.activa; }).length || 8;
     var conts = G.contratos.filter(function (c) { return c.desde <= P1 && c.hasta >= P0; });
     var per = {}; // por inquilina
-    function slot(c) { var id = c.inquilinaId; return per[id] || (per[id] = { t: tenant(id), habs: [], dias: 0, aporta: 0, asignado: 0 }); }
+    function slot(id) { return per[id] || (per[id] = { t: tenant(id), habs: [], meses: 0, aporta: 0, asignado: 0 }); }
     var sinAsignar = 0, totalPeriodo = 0, porTipo = {};
-    var meses = {}; // 'YYYY-MM' -> { fact, sin, cuotas }
-    function mm(d) { var k = d.slice(0, 7); return meses[k] || (meses[k] = { fact: 0, sin: 0, cuotas: 0 }); }
-    gastos.forEach(function (f) {
-      var bd = dayCount(f.desde, f.hasta), diario = num(f.importe) / bd;
-      var a = f.desde < P0 ? P0 : f.desde, b = f.hasta > P1 ? P1 : f.hasta;
-      if (f.fijo && b > f.tope) b = f.tope;
-      eachDay(a, b, function (d) {
-        totalPeriodo += diario; porTipo[f.tipo] = (porTipo[f.tipo] || 0) + diario;
-        var md = mm(d); md.fact += diario;
-        var occ = conts.filter(function (c) { return c.desde <= d && c.hasta >= d; });
-        if (!occ.length) { sinAsignar += diario; md.sin += diario; return; }
-        var parte = modo === 'habitaciones' ? diario / nHab : diario / occ.length;
-        occ.forEach(function (c) { slot(c).asignado += parte; });
-        if (modo === 'habitaciones') { sinAsignar += diario - parte * occ.length; md.sin += diario - parte * occ.length; }
+    // Inquilinas: por meses completos. Cada mes con contrato paga su cuota entera y le toca su parte entera de los gastos de ese mes.
+    MES.forEach(function (o) {
+      if (!o.cerrado) return;
+      var ids = {};
+      conts.forEach(function (c) { if (c.desde <= o.fin && c.hasta >= o.ini && !ids[c.inquilinaId]) ids[c.inquilinaId] = c; });
+      var lista = Object.keys(ids), n = lista.length;
+      totalPeriodo += o.fact; Object.keys(o.porTipo).forEach(function (t) { porTipo[t] = (porTipo[t] || 0) + o.porTipo[t]; });
+      var parte = !n ? 0 : modo === 'habitaciones' ? o.fact / Math.max(nHab, n) : o.fact / n;
+      o.sin = o.fact - parte * n; o.chicas = n; sinAsignar += o.sin;
+      lista.forEach(function (id) {
+        var c = ids[id], s0 = slot(id), cuota = cuotaFija != null ? cuotaFija : num(c.gastos), rm = room(c.habitacionId);
+        if (rm && s0.habs.indexOf(rm.nombre) < 0) s0.habs.push(rm.nombre);
+        s0.meses++; s0.aporta += cuota; s0.asignado += parte; o.cuotas += cuota;
       });
     });
-    // Lo que cada una ha aportado con su cuota de gastos, día a día hasta la fecha de corte
-    if (corte) conts.forEach(function (c) {
-      var s0 = slot(c), cuota = cuotaFija != null ? cuotaFija : num(c.gastos);
-      var rm = room(c.habitacionId); if (rm && s0.habs.indexOf(rm.nombre) < 0) s0.habs.push(rm.nombre);
-      var a = c.desde < P0 ? P0 : c.desde, b = c.hasta < corte ? c.hasta : corte;
-      if (a > b) return;
-      eachDay(a, b, function (d) { var q = cuota / daysIn(+d.slice(0, 4), +d.slice(5, 7)); s0.dias++; s0.aporta += q; mm(d).cuotas += q; });
-    });
     var filas = Object.keys(per).map(function (k) { var o = per[k]; o.id = k; o.dif = Math.round((o.aporta - o.asignado) * 100) / 100; return o; })
-      .filter(function (o) { return o.dias || o.asignado; })
+      .filter(function (o) { return o.meses; })
       .sort(function (a, b) { return a.dif - b.dif; });
     var totAporta = filas.reduce(function (t, o) { return t + o.aporta; }, 0);
     var r2 = function (n) { return Math.round(n * 100) / 100; };
@@ -1119,39 +1118,38 @@
     function tablaMeses() {
       if (!corte) return '';
       var acum = 0, rows = '';
-      for (var i = 0; i < 12; i++) {
-        var yy = i < 4 ? y : y + 1, m = (i + 8) % 12 + 1, key = yy + '-' + (m < 10 ? '0' : '') + m, o = meses[key] || { fact: 0, sin: 0, cuotas: 0 };
-        var ini = key + '-01', fin = key + '-' + daysIn(yy, m), nombre = MES_LARGO[m - 1].charAt(0).toUpperCase() + MES_LARGO[m - 1].slice(1) + ' ' + yy;
-        if (ini > corte) { rows += '<tr class="kfut"><td>' + nombre + '</td><td colspan="4">Sin facturas todavía</td></tr>'; continue; }
+      MES.forEach(function (o) {
+        if (o.curso) { rows += '<tr class="kfut"><td>' + o.nombre + '<small class="stamp">en curso · facturas hasta el ' + fmt(corte) + '</small></td><td class="r">' + money(r2(o.fact)) + '</td><td colspan="3">Se cuenta cuando llegue la factura de fin de mes</td></tr>'; return; }
+        if (!o.cerrado) { rows += '<tr class="kfut"><td>' + o.nombre + '</td><td colspan="4">Sin facturas todavía</td></tr>'; return; }
         var dif = r2(o.cuotas - (o.fact - o.sin)); acum = r2(acum + dif);
-        rows += '<tr><td><b>' + nombre + '</b>' + (corte < fin ? '<small class="stamp">hasta el ' + fmt(corte) + '</small>' : '') + '</td>' +
+        rows += '<tr><td><b>' + o.nombre + '</b><small class="stamp">' + o.chicas + (o.chicas === 1 ? ' inquilina' : ' inquilinas') + '</small></td>' +
           '<td class="r">' + money(r2(o.fact)) + (o.sin > 0.005 ? '<small class="stamp">' + money(r2(o.sin)) + ' sin repartir</small>' : '') + '</td>' +
           '<td class="r">' + money(r2(o.cuotas)) + '</td>' +
           '<td>' + (dif > 0.5 ? chip('pagado', 'Sobran ' + money(dif)) : dif < -0.5 ? chip('vencido', 'Faltan ' + money(-dif)) : chip('fin', 'En paz')) + '</td>' +
           '<td class="r"><b class="' + (acum >= 0 ? 'ok' : 'bad') + '">' + (acum > 0 ? '+' : '') + money(acum) + '</b></td></tr>';
-      }
+      });
       return '<section class="card"><h3>Mes a mes</h3><div class="tscroll"><table class="kt"><thead><tr><th>Mes</th><th class="r">Gastos</th><th class="r">Ingresos por cuotas</th><th>Sobrante / faltante</th><th class="r">Acumulado</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
-        '<p class="hint">«Facturas» = gastos fijos de cada mes más lo que toca a ese mes de cada factura, repartido por días. «Ingresos por cuotas» = lo que pagan de gastos ese mes (limpieza, luz, agua, internet…). «Sin repartir» lo asume la propiedad (días o habitaciones sin nadie).</p></section>';
+        '<p class="hint">«Gastos» = gastos fijos del mes más la parte de cada factura que cae en ese mes (las facturas sí se reparten por días). «Ingresos por cuotas» = la cuota de gastos de cada inquilina que estuvo ese mes, entera. «Sin repartir» lo asume la propiedad.</p></section>';
     }
     box.innerHTML = '<div class="ghead"><h2>Consumos</h2><div class="gtools"><select id="ky">' + ys.map(function (c) { return '<option value="' + c + '"' + (c === y ? ' selected' : '') + '>Curso ' + B.courseLabel(c) + (c === y0 ? ' (actual)' : '') + '</option>'; }).join('') + '</select>' +
       '<button class="btn edit-only" type="button" id="k-new">+ Añadir factura</button></div></div>' +
-      '<p class="hint">Sube las facturas de luz y agua, y deja puestos los gastos fijos de cada mes (limpieza, internet…). El total se reparte entre las inquilinas según los días que estuvo cada una, y se compara con lo que pagan de gastos. Periodo: 1 sep ' + y + ' – 31 ago ' + (y + 1) + '.</p>' +
+      '<p class="hint">Sube las facturas de luz y agua, y deja puestos los gastos fijos de cada mes (limpieza, internet…). Los gastos de cada mes se reparten entre las inquilinas que estuvieron ese mes (por meses completos) y se comparan con lo que pagan de gastos. Periodo: 1 sep ' + y + ' – 31 ago ' + (y + 1) + '.</p>' +
       '<div class="tiles"><div><small>Gastos del periodo</small><b>' + money(r2(totalPeriodo)) + '</b><small>' + (SUMIN.filter(function (x) { return porTipo[x[0]]; }).map(function (x) { return x[1] + ' ' + money(r2(porTipo[x[0]])); }).join(' · ') || 'Sin facturas') + '</small></div>' +
-      '<div><small>Aportado por cuotas</small><b>' + money(r2(totAporta)) + '</b><small>' + (corte ? 'hasta el ' + fmt(corte) + ' (última factura)' : '—') + '</small></div>' +
+      '<div><small>Aportado por cuotas</small><b>' + money(r2(totAporta)) + '</b><small>' + (corte ? (cierre ? 'meses cerrados hasta el ' + fmt(cierre) : 'aún no hay ningún mes cerrado') : '—') + '</small></div>' +
       '<div><small>Diferencia</small><b class="' + (totAporta - (totalPeriodo - sinAsignar) >= 0 ? 'ok' : 'bad') + '">' + money(r2(totAporta - (totalPeriodo - sinAsignar))) + '</b><small>' + (totAporta - (totalPeriodo - sinAsignar) >= 0 ? 'Las cuotas cubren los consumos' : 'Los consumos superan las cuotas') + '</small></div>' +
-      '<div><small>Sin repartir</small><b>' + money(r2(sinAsignar)) + '</b><small>' + (modo === 'habitaciones' ? 'habitaciones vacías (propiedad)' : 'días sin nadie en la casa') + '</small></div></div>' +
+      '<div><small>Sin repartir</small><b>' + money(r2(sinAsignar)) + '</b><small>' + (modo === 'habitaciones' ? 'habitaciones vacías (propiedad)' : 'meses sin nadie en la casa') + '</small></div></div>' +
       (dobles.length ? '<p class="kwarn">Ojo: ' + dobles.length + (dobles.length > 1 ? ' facturas de ' : ' factura de ') + dobles.map(function (f) { return supLabel(f.tipo); }).filter(function (v, i, a2) { return a2.indexOf(v) === i; }).join(', ') +
         (dobles.length > 1 ? ' coinciden' : ' coincide') + ' con un gasto fijo del mismo concepto y se ' + (dobles.length > 1 ? 'están' : 'está') + ' contando dos veces. Borra la factura o ajusta las fechas del gasto fijo.</p>' : '') +
       tablaMeses() +
       '<section class="card"><h3>Reparto por inquilina</h3>' +
-      (filas.length ? '<div class="tscroll"><table class="kt"><thead><tr><th>Inquilina</th><th>Habitación</th><th class="r">Días</th><th class="r">Ha aportado</th><th class="r">Le corresponde</th><th>Resultado</th><th></th></tr></thead><tbody>' +
+      (filas.length ? '<div class="tscroll"><table class="kt"><thead><tr><th>Inquilina</th><th>Habitación</th><th class="r">Meses</th><th class="r">Ha aportado</th><th class="r">Le corresponde</th><th>Resultado</th><th></th></tr></thead><tbody>' +
         filas.map(function (o) {
           var debe = o.dif < -0.5, sobra = o.dif > 0.5;
-          return '<tr><td><b>' + esc(fullName(o.t)) + '</b></td><td>' + esc(o.habs.join(', ')) + '</td><td class="r">' + o.dias + '</td><td class="r">' + money(r2(o.aporta)) + '</td><td class="r">' + money(r2(o.asignado)) + '</td>' +
+          return '<tr><td><b>' + esc(fullName(o.t)) + '</b></td><td>' + esc(o.habs.join(', ')) + '</td><td class="r">' + o.meses + '</td><td class="r">' + money(r2(o.aporta)) + '</td><td class="r">' + money(r2(o.asignado)) + '</td>' +
             '<td>' + (debe ? chip('vencido', 'Debe ' + money(-o.dif)) : sobra ? chip('pagado', 'Le sobran ' + money(o.dif)) : chip('fin', 'En paz')) + '</td>' +
             '<td class="r">' + (debe && o.t ? '<button type="button" class="mini edit-only" data-kcob="' + esc(o.id) + '" data-kimp="' + (-o.dif) + '">Crear cobro</button>' : '') + '</td></tr>';
         }).join('') + '</tbody></table></div>' : '<p class="empty">' + (corte ? 'No hay inquilinas con contrato en este periodo.' : 'Añade la primera factura para ver el reparto.') + '</p>') +
-      '<p class="hint">«Ha aportado» = su cuota de gastos por los días que ha estado, hasta la fecha de la última factura subida. «Le corresponde» = su parte de los gastos por los días que estuvo.</p></section>' +
+      '<p class="hint">«Ha aportado» = su cuota de gastos de cada mes que ha estado (meses ya cerrados). «Le corresponde» = su parte de los gastos de esos meses.</p></section>' +
       '<section class="card"><h3>Gastos fijos cada mes</h3>' + ((cfg.fijos || []).length ? '<div class="tscroll"><table class="kt"><thead><tr><th>Concepto</th><th class="r">€/mes</th><th>Desde</th><th>Hasta</th><th></th></tr></thead><tbody>' +
         cfg.fijos.map(function (x) {
           return '<tr><td><b>' + esc(supLabel(x.tipo)) + '</b>' + (x.nota ? '<small class="stamp">' + esc(x.nota) + '</small>' : '') + '</td><td class="r"><b>' + money(x.importe) + '</b></td><td>' + fmt(x.desde) + '</td><td>' + (x.hasta ? fmt(x.hasta) : 'Sin fin') + '</td>' +
@@ -1181,8 +1179,8 @@
         var tid = b.getAttribute('data-kcob'), imp = Math.round(num(b.getAttribute('data-kimp')) * 100) / 100, ref = 'consumos-' + y;
         var c = activeContract(tid) || G.contratos.filter(function (x) { return x.inquilinaId === tid; })[0];
         var ya = G.cobros.filter(function (x) { return x.consumoRef === ref && x.inquilinaId === tid && !x.pagado; })[0];
-        if (ya) { ya.importe = imp; ya.concepto = 'Exceso de consumos curso ' + B.courseLabel(y) + ' (hasta ' + fmt(corte) + ')'; ya.editadoEn = now(); }
-        else G.cobros.push({ id: uid(), contratoId: c ? c.id : '', inquilinaId: tid, tipo: 'otro', consumoRef: ref, mes: today().slice(0, 7), concepto: 'Exceso de consumos curso ' + B.courseLabel(y) + ' (hasta ' + fmt(corte) + ')', importe: imp, vence: B.addDays(today(), 10), pagado: false, creadoEn: now() });
+        if (ya) { ya.importe = imp; ya.concepto = 'Exceso de consumos curso ' + B.courseLabel(y) + ' (hasta ' + fmt(cierre) + ')'; ya.editadoEn = now(); }
+        else G.cobros.push({ id: uid(), contratoId: c ? c.id : '', inquilinaId: tid, tipo: 'otro', consumoRef: ref, mes: today().slice(0, 7), concepto: 'Exceso de consumos curso ' + B.courseLabel(y) + ' (hasta ' + fmt(cierre) + ')', importe: imp, vence: B.addDays(today(), 10), pagado: false, creadoEn: now() });
         save(); A.alert((ya ? 'Cobro actualizado: ' : 'Cobro creado en Cobros: ') + money(imp) + ' para ' + fullName(tenant(tid)) + '.'); viewConsumos();
       };
     });
