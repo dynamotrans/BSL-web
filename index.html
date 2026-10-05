@@ -657,6 +657,8 @@ label.bad input,label.bad select,label.bad textarea{border-color:#d4456f!importa
 .pc-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 3px rgba(0,0,0,.4)}
 .pc-dots i.on{background:#fff}
 .rc-photo .pc-dots{bottom:12px}
+.rc-ia{position:absolute;z-index:2;left:10px;bottom:10px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.92);color:#5b3d8a;font:700 .72rem/1 var(--sans);letter-spacing:.02em}
+.ia-note{margin:0;padding:10px 12px;border-radius:10px;background:#f3eefb;border:1px solid #ddd0f2;color:#3f2b63;font-size:.84rem;line-height:1.45}.ia-note b{color:#5b3d8a}
 .rc-n{position:absolute;right:10px;bottom:10px;padding:5px 10px;border-radius:999px;background:rgba(15,48,51,.78);color:#fff;font:700 .74rem/1 var(--sans)}
 .room-card:hover .rc-photo .pc img{transform:none}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
@@ -1396,6 +1398,7 @@ footer img{height:56px;width:auto}
       return '<article class="room-card st-' + st.kind + '" data-reserve="' + r.id + '" role="button" tabindex="0" aria-label="Reservar plaza en ' + esc(r.nombre) + '">' +
         '<div class="rc-photo">' +
         // En la tarjeta solo la portada (así deslizar mueve las habitaciones); las demás fotos se ven al abrirla
+        (r.fotosIA && r.fotos && r.fotos.length ? '<span class="rc-ia">Imagen IA</span>' : '') +
         (r.fotos && r.fotos.length ? '<img src="' + esc(r.fotos[0]) + '" alt="' + esc(r.nombre) + '" loading="lazy">' + (r.fotos.length > 1 ? '<span class="rc-n">' + r.fotos.length + ' fotos</span>' : '') : '<div class="rc-ph"><span>Fotos próximamente</span></div>') +
         '<span class="badge"><i class="dot"></i>' + esc(st.text) + '</span></div>' +
         '<div class="rc-body"><p class="rc-num">Habitación <strong>individual</strong></p><h3>' + esc(r.nombre) + '</h3>' +
@@ -1561,6 +1564,7 @@ footer img{height:56px;width:auto}
     document.getElementById('res-gastos').innerHTML = gastosBox(room);
     document.getElementById('res-info').innerHTML =
       (room.fotos && room.fotos.length ? '<div class="rd-photos">' + photoCar(room.fotos, room.nombre) + '</div>' : '') +
+      (room.fotosIA && room.fotos && room.fotos.length ? '<p class="ia-note"><b>Fotos generadas con IA.</b> Esta habitación estaba ocupada y no pudimos fotografiarla. Las medidas y el equipamiento son los indicados en la descripción, y se entrega con el mismo estilo que el resto de habitaciones.</p>' : '') +
       '<p class="rc-ind">Habitación individual con cerradura</p>' +
       '<p class="rc-price" style="margin:0"><b id="ri-p">' + esc(B.priceFor(room, vy())) + ' €</b>/mes + ' + esc(room.gastos) + ' € de gastos · ' + B.m2(room.m2) + ' m² · cama ' + esc(room.cama) + ' cm</p>' +
       (room.descripcion ? '<p style="margin:0">' + esc(room.descripcion) + '</p>' : '') +

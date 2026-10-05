@@ -639,7 +639,9 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
       '<label class="wide">Equipamiento (uno por línea)<textarea id="f-equip">' + esc((r.equipamiento || []).join('\n')) + '</textarea></label>' +
       '</div></section>' +
 
-      '<section class="card"><h3>Fotos</h3><p class="hint">La primera es la que sale en la tarjeta. Usa las flechas para cambiar el orden.</p><div class="photos" id="photos"></div></section>' +
+      '<section class="card"><h3>Fotos</h3><p class="hint">La primera es la que sale en la tarjeta. Usa las flechas para cambiar el orden.</p>' +
+      '<label class="switch edit-only"><input type="checkbox" id="f-ia"' + (r.fotosIA ? ' checked' : '') + '> Fotos generadas con IA <small>(la web avisa de que son orientativas porque la habitación estaba ocupada)</small></label>' +
+      '<div class="photos" id="photos"></div></section>' +
 
       '<p class="hint">Los cambios se guardan solos.</p>';
 
@@ -652,6 +654,7 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
     bind('f-m2', 'm2', Number); bind('f-desc', 'descripcion');
     bind('f-equip', 'equipamiento', function (v) { return v.split('\n').map(function (s) { return s.trim(); }).filter(Boolean); });
     $('f-cama').addEventListener('change', function () { r.cama = this.value; dirty(); });
+    $('f-ia').addEventListener('change', function () { r.fotosIA = this.checked; dirty(); });
     document.querySelectorAll('[data-pc]').forEach(function (inp) {
       inp.addEventListener('input', function () {
         var cy = this.getAttribute('data-pc'), v = Number(this.value);

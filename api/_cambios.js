@@ -355,5 +355,14 @@ export default [
       { tipo: 'habitacion', num: 1, set: { fotos: ['images/habitacion-completa.jpg'] } },
       { tipo: 'habitacion', num: 3, set: { fotos: [] } }
     ]
+  },
+  {
+    id: '2026-10-05-1',
+    fecha: '2026-10-05',
+    resumen: 'Girasol y Margarita: avisar en la web de que sus fotos están generadas con IA',
+    ops: [
+      { tipo: 'habitacion', num: 7, set: { fotosIA: true } },
+      { tipo: 'habitacion', num: 8, set: { fotosIA: true } }
+    ]
   }
 ];
