@@ -1131,7 +1131,7 @@
           '<td class="r"><b class="' + (acum >= 0 ? 'ok' : 'bad') + '">' + (acum > 0 ? '+' : '') + money(acum) + '</b></td></tr>';
       }
       return '<section class="card"><h3>Mes a mes</h3><div class="tscroll"><table class="kt"><thead><tr><th>Mes</th><th class="r">Gastos</th><th class="r">Ingresos por cuotas</th><th>Sobrante / faltante</th><th class="r">Acumulado</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
-        '<p class="hint">«Facturas» = gastos fijos de cada mes más lo que toca a ese mes de cada factura, repartido por días. «Ingresos por cuotas» = la parte de suministros de las cuotas de ese mes. «Sin repartir» lo asume la propiedad (días o habitaciones sin nadie).</p></section>';
+        '<p class="hint">«Facturas» = gastos fijos de cada mes más lo que toca a ese mes de cada factura, repartido por días. «Ingresos por cuotas» = lo que pagan de gastos ese mes (limpieza, luz, agua, internet…). «Sin repartir» lo asume la propiedad (días o habitaciones sin nadie).</p></section>';
     }
     box.innerHTML = '<div class="ghead"><h2>Consumos</h2><div class="gtools"><select id="ky">' + ys.map(function (c) { return '<option value="' + c + '"' + (c === y ? ' selected' : '') + '>Curso ' + B.courseLabel(c) + (c === y0 ? ' (actual)' : '') + '</option>'; }).join('') + '</select>' +
       '<button class="btn edit-only" type="button" id="k-new">+ Añadir factura</button></div></div>' +
@@ -1167,7 +1167,7 @@
       '<section class="card edit-only" id="k-aju"><h3>Ajustes del reparto</h3><div class="grid">' +
       '<label>Cuota de gastos por inquilina (€/mes)<input type="number" min="0" step="1" id="k-cuota" value="' + esc(cfg.cuota || '') + '" placeholder="Los gastos de cada contrato"></label>' +
       '<label>Cómo se reparte<select id="k-modo"><option value="ocupantes"' + (modo === 'ocupantes' ? ' selected' : '') + '>Entre las inquilinas que hay cada día</option><option value="habitaciones"' + (modo === 'habitaciones' ? ' selected' : '') + '>Entre las ' + nHab + ' habitaciones (las vacías las asume la propiedad)</option></select></label>' +
-      '</div><p class="hint">La parte de la cuota mensual que cubre limpieza y suministros (luz, agua, internet…). Vacío = se usa el importe de gastos de cada contrato.</p></section>';
+      '</div><p class="hint">Lo que paga cada inquilina de gastos al mes (incluye limpieza, luz, agua, internet…). Vacío = se usa el importe de gastos de cada contrato.</p></section>';
     $('ky').onchange = function () { box.dataset.ky = this.value; viewConsumos(); };
     $('k-new').onclick = function () { facturaForm(null); };
     $('k-fijo').onclick = function () { fijoForm(null); };
@@ -1441,7 +1441,7 @@
       sheet('Solicitudes', (SOL || []).map(function (x) { return { 'Recibida': fmtDT(x.fecha), 'Estado': (PRE_ST[x.estado] || PRE_ST.nueva)[1], 'Nombre': x.nombre, 'Apellidos': x.apellidos, 'Edad': x.edad || edad(x.nacimiento) || '', 'Teléfono': x.telefono || '', 'Email': x.email || '',
         'País': x.pais || '', 'Ciudad': x.provincia || '', 'Estudia': x.universidad || '', 'Habitación': x.habitacion || '', 'Pidió al principio': x.habitacionOriginal || '', 'Periodo': x.periodo && x.periodo.titulo || '',
         'Desde': dd(x.periodo && x.periodo.desde), 'Hasta': dd(x.periodo && x.periodo.hasta), 'Precio €/mes': num(x.precio), 'Mensaje': x.mensaje || '', 'Admitida': fmtDT(x.admitida) }; }));
-      sheet('Consumos', (G.consumos || []).slice().sort(function (a, b) { return a.desde < b.desde ? -1 : 1; }).map(function (f) { return { 'Suministro': supLabel(f.tipo), 'Desde': dd(f.desde), 'Hasta': dd(f.hasta), 'Importe €': num(f.importe), 'Compañía o nota': f.nota || '', 'Nº archivos': (f.docs || []).length }; }));
+      sheet('Consumos', (G.consumos || []).slice().sort(function (a, b) { return a.desde < b.desde ? -1 : 1; }).map(function (f) { return { 'Concepto': supLabel(f.tipo), 'Desde': dd(f.desde), 'Hasta': dd(f.hasta), 'Importe €': num(f.importe), 'Compañía o nota': f.nota || '', 'Nº archivos': (f.docs || []).length }; }));
       sheet('Gastos fijos', ((G.consumosCfg || {}).fijos || []).map(function (x) { return { 'Concepto': supLabel(x.tipo), 'Importe €/mes': num(x.importe), 'Desde': dd(x.desde), 'Hasta': x.hasta ? dd(x.hasta) : 'Sin fin', 'Compañía o nota': x.nota || '' }; }));
       top.file(root + '_DATOS.xlsx', XLSX.write(wb, { bookType: 'xlsx', type: 'array' }));
       top.file(root + '_COPIA_RESTAURAR.json', JSON.stringify({ fecha: new Date().toISOString(), habitaciones: A.data(), gestion: G, solicitudes: SOL }, null, 2));
