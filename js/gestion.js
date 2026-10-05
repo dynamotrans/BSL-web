@@ -1113,6 +1113,8 @@
     var totAporta = filas.reduce(function (t, o) { return t + o.aporta; }, 0);
     var r2 = function (n) { return Math.round(n * 100) / 100; };
     var ys = []; for (var k = 2025; k <= yDef + 1; k++) ys.push(k);
+    // Aviso si una factura repite un gasto que ya está como fijo (se contaría dos veces)
+    var dobles = fact.filter(function (f) { return fijos.some(function (x) { return x.tipo === f.tipo && f.hasta >= x.desde && (!x.hasta || f.desde <= x.hasta); }); });
     // Mes a mes del curso: facturas vs cuotas, con sobrante/faltante y acumulado (solo hasta la última factura)
     function tablaMeses() {
       if (!corte) return '';
@@ -1138,6 +1140,8 @@
       '<div><small>Aportado por cuotas</small><b>' + money(r2(totAporta)) + '</b><small>' + (corte ? 'hasta el ' + fmt(corte) + ' (última factura)' : '—') + '</small></div>' +
       '<div><small>Diferencia</small><b class="' + (totAporta - (totalPeriodo - sinAsignar) >= 0 ? 'ok' : 'bad') + '">' + money(r2(totAporta - (totalPeriodo - sinAsignar))) + '</b><small>' + (totAporta - (totalPeriodo - sinAsignar) >= 0 ? 'Las cuotas cubren los consumos' : 'Los consumos superan las cuotas') + '</small></div>' +
       '<div><small>Sin repartir</small><b>' + money(r2(sinAsignar)) + '</b><small>' + (modo === 'habitaciones' ? 'habitaciones vacías (propiedad)' : 'días sin nadie en la casa') + '</small></div></div>' +
+      (dobles.length ? '<p class="kwarn">Ojo: ' + dobles.length + (dobles.length > 1 ? ' facturas de ' : ' factura de ') + dobles.map(function (f) { return supLabel(f.tipo); }).filter(function (v, i, a2) { return a2.indexOf(v) === i; }).join(', ') +
+        (dobles.length > 1 ? ' coinciden' : ' coincide') + ' con un gasto fijo del mismo concepto y se ' + (dobles.length > 1 ? 'están' : 'está') + ' contando dos veces. Borra la factura o ajusta las fechas del gasto fijo.</p>' : '') +
       tablaMeses() +
       '<section class="card"><h3>Reparto por inquilina</h3>' +
       (filas.length ? '<div class="tscroll"><table class="kt"><thead><tr><th>Inquilina</th><th>Habitación</th><th class="r">Días</th><th class="r">Ha aportado</th><th class="r">Le corresponde</th><th>Resultado</th><th></th></tr></thead><tbody>' +
@@ -1646,6 +1650,9 @@
         // Limpieza: cobros pendientes que se quedaron sin inquilina ni contrato (de fichas borradas)
         var huerf = G.cobros.filter(function (x) { return !x.pagado && !contract(x.contratoId) && !tenant(x.inquilinaId); });
         if (huerf.length && !document.body.classList.contains('ro')) { G.cobros = G.cobros.filter(function (x) { return huerf.indexOf(x) < 0; }); save(); }
+        // Facturas y gastos fijos que se metieron como «Otro» con nota de limpieza → categoría Limpieza
+        var reca = G.consumos.concat(G.consumosCfg.fijos || []).filter(function (x) { return x && x.tipo === 'otro' && /limpi/.test(norm(x.nota || '')); });
+        if (reca.length && !document.body.classList.contains('ro')) { reca.forEach(function (x) { x.tipo = 'limpieza'; x.editadoEn = now(); }); save(); }
         renderTabs(); show(tab);
         B.store.loadCambios().then(function (list) { PEND = list; renderPend(); });
         loadSol();
