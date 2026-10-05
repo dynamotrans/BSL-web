@@ -1443,6 +1443,7 @@
       case 'fin-contrato': return 'Salida de ' + op.inquilina + (rn ? ' (' + rn + ')' : '') + ' el ' + fmt(op.hasta);
       case 'cobro-pagado': return 'Cobro pagado: ' + op.inquilina + ' · ' + op.concepto + (op.metodo ? ' · ' + op.metodo : '') + (op.fecha ? ' · ' + fmt(op.fecha) : '');
       case 'incidencia': return 'Incidencia en ' + (rn || 'zonas comunes') + ': ' + op.titulo;
+      case 'factura': return 'Factura de ' + supLabel(op.suministro) + ': ' + money(op.importe) + ' · ' + fmt(op.desde) + ' → ' + fmt(op.hasta) + (op.nota ? ' · ' + op.nota : '');
       case 'ajustes': return 'Ajustes → ' + sets(op.set);
       default: return 'Operación desconocida: ' + op.tipo;
     }
@@ -1498,6 +1499,12 @@
         var x = G.cobros.filter(function (k) { return !k.pagado && ids.indexOf(k.contratoId) >= 0 && norm(k.concepto).indexOf(norm(op.concepto)) === 0; })[0];
         if (!x) throw new Error('No encuentro el cobro pendiente "' + op.concepto + '" de ' + op.inquilina + '.');
         x.pagado = true; x.fechaPago = op.fecha || today(); x.metodo = op.metodo || 'Transferencia';
+        return;
+      case 'factura':
+        if (!(num(op.importe) > 0) || !op.desde || !op.hasta || op.desde > op.hasta) throw new Error('Factura sin importe o con fechas no válidas.');
+        G.consumos = G.consumos || [];
+        if (G.consumos.some(function (f) { return f.tipo === op.suministro && f.desde === op.desde && f.hasta === op.hasta && num(f.importe) === num(op.importe); })) return; // ya estaba
+        G.consumos.push({ id: uid(), tipo: SUMIN.some(function (x) { return x[0] === op.suministro; }) ? op.suministro : 'otro', importe: num(op.importe), desde: op.desde, hasta: op.hasta, nota: op.nota || '', docs: [], creadoEn: now() });
         return;
       case 'incidencia':
         if (!op.titulo) throw new Error('Falta el título de la incidencia.');

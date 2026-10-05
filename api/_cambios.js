@@ -12,6 +12,7 @@
 //   { tipo: 'cobro-pagado', inquilina: 'Laura Pérez', concepto: 'Mensualidad octubre 2026', fecha: 'AAAA-MM-DD', metodo: 'Bizum' }
 //   { tipo: 'incidencia', titulo: '…', num: 4 | 'comun', detalle?, estado?, coste?, fecha? }
 //   { tipo: 'ajustes', set: { cursos: [2027, 2028], entrarYa: true } }
+//   { tipo: 'factura', suministro: 'luz' | 'agua' | 'internet' | 'gas' | 'otro', importe: 85.4, desde: 'AAAA-MM-DD', hasta: 'AAAA-MM-DD', nota: 'Endesa…' }
 export default [
   {
     id: '2026-09-25-1',
