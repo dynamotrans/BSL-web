@@ -382,5 +382,13 @@ export default [
       { tipo: 'factura', suministro: 'luz', importe: 60.98, desde: '2026-07-27', hasta: '2026-09-23', nota: 'Octopus Energy · nº 2026ENX00115277' },
       { tipo: 'factura', suministro: 'luz', importe: 8.22, desde: '2026-09-24', hasta: '2026-10-01', nota: 'Octopus Energy · nº 2026ENX00119446' }
     ]
+  },
+  {
+    id: '2026-10-05-4',
+    fecha: '2026-10-05',
+    resumen: 'Consumos: factura de agua 22/06–25/08/2026 (43,77 €)',
+    ops: [
+      { tipo: 'factura', suministro: 'agua', importe: 43.77, desde: '2026-06-22', hasta: '2026-08-25', nota: 'Factura nº PE2601732563 · contrato 0441943215' }
+    ]
   }
 ];
