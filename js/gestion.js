@@ -214,7 +214,7 @@
   }
 
   /* ---------- Pestañas ---------- */
-  var TABS = [['res', 'Panel de control'], ['sol', 'Solicitudes'], ['ocu', 'Ocupación'], ['hab', 'Habitaciones'], ['inq', 'Inquilinas'], ['cob', 'Cobros'], ['inc', 'Incidencias'], ['aju', 'Ajustes']];
+  var TABS = [['res', 'Panel de control'], ['sol', 'Solicitudes'], ['ocu', 'Ocupación'], ['hab', 'Habitaciones'], ['inq', 'Inquilinas'], ['cob', 'Cobros'], ['con', 'Consumos'], ['inc', 'Incidencias'], ['aju', 'Ajustes']];
   function renderTabs() {
     $('tabs').innerHTML = TABS.map(function (t) {
       var badge = '';
@@ -229,7 +229,7 @@
     renderTabs();
     $('tab-hab').hidden = t !== 'hab'; box.hidden = t === 'hab';
     if (t === 'hab') { A.refresh(); return; }
-    ({ res: viewResumen, sol: viewSolicitudes, inq: viewTenants, cob: viewCobros, inc: viewIncidencias, ocu: viewOcupacion, aju: viewAjustes })[t]();
+    ({ res: viewResumen, sol: viewSolicitudes, inq: viewTenants, cob: viewCobros, con: viewConsumos, inc: viewIncidencias, ocu: viewOcupacion, aju: viewAjustes })[t]();
     window.scrollTo(0, 0);
   }
   function refresh() { renderTabs(); if (tab !== 'hab') show(tab); }
@@ -848,30 +848,7 @@
       }
       if (d && window.confirm('¿Quitar este documento del contrato?')) { docs.splice(+d.getAttribute('data-ddel'), 1); drawDocs(); keepDocs(); }
     };
-    function readFile(file) {
-      return new Promise(function (res, rej) {
-        var isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
-        if (!isPdf && !/^image\//.test(file.type)) return rej(new Error(file.name + ': solo PDF o fotos.'));
-        var fr = new FileReader();
-        fr.onerror = function () { rej(new Error('No se ha podido leer ' + file.name)); };
-        fr.onload = function () {
-          if (isPdf) {
-            if (file.size > 3 * 1024 * 1024) return rej(new Error(file.name + ' pesa más de 3 MB.'));
-            return res({ data: fr.result.replace(/^data:[^;]*;/, 'data:application/pdf;'), tipo: 'pdf' });
-          }
-          var img = new Image();
-          img.onload = function () { // fotos: se reducen a 2000 px para que ocupen poco
-            var k = Math.min(1, 2000 / Math.max(img.width, img.height)), cv = document.createElement('canvas');
-            cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
-            cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-            res({ data: cv.toDataURL('image/jpeg', 0.82), tipo: 'img' });
-          };
-          img.onerror = function () { rej(new Error(file.name + ': formato de foto no admitido (usa JPG o PNG).')); };
-          img.src = fr.result;
-        };
-        fr.readAsDataURL(file);
-      });
-    }
+    var readFile = readDocFile;
     $('c-doc-in').onchange = function () {
       var files = Array.prototype.slice.call(this.files || []), st = $('c-doc-st'), errs = [];
       this.value = '';
@@ -1041,6 +1018,174 @@
         } });
     };
     bindCobros(box);
+  }
+
+  // PDF o foto → datos listos para subir (las fotos se reducen a 2000 px)
+  function readDocFile(file) {
+    return new Promise(function (res, rej) {
+      var isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+      if (!isPdf && !/^image\//.test(file.type)) return rej(new Error(file.name + ': solo PDF o fotos.'));
+      var fr = new FileReader();
+      fr.onerror = function () { rej(new Error('No se ha podido leer ' + file.name)); };
+      fr.onload = function () {
+        if (isPdf) {
+          if (file.size > 3 * 1024 * 1024) return rej(new Error(file.name + ' pesa más de 3 MB.'));
+          return res({ data: fr.result.replace(/^data:[^;]*;/, 'data:application/pdf;'), tipo: 'pdf' });
+        }
+        var img = new Image();
+        img.onload = function () {
+          var k = Math.min(1, 2000 / Math.max(img.width, img.height)), cv = document.createElement('canvas');
+          cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+          cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+          res({ data: cv.toDataURL('image/jpeg', 0.82), tipo: 'img' });
+        };
+        img.onerror = function () { rej(new Error(file.name + ': formato de foto no admitido (usa JPG o PNG).')); };
+        img.src = fr.result;
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+  function openDoc(d) {
+    var w = window.open('', '_blank');
+    B.store.fetchDoc(d.path).then(function (blob) { var u = URL.createObjectURL(blob); if (w) w.location.href = u; else window.location.href = u; },
+      function (e) { if (w) w.close(); if (e.status === 401) return A.expired(); A.alert(e.message); });
+  }
+
+  /* ---------- Consumos: facturas de suministros y reparto entre las inquilinas ---------- */
+  var SUMIN = [['luz', 'Luz'], ['agua', 'Agua'], ['internet', 'Internet / fibra'], ['gas', 'Gas'], ['otro', 'Otro']];
+  function supLabel(t) { return (SUMIN.filter(function (x) { return x[0] === t; })[0] || ['', 'Otro'])[1]; }
+  function eachDay(a, b, fn) { for (var d = a; d <= b; d = B.addDays(d, 1)) fn(d); }
+  function dayCount(a, b) { return Math.round((B.toDate(b) - B.toDate(a)) / 864e5) + 1; }
+  function viewConsumos() {
+    var cfg = G.consumosCfg, y0 = B.courseOf(today()), yDef = y0 !== null ? y0 : B.nextFullCourse(today()) - 1;
+    var y = +(box.dataset.ky || yDef), P0 = y + '-09-01', P1 = (y + 1) + '-08-31';
+    var modo = cfg.modo === 'habitaciones' ? 'habitaciones' : 'ocupantes';
+    var cuotaFija = num(cfg.cuota) > 0 ? num(cfg.cuota) : null;
+    var fact = G.consumos.filter(function (f) { return f.desde && f.hasta && f.desde <= P1 && f.hasta >= P0; })
+      .sort(function (a, b) { return a.desde < b.desde ? -1 : 1; });
+    // Fecha de corte: hasta donde llegan las facturas subidas (para no comparar con cuotas de meses sin factura)
+    var corte = fact.reduce(function (m, f) { return f.hasta > m ? f.hasta : m; }, '');
+    if (corte > P1) corte = P1;
+    var nHab = rooms().filter(function (rm) { return rm.activa; }).length || 8;
+    var conts = G.contratos.filter(function (c) { return c.desde <= P1 && c.hasta >= P0; });
+    var per = {}; // por inquilina
+    function slot(c) { var id = c.inquilinaId; return per[id] || (per[id] = { t: tenant(id), habs: [], dias: 0, aporta: 0, asignado: 0 }); }
+    var sinAsignar = 0, totalPeriodo = 0, porTipo = {};
+    fact.forEach(function (f) {
+      var bd = dayCount(f.desde, f.hasta), diario = num(f.importe) / bd;
+      var a = f.desde < P0 ? P0 : f.desde, b = f.hasta > P1 ? P1 : f.hasta;
+      eachDay(a, b, function (d) {
+        totalPeriodo += diario; porTipo[f.tipo] = (porTipo[f.tipo] || 0) + diario;
+        var occ = conts.filter(function (c) { return c.desde <= d && c.hasta >= d; });
+        if (!occ.length) { sinAsignar += diario; return; }
+        var parte = modo === 'habitaciones' ? diario / nHab : diario / occ.length;
+        occ.forEach(function (c) { slot(c).asignado += parte; });
+        if (modo === 'habitaciones') sinAsignar += diario - parte * occ.length;
+      });
+    });
+    // Lo que cada una ha aportado con su cuota de gastos, día a día hasta la fecha de corte
+    if (corte) conts.forEach(function (c) {
+      var s0 = slot(c), cuota = cuotaFija != null ? cuotaFija : num(c.gastos);
+      var rm = room(c.habitacionId); if (rm && s0.habs.indexOf(rm.nombre) < 0) s0.habs.push(rm.nombre);
+      var a = c.desde < P0 ? P0 : c.desde, b = c.hasta < corte ? c.hasta : corte;
+      if (a > b) return;
+      eachDay(a, b, function (d) { s0.dias++; s0.aporta += cuota / daysIn(+d.slice(0, 4), +d.slice(5, 7)); });
+    });
+    var filas = Object.keys(per).map(function (k) { var o = per[k]; o.id = k; o.dif = Math.round((o.aporta - o.asignado) * 100) / 100; return o; })
+      .filter(function (o) { return o.dias || o.asignado; })
+      .sort(function (a, b) { return a.dif - b.dif; });
+    var totAporta = filas.reduce(function (t, o) { return t + o.aporta; }, 0);
+    var r2 = function (n) { return Math.round(n * 100) / 100; };
+    var ys = []; for (var k = 2025; k <= yDef + 1; k++) ys.push(k);
+    box.innerHTML = '<div class="ghead"><h2>Consumos</h2><div class="gtools"><select id="ky">' + ys.map(function (c) { return '<option value="' + c + '"' + (c === y ? ' selected' : '') + '>Curso ' + B.courseLabel(c) + (c === y0 ? ' (actual)' : '') + '</option>'; }).join('') + '</select>' +
+      '<button class="btn edit-only" type="button" id="k-new">+ Añadir factura</button></div></div>' +
+      '<p class="hint">Sube las facturas de luz, agua, internet… El total se reparte entre las inquilinas según los días que estuvo cada una, y se compara con lo que pagan de gastos. Periodo: 1 sep ' + y + ' – 31 ago ' + (y + 1) + '.</p>' +
+      '<div class="tiles"><div><small>Facturas del periodo</small><b>' + money(r2(totalPeriodo)) + '</b><small>' + (SUMIN.filter(function (x) { return porTipo[x[0]]; }).map(function (x) { return x[1] + ' ' + money(r2(porTipo[x[0]])); }).join(' · ') || 'Sin facturas') + '</small></div>' +
+      '<div><small>Aportado por cuotas</small><b>' + money(r2(totAporta)) + '</b><small>' + (corte ? 'hasta el ' + fmt(corte) + ' (última factura)' : '—') + '</small></div>' +
+      '<div><small>Diferencia</small><b class="' + (totAporta - (totalPeriodo - sinAsignar) >= 0 ? 'ok' : 'bad') + '">' + money(r2(totAporta - (totalPeriodo - sinAsignar))) + '</b><small>' + (totAporta - (totalPeriodo - sinAsignar) >= 0 ? 'Las cuotas cubren los consumos' : 'Los consumos superan las cuotas') + '</small></div>' +
+      '<div><small>Sin repartir</small><b>' + money(r2(sinAsignar)) + '</b><small>' + (modo === 'habitaciones' ? 'habitaciones vacías (propiedad)' : 'días sin nadie en la casa') + '</small></div></div>' +
+      '<section class="card"><h3>Reparto por inquilina</h3>' +
+      (filas.length ? '<div class="tscroll"><table class="kt"><thead><tr><th>Inquilina</th><th>Habitación</th><th class="r">Días</th><th class="r">Ha aportado</th><th class="r">Le corresponde</th><th>Resultado</th><th></th></tr></thead><tbody>' +
+        filas.map(function (o) {
+          var debe = o.dif < -0.5, sobra = o.dif > 0.5;
+          return '<tr><td><b>' + esc(fullName(o.t)) + '</b></td><td>' + esc(o.habs.join(', ')) + '</td><td class="r">' + o.dias + '</td><td class="r">' + money(r2(o.aporta)) + '</td><td class="r">' + money(r2(o.asignado)) + '</td>' +
+            '<td>' + (debe ? chip('vencido', 'Debe ' + money(-o.dif)) : sobra ? chip('pagado', 'Le sobran ' + money(o.dif)) : chip('fin', 'En paz')) + '</td>' +
+            '<td class="r">' + (debe && o.t ? '<button type="button" class="mini edit-only" data-kcob="' + esc(o.id) + '" data-kimp="' + (-o.dif) + '">Crear cobro</button>' : '') + '</td></tr>';
+        }).join('') + '</tbody></table></div>' : '<p class="empty">' + (fact.length ? 'No hay inquilinas con contrato en este periodo.' : 'Añade la primera factura para ver el reparto.') + '</p>') +
+      '<p class="hint">«Ha aportado» = su cuota de suministros por los días que ha estado, hasta la fecha de la última factura subida. «Le corresponde» = su parte de las facturas por los días que estuvo.</p></section>' +
+      '<section class="card"><h3>Facturas</h3>' + (fact.length ? '<div class="tscroll"><table class="kt"><thead><tr><th>Suministro</th><th>Periodo</th><th class="r">Importe</th><th>Archivos</th><th></th></tr></thead><tbody>' +
+        fact.map(function (f) {
+          return '<tr><td><b>' + esc(supLabel(f.tipo)) + '</b>' + (f.nota ? '<small class="stamp">' + esc(f.nota) + '</small>' : '') + '</td><td>' + fmt(f.desde) + ' → ' + fmt(f.hasta) + '<small class="stamp">' + dayCount(f.desde, f.hasta) + ' días</small></td>' +
+            '<td class="r"><b>' + money(f.importe) + '</b></td><td>' + (f.docs || []).map(function (d, i) { return '<button type="button" class="mini" data-kdoc="' + esc(f.id) + ':' + i + '">' + (d.tipo === 'pdf' ? 'PDF' : 'Foto') + ' ' + (i + 1) + '</button>'; }).join(' ') + '</td>' +
+            '<td class="r"><button type="button" class="mini edit-only" data-kedit="' + esc(f.id) + '">Editar</button></td></tr>';
+        }).join('') + '</tbody></table></div>' : '<p class="empty">Todavía no hay facturas en este curso.</p>') + '</section>' +
+      '<section class="card edit-only" id="k-aju"><h3>Ajustes del reparto</h3><div class="grid">' +
+      '<label>Cuota de suministros por inquilina (€/mes)<input type="number" min="0" step="1" id="k-cuota" value="' + esc(cfg.cuota || '') + '" placeholder="Los gastos de cada contrato"></label>' +
+      '<label>Cómo se reparte<select id="k-modo"><option value="ocupantes"' + (modo === 'ocupantes' ? ' selected' : '') + '>Entre las inquilinas que hay cada día</option><option value="habitaciones"' + (modo === 'habitaciones' ? ' selected' : '') + '>Entre las ' + nHab + ' habitaciones (las vacías las asume la propiedad)</option></select></label>' +
+      '</div><p class="hint">Si los gastos mensuales incluyen también limpieza u otros servicios, pon aquí solo la parte que es para luz, agua, internet… Vacío = se usa el importe de gastos de cada contrato.</p></section>';
+    $('ky').onchange = function () { box.dataset.ky = this.value; viewConsumos(); };
+    $('k-new').onclick = function () { facturaForm(null); };
+    box.querySelectorAll('[data-kedit]').forEach(function (b) { b.onclick = function () { facturaForm(G.consumos.filter(function (f) { return f.id === b.getAttribute('data-kedit'); })[0]); }; });
+    box.querySelectorAll('[data-kdoc]').forEach(function (b) { b.onclick = function () { var p = b.getAttribute('data-kdoc').split(':'), f = G.consumos.filter(function (x) { return x.id === p[0]; })[0]; if (f) openDoc(f.docs[+p[1]]); }; });
+    var kc = $('k-cuota'); if (kc) kc.onchange = function () { cfg.cuota = num(this.value) || ''; save(); viewConsumos(); };
+    var km = $('k-modo'); if (km) km.onchange = function () { cfg.modo = this.value; save(); viewConsumos(); };
+    box.querySelectorAll('[data-kcob]').forEach(function (b) {
+      b.onclick = function () {
+        var tid = b.getAttribute('data-kcob'), imp = Math.round(num(b.getAttribute('data-kimp')) * 100) / 100, ref = 'consumos-' + y;
+        var c = activeContract(tid) || G.contratos.filter(function (x) { return x.inquilinaId === tid; })[0];
+        var ya = G.cobros.filter(function (x) { return x.consumoRef === ref && x.inquilinaId === tid && !x.pagado; })[0];
+        if (ya) { ya.importe = imp; ya.concepto = 'Exceso de consumos curso ' + B.courseLabel(y) + ' (hasta ' + fmt(corte) + ')'; ya.editadoEn = now(); }
+        else G.cobros.push({ id: uid(), contratoId: c ? c.id : '', inquilinaId: tid, tipo: 'otro', consumoRef: ref, mes: today().slice(0, 7), concepto: 'Exceso de consumos curso ' + B.courseLabel(y) + ' (hasta ' + fmt(corte) + ')', importe: imp, vence: B.addDays(today(), 10), pagado: false, creadoEn: now() });
+        save(); A.alert((ya ? 'Cobro actualizado: ' : 'Cobro creado en Cobros: ') + money(imp) + ' para ' + fullName(tenant(tid)) + '.'); viewConsumos();
+      };
+    });
+  }
+  function facturaForm(f) {
+    var isNew = !f; f = f || { tipo: 'luz', docs: [] };
+    var docs = (f.docs || []).slice();
+    openForm({
+      title: isNew ? 'Añadir factura' : 'Factura de ' + supLabel(f.tipo),
+      fields: [
+        { k: 'tipo', label: 'Suministro', type: 'select', opts: SUMIN },
+        { k: 'importe', label: 'Importe total (€)', type: 'number', step: '0.01' },
+        { k: 'desde', label: 'Periodo: desde', type: 'date' }, { k: 'hasta', label: 'Periodo: hasta', type: 'date' },
+        { k: 'nota', label: 'Compañía o nota', wide: true, ph: 'Ej.: Endesa, factura nº…' },
+        { k: 'docs', type: 'html', html: '<div class="docs"><h4 class="subh">PDF o foto de la factura</h4><div id="k-docs"></div>' +
+          '<label class="btn plain sm doc-add">+ Adjuntar PDF o fotos<input type="file" id="k-doc-in" accept="application/pdf,image/*" multiple hidden></label><p class="hint" id="k-doc-st">El importe y el periodo los escribes tú arriba (vienen en la factura).</p></div>' }
+      ],
+      values: { tipo: f.tipo, importe: f.importe, desde: f.desde || '', hasta: f.hasta || '', nota: f.nota || '' },
+      ok: isNew ? 'Guardar factura' : 'Guardar',
+      onSave: function (v) {
+        if (!(num(v.importe) > 0)) return 'Pon el importe de la factura.';
+        if (!v.desde || !v.hasta || v.desde > v.hasta) return 'Pon el periodo que cubre la factura (desde y hasta).';
+        delete v.docs; Object.keys(v).forEach(function (k) { f[k] = v[k]; }); f.docs = docs;
+        if (isNew) { f.id = uid(); f.creadoEn = now(); G.consumos.push(f); } else f.editadoEn = now();
+        save(); refresh();
+      },
+      needKey: isNew ? null : 'Vas a borrar esta factura de ' + supLabel(f.tipo) + ' (' + money(f.importe) + ').',
+      onDelete: isNew ? null : function () { G.consumos = G.consumos.filter(function (x) { return x !== f; }); save(); refresh(); }
+    });
+    function drawDocs() {
+      $('k-docs').innerHTML = docs.length ? docs.map(function (d, i) { return '<span class="doc"><button type="button" class="linkbtn" data-o="' + i + '">' + (d.tipo === 'pdf' ? '📄 ' : '🖼️ ') + esc(d.nombre) + '</button> <button type="button" class="mini" data-x="' + i + '">Quitar</button></span>'; }).join('') : '<p class="hint">Sin archivos.</p>';
+    }
+    drawDocs();
+    $('k-docs').onclick = function (e) {
+      var o = e.target.closest('[data-o]'), x = e.target.closest('[data-x]');
+      if (o) openDoc(docs[+o.getAttribute('data-o')]);
+      if (x) { docs.splice(+x.getAttribute('data-x'), 1); drawDocs(); }
+    };
+    $('k-doc-in').onchange = function () {
+      var files = Array.prototype.slice.call(this.files || []), st = $('k-doc-st'), errs = [];
+      this.value = ''; if (!files.length) return;
+      st.textContent = 'Subiendo ' + files.length + ' archivo' + (files.length > 1 ? 's' : '') + '…';
+      files.reduce(function (p, file) {
+        return p.then(function () {
+          return readDocFile(file).then(function (fd) {
+            return B.store.uploadDoc(fd.data).then(function (path) { docs.push({ id: uid(), nombre: file.name.slice(0, 120), tipo: fd.tipo, path: path, fecha: today() }); drawDocs(); });
+          }).catch(function (err) { if (err.status === 401) A.expired(); errs.push(err.message); });
+        });
+      }, Promise.resolve()).then(function () { st.textContent = errs.length ? errs.join(' ') : 'Listo. Pulsa «Guardar» para guardar la factura.'; });
+    };
   }
 
   /* ---------- Incidencias ---------- */
@@ -1225,6 +1370,7 @@
       sheet('Solicitudes', (SOL || []).map(function (x) { return { 'Recibida': fmtDT(x.fecha), 'Estado': (PRE_ST[x.estado] || PRE_ST.nueva)[1], 'Nombre': x.nombre, 'Apellidos': x.apellidos, 'Edad': x.edad || edad(x.nacimiento) || '', 'Teléfono': x.telefono || '', 'Email': x.email || '',
         'País': x.pais || '', 'Ciudad': x.provincia || '', 'Estudia': x.universidad || '', 'Habitación': x.habitacion || '', 'Pidió al principio': x.habitacionOriginal || '', 'Periodo': x.periodo && x.periodo.titulo || '',
         'Desde': dd(x.periodo && x.periodo.desde), 'Hasta': dd(x.periodo && x.periodo.hasta), 'Precio €/mes': num(x.precio), 'Mensaje': x.mensaje || '', 'Admitida': fmtDT(x.admitida) }; }));
+      sheet('Consumos', (G.consumos || []).slice().sort(function (a, b) { return a.desde < b.desde ? -1 : 1; }).map(function (f) { return { 'Suministro': supLabel(f.tipo), 'Desde': dd(f.desde), 'Hasta': dd(f.hasta), 'Importe €': num(f.importe), 'Compañía o nota': f.nota || '', 'Nº archivos': (f.docs || []).length }; }));
       top.file(root + '_DATOS.xlsx', XLSX.write(wb, { bookType: 'xlsx', type: 'array' }));
       top.file(root + '_COPIA_RESTAURAR.json', JSON.stringify({ fecha: new Date().toISOString(), habitaciones: A.data(), gestion: G, solicitudes: SOL }, null, 2));
       // 2) Lista de archivos a descargar
@@ -1237,6 +1383,9 @@
       (SOL || []).forEach(function (x) {
         var dir = '03_SOLICITUDES/' + (x.fecha || '').slice(0, 10) + '_' + fname(x.nombre + ' ' + x.apellidos);
         docsOf(x).forEach(function (d, i) { jobs.push({ dir: dir, base: fname(x.nombre + ' ' + x.apellidos) + '_SOLICITUD_' + fname(x.tipoDoc || 'DOCUMENTO') + '_' + (i + 1), get: function () { return B.store.fetchDoc(d.path); }, path: d.path }); });
+      });
+      (G.consumos || []).forEach(function (f) {
+        (f.docs || []).forEach(function (d, i) { jobs.push({ dir: '04_CONSUMOS', base: (f.desde || '') + '_' + fname(supLabel(f.tipo)) + '_' + String(num(f.importe)).replace('.', ',') + 'EUR_' + (i + 1), get: function () { return B.store.fetchDoc(d.path); }, path: d.path }); });
       });
       // Carpeta vacía de cada inquilina aunque no tenga documentos (así se ve quién está)
       G.inquilinas.forEach(function (t) { top.folder('02_INQUILINAS/' + fname(fullName(t))); });
@@ -1253,6 +1402,7 @@
           '01_HABITACIONES  → fotos de cada habitación (N1_AZAHAR_FOTO_01…).\r\n' +
           '02_INQUILINAS    → una carpeta por inquilina con los documentos de sus contratos (DNI, contrato firmado…).\r\n' +
           '03_SOLICITUDES   → documentos que enviaron con la solicitud, por fecha y nombre.\r\n' +
+          '04_CONSUMOS      → facturas de luz, agua, internet… (fecha_SUMINISTRO_importe).\r\n' +
           root + '_COPIA_RESTAURAR.json → copia técnica para poder recuperar el panel si hiciera falta.\r\n' +
           (fails.length ? '\r\nNo se pudieron descargar ' + fails.length + ' archivo(s):\r\n' + fails.join('\r\n') + '\r\n' : '') +
           '\r\nContiene datos personales: guárdalo en un sitio seguro.\r\n');
@@ -1410,7 +1560,7 @@
       dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
       $('tabs').onclick = function (e) { var b = e.target.closest('[data-t]'); if (b) { detail = null; show(b.getAttribute('data-t')); if (b.getAttribute('data-t') === 'sol') loadSol(); } };
       return B.store.loadGestion().then(function (g) {
-        G = g; G.cambios = G.cambios || [];
+        G = g; G.cambios = G.cambios || []; G.consumos = G.consumos || []; G.consumosCfg = G.consumosCfg || {};
         // Limpieza: cobros pendientes que se quedaron sin inquilina ni contrato (de fichas borradas)
         var huerf = G.cobros.filter(function (x) { return !x.pagado && !contract(x.contratoId) && !tenant(x.inquilinaId); });
         if (huerf.length && !document.body.classList.contains('ro')) { G.cobros = G.cobros.filter(function (x) { return huerf.indexOf(x) < 0; }); save(); }
