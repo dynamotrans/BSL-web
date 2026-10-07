@@ -1739,7 +1739,7 @@ footer img{height:56px;width:auto}
       sending = true; footer(); $r('res-msg').hidden = true;
       fetch('/api/solicitud', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: sig })
         .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var er = new Error(j.error || 'No se ha podido enviar.'); er.status = r.status; throw er; } return j; }); })
-        .then(function () { sending = false; savedSig = sig; goStep(3); }, function (err) {
+        .then(function () { sending = false; savedSig = sig; if (window.bslContacto) bslContacto('solicitud'); goStep(3); }, function (err) {
           sending = false; footer();
           // Si faltan datos, se avisa; si falla el servidor, se sigue para que al menos llegue por WhatsApp
           if (err.status && err.status < 500) stepErr('rd-err', err.message);
@@ -1757,7 +1757,7 @@ footer img{height:56px;width:auto}
     var wa = B.waLink(waText);
     sent = true; drawSum(); footer(); resDlg.scrollTop = 0; setTimeout(downState, 30);
     $r('res-sent-wa').href = wa || '#';
-    if (wa) setTimeout(function () { window.location.href = wa; }, 400);
+    if (wa) { if (window.bslContacto) bslContacto('whatsapp'); setTimeout(function () { window.location.href = wa; }, 400); }
   });
 
   document.addEventListener('click', function (e) {

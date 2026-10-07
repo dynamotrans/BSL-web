@@ -23,6 +23,18 @@
   gtag('js', new Date());
   gtag('config', ID);
 
+  // Conversión «contact» (Google Ads): al pulsar un enlace de WhatsApp o al enviar una solicitud.
+  // Una sola vez por visita a la página, para no contar doble (solicitud + WhatsApp del mismo paso).
+  var contado = false;
+  window.bslContacto = function (via) {
+    if (contado) return; contado = true;
+    gtag('event', 'contact', { method: via || 'web' });
+  };
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href*="wa.me/"],a[href*="api.whatsapp.com"]');
+    if (a) window.bslContacto('whatsapp');
+  }, true);
+
   var s = document.createElement('script');
   s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID;
   document.head.appendChild(s);
