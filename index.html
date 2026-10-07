@@ -5,12 +5,13 @@
 <meta name="format-detection" content="telephone=no,address=no,email=no">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>BSL · Boutique Student Living</title>
-<meta name="description" content="Habitaciones solo para chicas, en su mayoría estudiantes, en Dos Hermanas (Sevilla). Casa de 205 m² reformada, limpieza semanal, a 6 min en bus de la Universidad Loyola y en la misma calle que el tren Cercanías. Desde 350 €/mes.">
+<meta name="description" content="Boutique Student Living · Habitaciones desde 300 €/mes. Solo para chicas estudiantes en Dos Hermanas (Sevilla), casa reformada de 205 m² a 6 min de la Universidad Loyola.">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="BSL · Boutique Student Living">
 <meta property="og:title" content="BSL · Boutique Student Living · Dos Hermanas">
 <link rel="canonical" href="https://www.bslhome.es/">
 <meta property="og:url" content="https://www.bslhome.es/">
-<meta property="og:description" content="Habitaciones solo para chicas, en su mayoría estudiantes. Casa reformada de 205 m², a 6 min de la Universidad Loyola. Desde 350 €/mes.">
+<meta property="og:description" content="Habitaciones desde 300 €/mes solo para chicas estudiantes. Casa reformada de 205 m², a 6 min de la Universidad Loyola.">
 <meta property="og:image" content="images/og-bsl.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -25,10 +26,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@600&display=swap">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LocalBusiness","name":"BSL · Boutique Student Living","url":"https://www.bslhome.es/","description":"Habitaciones solo para chicas, en su mayoría estudiantes, en Dos Hermanas (Sevilla).","address":{"@type":"PostalAddress","streetAddress":"Calle Canónigo","postalCode":"41701","addressLocality":"Dos Hermanas","addressRegion":"Sevilla","addressCountry":"ES"},"priceRange":"Desde 350 €/mes","image":"https://www.bslhome.es/images/pasillo-azulejos.jpg","logo":"https://www.bslhome.es/images/icon-512.png"}
+{"@context":"https://schema.org","@type":"LocalBusiness","name":"BSL · Boutique Student Living","url":"https://www.bslhome.es/","description":"Habitaciones solo para chicas, en su mayoría estudiantes, en Dos Hermanas (Sevilla).","address":{"@type":"PostalAddress","streetAddress":"Calle Canónigo","postalCode":"41701","addressLocality":"Dos Hermanas","addressRegion":"Sevilla","addressCountry":"ES"},"priceRange":"Desde 300 €/mes","image":"https://www.bslhome.es/images/pasillo-azulejos.jpg","logo":"https://www.bslhome.es/images/icon-512.png"}
 </script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","name":"BSL","alternateName":["BSL · Boutique Student Living","bslhome.es"],"url":"https://www.bslhome.es/"}
+{"@context":"https://schema.org","@type":"WebSite","name":"BSL · Boutique Student Living","alternateName":["BSL","Boutique Student Living","bslhome.es"],"url":"https://www.bslhome.es/"}
 </script>
 <style>
 :root{
@@ -1462,7 +1463,7 @@ footer img{height:56px;width:auto}
     var m = Math.min.apply(null, ps);
     document.querySelectorAll('.js-min').forEach(function (el) { el.textContent = m; if (el.hasAttribute('data-count')) el.setAttribute('data-count', m); });
     // también en la descripción para buscadores y en los datos estructurados
-    document.querySelectorAll('meta[name="description"],meta[property="og:description"]').forEach(function (mt) { mt.content = mt.content.replace(/Desde \d+ €/, 'Desde ' + m + ' €'); });
+    document.querySelectorAll('meta[name="description"],meta[property="og:description"]').forEach(function (mt) { mt.content = mt.content.replace(/([Dd])esde \d+ €/, '$1esde ' + m + ' €'); });
     document.querySelectorAll('script[type="application/ld+json"]').forEach(function (sc) { sc.textContent = sc.textContent.replace(/Desde \d+ €/, 'Desde ' + m + ' €'); });
   }
   function load() { B.store.load().then(function (d) { if (B.needsFichas(d)) B.applyFichas(d.rooms); data = d; render(); setMin(); }); }
