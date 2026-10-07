@@ -1,7 +1,40 @@
 {
   "redirects": [
-    { "source": "/:path*", "has": [{ "type": "host", "value": "bsl-web.vercel.app" }], "destination": "https://www.bslhome.es/:path*", "permanent": true },
-    { "source": "/:lang(es|en|fr|de|it|pt|nl|ar|ja)", "destination": "/", "permanent": true },
-    { "source": "/:lang(es|en|fr|de|it|pt|nl|ar|ja)/:path*", "destination": "/", "permanent": true }
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "bsl-web.vercel.app"
+        }
+      ],
+      "destination": "https://www.bslhome.es/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:lang(es|en|fr|de|it|pt|nl|ar|ja)",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/:lang(es|en|fr|de|it|pt|nl|ar|ja)/:path*",
+      "destination": "/",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/g-a29a9962d7b2.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        }
+      ]
+    }
   ]
 }

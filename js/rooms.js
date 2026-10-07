@@ -1,5 +1,5 @@
 /* BSL · datos de habitaciones y disponibilidad.
- * Compartido por la web pública (index.html) y el panel (admin.html).
+ * Compartido por la web pública (index.html) y el panel.
  *
  * Los datos se guardan en Vercel Blob a través de /api (ver api/). Si no hay
  * servidor (p. ej. vista previa local), se usa el navegador como respaldo.
