@@ -36,5 +36,16 @@
         }
       ]
     }
-  ]
+  ],
+  "crons": [
+    {
+      "path": "/api/copia",
+      "schedule": "0 2 * * *"
+    }
+  ],
+  "functions": {
+    "api/copia.js": {
+      "maxDuration": 60
+    }
+  }
 }

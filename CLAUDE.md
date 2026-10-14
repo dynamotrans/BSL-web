@@ -62,3 +62,7 @@ La red de la sesión bloquea `bsl-web.vercel.app`, así que los cambios de datos
 - Se aplica todo o nada (si una operación falla, se deshace y queda pendiente con el motivo). Lo aplicado/descartado queda registrado en `gestion.cambios`, así que los cambios ya resueltos pueden quedarse en el archivo o borrarse.
 - Antes de preparar un cambio, leer el estado actual con `web_fetch_vercel_url` de `/api/datos` (público, sin datos personales). Los datos personales (`/api/gestion`) no se pueden leer desde la sesión.
 - Calendario de cada habitación: el formulario de "añadir intervalo" pasa a **asistente por pasos** (1 ¿Ocupada o libre? → 2 ¿Qué fechas? curso completo / desde un día hasta fin de curso / otras → 3 fechas si hace falta → resumen en una frase + Guardar). Pulsar un mes del cuadro rellena "otras fechas" con ese mes.
+
+### 2026-10-14 — Copia nocturna en el Blob
+- `api/copia.js` + cron en `vercel.json` (02:00 UTC ≈ 3-4 h en España): copia todos los `.json` del almacén a `copias/AAAA-MM-DD/` (se guardan 30 días) y archiva una vez cada foto/documento en `copias/archivos/`. Solo una copia por día aunque se llame varias veces. Si se define `CRON_SECRET` en Vercel, el cron lo usa; si no, se admite el `user-agent` `vercel-cron/`.
+- Panel → Ajustes → «Copias automáticas»: lista de días con descarga (mismo formato que `_COPIA_RESTAURAR.json`) y botón «Hacer copia ahora» (solo admin).

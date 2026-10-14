@@ -277,6 +277,16 @@
         });
       });
     },
+    // Copias automáticas nocturnas (api/copia.js)
+    copias: function () {
+      return fetch('/api/copia?listar=1', { headers: { Authorization: 'Bearer ' + getToken() }, cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : { dias: [] }; });
+    },
+    copia: function (fecha) {
+      return fetch('/api/copia?fecha=' + encodeURIComponent(fecha), { headers: { Authorization: 'Bearer ' + getToken() }, cache: 'no-store' })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) throw new Error(j.error || ('Error ' + r.status)); return j; }); });
+    },
+    copiaAhora: function () { return post('/api/copia', {}, true); },
     loadCambios: function () {
       if (!BSLStore.remote) return Promise.resolve([]);
       return fetch('/api/cambios', { headers: { Authorization: 'Bearer ' + getToken() }, cache: 'no-store' })

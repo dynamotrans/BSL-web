@@ -1378,7 +1378,10 @@
         return '<label class="switch"><input type="checkbox" data-y="' + y + '"' + (vis.indexOf(y) >= 0 ? ' checked' : '') + '> Curso ' + B.courseLabel(y) + ' <small>(1 sep ' + y + ' – 31 jul ' + (y + 1) + ')</small></label>';
       }).join('') + '</div></section>' +
       '<section class="card" id="backup-card"><h3>Copia de seguridad</h3><p class="hint">Descarga en un archivo todas las habitaciones, inquilinas, contratos, cobros e incidencias. Guárdalo en un sitio seguro: contiene datos personales.</p>' +
-      '<div><button class="btn plain" type="button" id="backup">Descargar copia</button></div></section>' +
+      '<div><button class="btn plain" type="button" id="backup">Descargar copia</button></div>' +
+      '<h3 style="margin-top:18px">Copias automáticas</h3><p class="hint">Cada noche se guarda sola una copia en el almacén (habitaciones, inquilinas, contratos, cobros, consumos, incidencias y solicitudes). Se guardan los últimos 30 días; las fotos y documentos se archivan una vez y no se borran.</p>' +
+      '<div id="copias-list" class="hint">Cargando…</div>' +
+      '<div><button class="btn plain sm edit-only" type="button" id="copia-ahora">Hacer copia ahora</button> <span class="hint" id="copia-st"></span></div></section>' +
       '<section class="card" id="export-card"><h3>Descargar todo en una carpeta</h3><p class="hint">Un archivo ZIP con un <b>Excel</b> (habitaciones, inquilinas, contratos, cobros, incidencias y solicitudes), las <b>fotos de cada habitación</b> y los <b>documentos</b> (DNI, contratos…) de cada inquilina y solicitud, con nombres claros. Contiene datos personales: guárdalo en un sitio seguro.</p>' +
       '<div><button class="btn" type="button" id="export-all">📦 Descargar carpeta completa</button> <span class="hint" id="export-st"></span></div></section>';
     box.querySelectorAll('[data-y]').forEach(function (c) {
@@ -1390,6 +1393,32 @@
     });
     if ($('aj-ya')) $('aj-ya').onchange = function () { aj.entrarYa = this.checked; A.saveRooms(); };
     $('export-all').onclick = function () { exportAll(this, $('export-st')); };
+    function pintaCopias() {
+      if (!B.store.remote) { $('copias-list').textContent = 'Solo funciona con la web publicada.'; return; }
+      B.store.copias().then(function (j) {
+        var ds = (j && j.dias) || [], el = $('copias-list');
+        if (!el) return;
+        el.innerHTML = ds.length ? ds.map(function (d) { return '<button type="button" class="mini" data-copia="' + d + '">⬇ ' + d.split('-').reverse().join('/') + '</button>'; }).join(' ') : 'Aún no hay copias: la primera se hace esta noche.';
+        el.querySelectorAll('[data-copia]').forEach(function (b) {
+          b.onclick = function () {
+            var d = this.getAttribute('data-copia'), btn = this; btn.disabled = true;
+            B.store.copia(d).then(function (c) {
+              var blob = new Blob([JSON.stringify(c, null, 2)], { type: 'application/json' });
+              var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'bsl-copia-auto-' + d + '.json';
+              document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+            }, function (e) { A.alert(e.message); }).then(function () { btn.disabled = false; });
+          };
+        });
+      });
+    }
+    pintaCopias();
+    $('copia-ahora').onclick = function () {
+      var btn = this; btn.disabled = true; $('copia-st').textContent = 'Copiando…';
+      B.store.copiaAhora().then(function (r) {
+        $('copia-st').textContent = 'Hecha (' + r.jsons + ' archivos de datos' + (r.archivosNuevos ? ', ' + r.archivosNuevos + ' fotos/documentos nuevos' : '') + ').';
+        pintaCopias();
+      }, function (e) { $('copia-st').textContent = e.message; }).then(function () { btn.disabled = false; });
+    };
     $('backup').onclick = function () {
       var blob = new Blob([JSON.stringify({ fecha: new Date().toISOString(), habitaciones: A.data(), gestion: G }, null, 2)], { type: 'application/json' });
       var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'bsl-copia-' + today() + '.json';
