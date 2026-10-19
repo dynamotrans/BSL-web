@@ -705,7 +705,8 @@ label.bad input,label.bad select,label.bad textarea{border-color:#d4456f!importa
 .fab-btn{position:relative;width:66px;height:66px;border-radius:50%;border:0;padding:0;background:none;cursor:pointer;pointer-events:auto;transition:transform .25s ease}
 .fab-btn:hover{transform:scale(1.05)}
 .fab-av{position:absolute;inset:0;border-radius:50%;overflow:hidden;display:grid;place-items:end center;background:linear-gradient(160deg,#e7efed,#cfe0dd);box-shadow:0 12px 30px -8px rgba(0,0,0,.45),0 0 0 3px #fff,0 0 0 6px transparent}
-.fab-av svg{width:100%;height:100%}
+.fab-av{background:var(--teal);place-items:center}
+.fab-av img{width:78%;height:auto;margin-top:2px}
 .fab-btn::before{content:"";position:absolute;inset:-5px;border-radius:50%;background:var(--grad);z-index:-1}
 .fab-btn::after{content:"";position:absolute;right:2px;bottom:2px;width:15px;height:15px;border-radius:50%;background:#22c55e;border:2.5px solid #fff}
 .fab-name{position:absolute;right:calc(100% + 12px);top:50%;transform:translateY(-50%) translateX(8px);background:#fff;color:var(--teal-deep);padding:8px 13px;border-radius:14px;text-align:right;white-space:nowrap;box-shadow:0 8px 22px -8px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .25s ease,transform .35s cubic-bezier(.34,1.56,.64,1)}
@@ -1193,15 +1194,7 @@ footer img{height:56px;width:auto}
   </div>
   <button type="button" class="fab-btn" id="fab-btn" aria-haspopup="true" aria-expanded="false" aria-label="Abrir opciones de contacto">
     <span class="fab-name" aria-hidden="true"><b>BSL</b><small id="fab-st">Respondemos enseguida</small><span class="fab-hours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Lunes a domingo · 10:00–19:00</span></span>
-    <span class="fab-av" aria-hidden="true"><svg viewBox="0 0 64 64"><defs><linearGradient id="avtop" x1="0" x2="1"><stop offset="0" stop-color="#e2587a"/><stop offset="1" stop-color="#f3b45c"/></linearGradient></defs>
-      <path d="M8 64c2-11 11-17 24-17s22 6 24 17z" fill="url(#avtop)"/>
-      <path d="M27.5 40h9v7c0 3.5-9 3.5-9 0z" fill="#e3ad8c"/>
-      <ellipse cx="32" cy="30" rx="10.5" ry="11.5" fill="#f0c3a3"/>
-      <ellipse cx="21.6" cy="31.5" rx="1.8" ry="2.6" fill="#e9b596"/><ellipse cx="42.4" cy="31.5" rx="1.8" ry="2.6" fill="#e9b596"/>
-      <path d="M20.4 36c-1.8-4-1.6-9.6.4-13.4 2-4 6.2-6.9 11.2-6.9s9.2 2.9 11.2 6.9c2 3.8 2.2 9.4.4 13.4-.8-2.6-1.2-5.2-1.4-7.6-1.8-1.6-3.2-3.4-4-5.4-3.8 2.6-9.4 3.6-14.6 3.2-.6 1.2-1 2.6-1.2 4.2-.2 2.4-.6 4.6-2 5.6z" fill="#5a3b2e"/>
-      <circle cx="28" cy="31.5" r="1.2" fill="#3a2a24"/><circle cx="36" cy="31.5" r="1.2" fill="#3a2a24"/>
-      <path d="M29 36.5c1.8 1.3 4.2 1.3 6 0" stroke="#9b4a3c" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-    </svg></span>
+    <span class="fab-av" aria-hidden="true"><img src="images/logo-mark.png" alt="" width="360" height="240"></span>
   </button>
 </div>
 
