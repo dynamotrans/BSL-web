@@ -2028,6 +2028,14 @@ var WA_NUMBER = (window.BSL_CONFIG && window.BSL_CONFIG.whatsapp) || '';
     s.src = 'https://translate.google.com/translate_a/element.js?cb=bslGT';
     s.onerror = function () { loaded = false; };
     document.body.appendChild(s);
+    // El traductor mete en <body> su icono de carga (gira), globos y marcos: se ocultan al aparecer,
+    // aunque Google cambie sus nombres internos. Solo toca lo que cuelga directamente de <body>.
+    function hideGT(n) {
+      if (n.nodeType !== 1 || n.id === 'google_translate_element' || n.tagName === 'SCRIPT' || n.tagName === 'DIALOG') return;
+      var c = String(n.className && n.className.baseVal !== undefined ? n.className.baseVal : n.className || '');
+      if (/VIpgJd-|goog-te|skiptranslate/.test(c) || n.id === 'goog-gt-tt' || (n.tagName === 'IFRAME' && /translate/i.test(n.src + n.id))) n.style.setProperty('display', 'none', 'important');
+    }
+    if (window.MutationObserver) new MutationObserver(function (ms) { ms.forEach(function (m) { m.addedNodes.forEach(hideGT); }); }).observe(document.body, { childList: true });
   }
   window.bslGT = function () {
     new google.translate.TranslateElement({ pageLanguage: 'es', autoDisplay: false, includedLanguages: 'pt,en,de,nl,fr,it,ar,zh-CN,ja' }, 'google_translate_element');
