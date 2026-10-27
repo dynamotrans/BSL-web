@@ -66,3 +66,11 @@ La red de la sesión bloquea `bsl-web.vercel.app`, así que los cambios de datos
 ### 2026-10-14 — Copia nocturna en el Blob
 - `api/copia.js` + cron en `vercel.json` (02:00 UTC ≈ 3-4 h en España): copia todos los `.json` del almacén a `copias/AAAA-MM-DD/` (se guardan 30 días) y archiva una vez cada foto/documento en `copias/archivos/`. Solo una copia por día aunque se llame varias veces. Si se define `CRON_SECRET` en Vercel, el cron lo usa; si no, se admite el `user-agent` `vercel-cron/`.
 - Panel → Ajustes → «Copias automáticas»: lista de días con descarga (mismo formato que `_COPIA_RESTAURAR.json`) y botón «Hacer copia ahora» (solo admin).
+
+### 2026-10-27 — Páginas de sección con URL propia
+- **Fuente única: `tools/generar_paginas.py`.** Genera `habitaciones.html` (→ `/habitaciones`), `404.html`, `css/bsl.css` y `sitemap.xml`. Cabecera, pie, botón de contacto (bloque `/* MARCO:fab */` de `index.html`), selector de idiomas y estilos se copian de `index.html`: **si cambias la portada, vuelve a ejecutar el script**. No editar a mano los HTML generados.
+- Precios, m², cama, equipamiento, fotos y disponibilidad: el script los pone desde `/api/datos` (o `tools/datos-publicos.json` sin red) y `js/seccion.js` los actualiza en directo. El script también refresca en `index.html` los valores de respaldo («Desde N €», camas, descripción para buscadores).
+- Reglas de contenido (no duplicar): las páginas se escriben, no se copian de la portada. Medir con `node tools/medir_duplicados.mjs <url-base> /habitaciones` (8 palabras; copiado ≤ 10 %, propio ≥ 50 %, ≥ 500 palabras propias). No inventar datos.
+- `vercel.json` con `cleanUrls`: las URLs van sin `.html` (el panel queda en `/g-a29a9962d7b2`). `/?reservar=hN` abre la reserva de esa habitación en la portada.
+- **Cada vez que se cree o cambie una página pública: Search Console → Sitemaps → reenviar `sitemap.xml`** y pedir indexación de la URL. Sin eso Google puede tardar meses en enterarse.
+- Pendientes de datos: `/la-casa`, `/ubicacion`, `/precios-y-condiciones` (se activan en `SECCIONES` del script cuando tengan texto propio suficiente).
