@@ -1,9 +1,9 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /condiciones-solicitud.html
-Disallow: /cookies.html
-Disallow: /privacidad.html
-Disallow: /aviso-legal.html
+Disallow: /condiciones-solicitud
+Disallow: /cookies
+Disallow: /privacidad
+Disallow: /aviso-legal
 
 Sitemap: https://www.bslhome.es/sitemap.xml

@@ -48,7 +48,7 @@
     var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
     var bar = document.createElement('div');
     bar.className = 'ck-bar'; bar.setAttribute('role', 'dialog'); bar.setAttribute('aria-label', 'Cookies');
-    bar.innerHTML = '<p>Usamos cookies de Google Ads para saber si nuestros anuncios funcionan. Solo se activan si aceptas. <a href="/cookies.html">Más información</a></p>' +
+    bar.innerHTML = '<p>Usamos cookies de Google Ads para saber si nuestros anuncios funcionan. Solo se activan si aceptas. <a href="/cookies">Más información</a></p>' +
       '<div class="ck-btns"><button type="button" class="ck-no">Rechazar</button><button type="button" class="ck-si">Aceptar</button></div>';
     bar.hidden = !!elegido;
     document.body.appendChild(bar);
