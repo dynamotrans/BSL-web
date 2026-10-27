@@ -237,6 +237,7 @@ def pagina(p, slug, titulo, desc, h1, cuerpo, ld, og_img, nombre_sec, indexable=
 {p['totop']}
 {enlazar(p['fab'])}
 
+<script src="/js/menu.js"></script>
 <script src="/js/rooms.js"></script>
 <script>
 {p['tel_js']}

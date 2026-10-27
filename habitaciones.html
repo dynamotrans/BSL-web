@@ -113,11 +113,20 @@ body{background:var(--ground)}
       <a href="/#fotos">Fotos</a>
       <a href="/habitaciones">Habitaciones</a>
       <a href="/ubicacion">Ubicación</a>
-      <a href="/precios-y-condiciones">Condiciones</a>
+      <a href="/precios-y-condiciones">Precios</a>
     </nav>
     <div class="lang notranslate" translate="no"><button type="button" class="lang-btn" id="lang-btn" aria-haspopup="true" aria-expanded="false" aria-label="Idioma"><span class="flag">🇪🇸</span><span class="code">ES</span><span class="arr" aria-hidden="true">▾</span></button><div class="lang-dd" id="lang-dd" role="menu" hidden><button type="button" class="lang-opt active" role="menuitem" data-lang="es" data-flag="🇪🇸" data-code="ES"><span class="flag">🇪🇸</span> Español</button><button type="button" class="lang-opt" role="menuitem" data-lang="pt" data-flag="🇵🇹" data-code="PT"><span class="flag">🇵🇹</span> Português</button><button type="button" class="lang-opt" role="menuitem" data-lang="en" data-flag="🇬🇧" data-code="EN"><span class="flag">🇬🇧</span> English</button><button type="button" class="lang-opt" role="menuitem" data-lang="de" data-flag="🇩🇪" data-code="DE"><span class="flag">🇩🇪</span> Deutsch</button><button type="button" class="lang-opt" role="menuitem" data-lang="nl" data-flag="🇳🇱" data-code="NL"><span class="flag">🇳🇱</span> Nederlands</button><button type="button" class="lang-opt" role="menuitem" data-lang="fr" data-flag="🇫🇷" data-code="FR"><span class="flag">🇫🇷</span> Français</button><button type="button" class="lang-opt" role="menuitem" data-lang="it" data-flag="🇮🇹" data-code="IT"><span class="flag">🇮🇹</span> Italiano</button><button type="button" class="lang-opt" role="menuitem" data-lang="ar" data-flag="🇸🇦" data-code="AR"><span class="flag">🇸🇦</span> العربية</button><button type="button" class="lang-opt" role="menuitem" data-lang="zh-CN" data-flag="🇨🇳" data-code="ZH"><span class="flag">🇨🇳</span> 中文</button><button type="button" class="lang-opt" role="menuitem" data-lang="ja" data-flag="🇯🇵" data-code="JA"><span class="flag">🇯🇵</span> 日本語</button></div></div>
     <a class="btn" href="/habitaciones">Reservar plaza</a>
+    <button type="button" class="mn-btn" id="mn-btn" aria-expanded="false" aria-controls="mn-panel" aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path class="mn-i1" d="M4 7h16"/><path class="mn-i2" d="M4 12h16"/><path class="mn-i3" d="M4 17h16"/></svg></button>
   </div>
+  <nav class="mn-panel" id="mn-panel" aria-label="Menú" hidden>
+    <a href="/">Portada</a>
+    <a href="/la-casa">La casa</a>
+    <a href="/#fotos">Fotos</a>
+    <a href="/habitaciones">Habitaciones</a>
+    <a href="/ubicacion">Ubicación</a>
+    <a href="/precios-y-condiciones">Precios y condiciones</a>
+  </nav>
 </header>
 
 <main class="sp-main" id="inicio">
@@ -299,6 +308,7 @@ desde ese momento hasta el 31 de julio.</p></section>
   </button>
 </div>
 
+<script src="/js/menu.js"></script>
 <script src="/js/rooms.js"></script>
 <script>
 var WA_NUMBER = (window.BSL_CONFIG && window.BSL_CONFIG.whatsapp) || '';

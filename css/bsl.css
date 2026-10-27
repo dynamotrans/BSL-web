@@ -81,6 +81,19 @@ a,button,select,summary,[role=button]{cursor:var(--cursor),pointer}
 .btn.line:hover{box-shadow:inset 0 0 0 1.5px var(--cream)}
 .btn.line.dark{color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
 .top .btn{padding:10px 18px;font-size:.88rem}
+/* Menú móvil (☰) de la cabecera: mismas secciones que el menú de escritorio */
+.mn-btn{display:none;flex:0 0 auto;width:38px;height:38px;border-radius:50%;border:0;padding:0;place-items:center;background:rgba(243,239,230,.1);color:var(--cream);box-shadow:inset 0 0 0 1.5px rgba(243,239,230,.28);cursor:pointer}
+.mn-btn svg{width:20px;height:20px}
+.mn-btn svg path{transition:transform .25s ease,opacity .2s ease;transform-origin:12px 12px}
+.mn-btn[aria-expanded="true"] .mn-i1{transform:translateY(5px) rotate(45deg)}
+.mn-btn[aria-expanded="true"] .mn-i2{opacity:0}
+.mn-btn[aria-expanded="true"] .mn-i3{transform:translateY(-5px) rotate(-45deg)}
+.mn-panel{box-sizing:border-box;display:grid;gap:2px;padding:8px 16px 14px;background:#0f3033;box-shadow:0 18px 30px -18px rgba(0,0,0,.6)}
+.mn-panel[hidden]{display:none}
+.top.mn-open{background:#0f3033}
+.mn-panel a{display:block;padding:13px 4px;border-bottom:1px solid rgba(243,239,230,.1);color:var(--cream);font:600 1rem/1.2 var(--sans);text-decoration:none}
+.mn-panel a:last-child{border-bottom:0}
+.mn-panel a[aria-current="page"]{color:var(--sun)}
 /* Selector de idioma (Google Translate, igual que en Dynamo) */
 .lang{position:relative;flex:0 0 auto}
 .lang-btn{display:flex;align-items:center;gap:6px;height:38px;padding:0 11px;border-radius:999px;border:0;background:rgba(243,239,230,.1);box-shadow:inset 0 0 0 1.5px rgba(243,239,230,.28);color:var(--cream);font:700 .8rem/1 var(--sans);cursor:pointer}
@@ -716,6 +729,7 @@ footer img{height:56px;width:auto}
 /* Portada de escritorio: texto a la izquierda y collage de fotos a la derecha (en móvil se queda la foto de fondo) */
 .collage,.hero-ctas,.hero-facts{display:none}
 @media (min-width:901px){
+  .mn-panel{display:none!important}
   .intro{height:100vh;height:100svh;min-height:640px}
   .stage{background:radial-gradient(ellipse 60% 70% at 78% 50%,rgba(240,138,108,.10),transparent 70%),var(--teal-deep)}
   .stage .photo,.welcome{display:none}
@@ -766,6 +780,7 @@ footer img{height:56px;width:auto}
 }
 @media (max-width:900px){
   .nav{display:none}
+  .mn-btn{display:grid;order:4}
   .top .btn{margin-left:auto}
   .intro{height:125vh}
   .stage .photo{inset:0;border-radius:0}
