@@ -44,7 +44,8 @@
         var p = B.priceFor(r, yr); if (p > 0) ps.push(p);
         set(box, 'm2', B.m2(r.m2)); set(box, 'cama', r.cama); set(box, 'precio', p); set(box, 'gastos', r.gastos);
         set(box, 'equip', (r.equipamiento || []).join(', '));
-        var img = box.querySelector('[data-f="foto"]'); if (img && r.fotos && r.fotos[0] && img.getAttribute('src') !== r.fotos[0]) img.src = r.fotos[0];
+        var f0 = r.fotos && r.fotos[0] ? (/^(\/|http)/.test(r.fotos[0]) ? r.fotos[0] : '/' + r.fotos[0]) : '';
+        var img = box.querySelector('[data-f="foto"]'); if (img && f0 && img.getAttribute('src') !== f0) img.src = f0;
         var ia = box.querySelector('[data-f="ia"]'); if (ia) ia.hidden = !(r.fotosIA && r.fotos && r.fotos.length);
         var badge = box.querySelector('[data-f="estado"]');
         if (badge && st) { badge.className = 'sp-st ' + st.kind; badge.lastChild.textContent = st.text; }

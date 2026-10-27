@@ -102,7 +102,7 @@ def enlazar(frag):
     frag = re.sub(r'href="#([\w-]+)"', f, frag)
     for l in LEGALES:
         frag = frag.replace('href="/%s.html"' % l, 'href="/%s"' % l)
-    return frag
+    return frag.replace('src="images/', 'src="/images/')  # rutas absolutas: valen en cualquier URL
 
 
 # ---------------------------------------------------------------- plantilla
@@ -227,7 +227,7 @@ def pagina(p, slug, titulo, desc, h1, cuerpo, ld, og_img, nombre_sec, indexable=
 
 {enlazar(p['footer'])}
 {p['totop']}
-{p['fab']}
+{enlazar(p['fab'])}
 
 <script src="/js/rooms.js"></script>
 <script>
@@ -282,6 +282,8 @@ def ficha(r):
     n = r['num']
     pos, txt = HAB_TXT.get(n, ('', ''))
     foto = (r.get('fotos') or [''])[0]
+    if foto and not foto.startswith(('/', 'http')):
+        foto = '/' + foto
     ps = precios(r)
     precio = min(ps) if ps else ''
     eq = ', '.join(r.get('equipamiento') or [])
