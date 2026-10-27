@@ -32,11 +32,11 @@ HOY = date.today().isoformat()
 
 # Secciones de la portada. Las que tienen 'pagina' ya tienen URL propia; el resto sigue siendo un ancla.
 SECCIONES = [
-    {'ancla': 'casa', 'nombre': 'La casa', 'pagina': None},           # /la-casa: pendiente de datos
+    {'ancla': 'casa', 'nombre': 'La casa', 'pagina': 'la-casa'},
     {'ancla': 'fotos', 'nombre': 'Fotos', 'pagina': None},
     {'ancla': 'habitaciones', 'nombre': 'Habitaciones', 'pagina': 'habitaciones'},
-    {'ancla': 'ubicacion', 'nombre': 'Ubicación', 'pagina': None},     # /ubicacion: pendiente de datos
-    {'ancla': 'condiciones', 'nombre': 'Condiciones', 'pagina': None},  # /precios-y-condiciones: pendiente
+    {'ancla': 'ubicacion', 'nombre': 'Ubicación', 'pagina': 'ubicacion'},
+    {'ancla': 'condiciones', 'nombre': 'Precios y condiciones', 'pagina': 'precios-y-condiciones'},
 ]
 LEGALES = ['aviso-legal', 'privacidad', 'cookies', 'condiciones-solicitud']
 
@@ -152,6 +152,14 @@ body{background:var(--ground)}
 .sp-table th,.sp-table td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}
 .sp-table th{background:var(--tint);font-weight:700}
 .sp-tablewrap{overflow-x:auto;max-width:100%}
+.sp-table td,.sp-table th{white-space:nowrap}
+@media (max-width:560px){.sp-table{font-size:.85rem}.sp-table th,.sp-table td{padding:9px 8px}.sp-pr th:nth-child(3),.sp-pr td:nth-child(3){display:none}.sp-pr th{white-space:normal}}
+@media (max-width:360px){.sp-table th,.sp-table td{padding:9px 6px}}
+.sp-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:14px;margin:18px 0 6px}
+.sp-photos figure{margin:0;background:var(--surface);border-radius:14px;overflow:hidden;box-shadow:0 8px 24px -18px rgba(16,41,42,.5)}
+.sp-photos img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover}
+.sp-photos figcaption{padding:10px 12px;font:500 .88rem/1.4 var(--sans);color:var(--ink)}
+.sp-table a{color:var(--accent);font-weight:700}
 .sp-cta{margin:34px 0 0;padding:26px 22px;border-radius:18px;background:var(--teal);color:var(--cream)}
 .sp-cta h2{color:var(--cream)}
 .sp-cta p{color:var(--cream)}
@@ -385,6 +393,220 @@ desde ese momento hasta el 31 de julio.</p></section>
                   'Habitaciones para chicas estudiantes en Dos Hermanas', cuerpo, ld, 'og-habitaciones.jpg', 'Habitaciones')
 
 
+# ---------------------------------------------------------------- piezas comunes de las páginas
+def ld_migas(slug, nombre):
+    return {'@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+        {'@type': 'ListItem', 'position': 1, 'name': 'Inicio', 'item': SITE + '/'},
+        {'@type': 'ListItem', 'position': 2, 'name': nombre, 'item': SITE + '/' + slug}]}
+
+
+def ld_negocio(d, img, extra=None):
+    allp = [x for r in d['rooms'] if r.get('activa') for x in precios(r)]
+    n = {'@context': 'https://schema.org', '@type': 'LocalBusiness', 'name': 'BSL · Boutique Student Living', 'url': SITE + '/',
+         'address': {'@type': 'PostalAddress', 'streetAddress': 'Calle Canónigo', 'postalCode': '41701', 'addressLocality': 'Dos Hermanas',
+                     'addressRegion': 'Sevilla', 'addressCountry': 'ES'},
+         'priceRange': 'Desde %s €/mes' % (min(allp) if allp else ''), 'image': SITE + '/images/' + img, 'logo': SITE + '/images/icon-512.png'}
+    n.update(extra or {})
+    return n
+
+
+def fotos(lista):
+    return '<div class="sp-photos">' + ''.join(
+        '<figure><img src="/images/%s" alt="%s" loading="lazy" width="900" height="675"><figcaption>%s</figcaption></figure>' % (f, esc(a), c)
+        for f, a, c in lista) + '</div>'
+
+
+def cta(titulo, texto):
+    return ('<div class="sp-cta"><h2 style="font:400 clamp(1.5rem,4vw,2rem)/1.1 var(--serif);margin:0 0 8px">%s</h2><p>%s</p>'
+            '<div class="sp-btns"><a class="btn" href="/habitaciones">Ver habitaciones</a><a class="btn line js-wa" href="/#habitaciones">Escribir por WhatsApp</a></div></div>'
+            % (titulo, texto))
+
+
+LEAD = '<p class="sp-lead" style="font:500 1.08rem/1.6 var(--sans);max-width:62ch;margin:0 0 6px">%s</p>'
+
+
+# ---------------------------------------------------------------- /la-casa
+def pag_casa(p, d):
+    cuerpo = LEAD % ('BSL ocupa una vivienda entera de la calle Canónigo, en el centro de Dos Hermanas: 205 m² repartidos entre la planta baja y la '
+                     'primera, con patio y dos azoteas. Esta página recorre la casa espacio por espacio y explica cómo se organiza la vida en común.') + '''
+
+<section class="sp-sec" aria-labelledby="c-ref"><h2 id="c-ref">Una casa antigua, nueva por dentro</h2>
+<p>Al entrar se pasa por el hall, que se ha dejado como estaba: azulejo de cerámica Mensaque y las molduras de origen. Es lo único que se
+conservó. El resto de la vivienda se rehízo de arriba abajo: instalaciones, suelos, los cuatro baños, las dos cocinas y todo el mobiliario son
+nuevos. El pasillo que lleva al salón, por ejemplo, estrena suelo de madera.</p>
+''' + fotos([('pasillo-azulejos.jpg', 'Hall de entrada con azulejo Mensaque', 'El hall, con su azulejo y molduras de siempre'),
+             ('pasillo-salon.jpg', 'Pasillo hacia el salón', 'El pasillo, ya con el suelo nuevo')]) + '''</section>
+
+<section class="sp-sec" aria-labelledby="c-baja"><h2 id="c-baja">La planta baja: salón, cocina principal y patio</h2>
+<p>Abajo se concentra la vida en común. Además de cuatro de las ocho habitaciones (Azahar, Jazmín, Dalia y Azucena) y dos baños, aquí está el
+salón comedor: un espacio con un ventanal grande, sofá, una mesa en la que se sientan todas a la vez y una Smart TV de 50 pulgadas. Desde el
+salón se sale directamente al patio, que tiene mesa para comer fuera cuando acompaña el tiempo.</p>
+<p>La cocina de esta planta es la más equipada de la casa: dos frigoríficos, placa de inducción, horno, microondas, lavavajillas y lavadora.</p>
+''' + fotos([('salon-patio.jpg', 'Salón comedor con salida al patio', 'Salón comedor, con la puerta al patio'),
+             ('salon-sofa.jpg', 'Salón con sofá y mesa', 'Sofá y mesa grande para todas'),
+             ('comedor-patio.jpg', 'Comedor con vistas al patio', 'El comedor mira al patio'),
+             ('cocina-planta-baja.jpg', 'Cocina de la planta baja', 'Cocina de abajo: horno, lavavajillas y lavadora'),
+             ('cocina-planta-baja-2.jpg', 'Cocina de la planta baja con dos frigoríficos', 'Los dos frigoríficos de la cocina de abajo')]) + '''</section>
+
+<section class="sp-sec" aria-labelledby="c-alta"><h2 id="c-alta">La primera planta: segunda cocina y azotea</h2>
+<p>Subiendo están Tulipán, Malva, Girasol y Margarita, los otros dos baños y una segunda cocina con placa de inducción, fregadero, frigorífico y
+lavadora propia. Gracias a ella, quien vive arriba puede cocinar y poner la ropa sin bajar. En esta misma planta está una de las azoteas: es a la
+que da la ventana de Malva.</p>
+''' + fotos([('cocina-planta-alta.jpg', 'Cocina de la primera planta', 'La cocina de arriba, con lavadora propia')]) + '''</section>
+
+<section class="sp-sec" aria-labelledby="c-ext"><h2 id="c-ext">Patio y dos azoteas</h2>
+<p>No es lo habitual en una casa del centro: además del patio, la vivienda cuenta con dos azoteas, una de 70 m² y otra de 80 m².
+Entre interior y exterior, cada inquilina dispone de mucho más sitio que el de su habitación.</p></section>
+
+<section class="sp-sec" aria-labelledby="c-eq"><h2 id="c-eq">Baños y electrodomésticos</h2>
+<p>Los cuatro baños están a estrenar, dos por planta, con ducha de mampara y espejo iluminado: sale a un baño por cada dos chicas. Sumando las
+dos cocinas, la casa tiene tres neveras, dos placas de inducción, horno, microondas, lavavajillas, dos lavadoras, secadora, freidora de aire y
+cafetera de cápsulas, con menaje, vajilla y cubiertos para todas.</p>
+''' + fotos([('bano.jpg', 'Baño de la casa', 'Uno de los cuatro baños'),
+             ('bano-2.jpg', 'Baño con ducha de mampara', 'Ducha de mampara y espejo con luz')]) + '''</section>
+
+<section class="sp-sec" aria-labelledby="c-vida"><h2 id="c-vida">Cómo se organiza la casa</h2>
+<ul>
+<li><b>Todo lo común se comparte.</b> Ningún baño ni ninguna cocina pertenece a una habitación concreta. Las chicas deciden entre ellas cómo
+repartírselos; la propiedad solo entra a fijarlo cuando no hay acuerdo.</li>
+<li><b>Limpieza cada semana.</b> Una vez por semana se limpian baños, cocinas, salón y pasillos, y está incluido en los gastos.</li>
+<li><b>Averías sin líos.</b> El mantenimiento y las reparaciones también van en la cuota mensual: si algo falla, se avisa y se arregla.</li>
+<li><b>Solo para las inquilinas.</b> El propietario no vive en la vivienda, que es de uso exclusivo de las chicas que la alquilan. Cada habitación
+es de una sola persona y no se admiten parejas.</li>
+</ul>
+''' + cta('¿Quieres ver qué habitación queda libre?', 'Cada una tiene su ficha con planta, medidas, precio y disponibilidad al día.') + '</section>'
+    ld = [ld_migas('la-casa', 'La casa'), ld_negocio(d, 'og-la-casa.jpg', {
+        'description': 'Vivienda reformada de 205 m² en Dos Hermanas, con 8 habitaciones individuales solo para chicas, 4 baños, 2 cocinas, patio y dos azoteas.',
+        'amenityFeature': [{'@type': 'LocationFeatureSpecification', 'name': n, 'value': True} for n in
+                           ['Patio', 'Dos azoteas (70 y 80 m²)', '4 baños', '2 cocinas equipadas', 'Salón comedor con Smart TV de 50"',
+                            'Lavadora', 'Secadora', 'Lavavajillas', 'Wifi', 'Limpieza semanal de zonas comunes']]})]
+    return pagina(p, 'la-casa', 'La casa: piso compartido para chicas en Dos Hermanas · BSL',
+                  'Cómo es la casa de BSL en Dos Hermanas: 205 m² reformados en dos plantas, 4 baños, 2 cocinas equipadas, salón con salida al patio y dos azoteas. Solo chicas.',
+                  'La casa: dos plantas, patio y dos azoteas en Dos Hermanas', cuerpo, ld, 'og-la-casa.jpg', 'La casa')
+
+
+# ---------------------------------------------------------------- /ubicacion
+TRENES = [('Sevilla · Santa Justa (estación del AVE)', 'Cercanías', '17 min'), ('Jerez de la Frontera', 'Tren directo', '45 min'),
+          ('Córdoba', 'AVE, cambiando en Santa Justa', '1 h 15 min'), ('Cádiz', 'Tren directo', '1 h 30 min'),
+          ('Huelva', 'Tren, cambiando en Santa Justa', '2 h'), ('Málaga', 'Tren directo', '2 h 50 min'),
+          ('Madrid', 'AVE, cambiando en Santa Justa', '3 h 20 min')]
+
+
+def pag_ubicacion(p, d):
+    filas = ''.join('<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % t for t in TRENES)
+    cuerpo = LEAD % ('La casa está en la calle Canónigo, en pleno centro de Dos Hermanas y al lado del Ayuntamiento. Desde la puerta se llega en '
+                     'minutos a la universidad, a Sevilla y a casi todo lo que se necesita en el día a día. Aquí tienes los trayectos y las distancias reales.') + '''
+
+<section class="sp-sec" aria-labelledby="u-clase"><h2 id="u-clase">Ir a clase</h2>
+<p><b>Universidad Loyola Andalucía.</b> El autobús de la línea 5 va directo y tarda unos 6 minutos. Es la universidad de la mayoría de las chicas
+de la casa, junto con la Pablo de Olavide.</p>
+<p><b>Si estudias en Sevilla.</b> El Cercanías te deja en Bellavista en 6 minutos y en Viapol–San Bernardo en 14. La estación de Santa Justa queda a 17.</p></section>
+
+<section class="sp-sec" aria-labelledby="u-est"><h2 id="u-est">La estación, en tu misma calle</h2>
+<p>La estación de Renfe de Dos Hermanas está en la calle Canónigo, la misma de la casa. Al lado tienes además la parada central de autobuses y una
+parada de taxis. Para moverte a diario no necesitas coche.</p></section>
+
+<section class="sp-sec" aria-labelledby="u-fin"><h2 id="u-fin">Volver a casa el fin de semana</h2>
+<p>Muchas estudiantes vienen de otras provincias. Desde la estación de Dos Hermanas, el tren más rápido tarda aproximadamente esto (cuando hay que
+cambiar de tren, el tiempo del cambio está incluido):</p>
+<div class="sp-tablewrap"><table class="sp-table"><thead><tr><th>Destino</th><th>Cómo</th><th>Tiempo</th></tr></thead><tbody>''' + filas + '''</tbody></table></div>
+<p>Cádiz, además, tiene playa en la propia capital: un plan sencillo para un sábado sin coche.</p></section>
+
+<section class="sp-sec" aria-labelledby="u-llegar"><h2 id="u-llegar">El día que llegas con las maletas</h2>
+<p>Si vienes en AVE, por ejemplo desde Madrid o Córdoba, te bajas en Santa Justa y allí mismo tomas el Cercanías hacia Dos Hermanas. En unos
+17 minutos estás en la estación, y como está en la calle Canónigo, el último tramo es un paseo corto hasta la puerta. Si llegas en coche,
+el aparcamiento público queda a 3 minutos.</p></section>
+
+<section class="sp-sec" aria-labelledby="u-pie"><h2 id="u-pie">Todo a pie</h2>
+<ul>
+<li><b>Estudiar fuera de casa:</b> a 50 metros hay una biblioteca pública con salas de estudio climatizadas, abierta las 24 horas durante todo el año.</li>
+<li><b>Compras:</b> Mercadona y Lidl quedan a unos 5 minutos andando, y en la misma calle hay plaza de abastos.</li>
+<li><b>Bancos:</b> BBVA, CaixaBank, Sabadell, Santander y Cajasur tienen oficina en la calle Canónigo.</li>
+<li><b>Ocio y aire libre:</b> la zona de ocio está en la misma calle y el Parque de la Alquería, a 250 metros.</li>
+<li><b>Farmacia:</b> a 100 metros.</li>
+</ul></section>
+
+<section class="sp-sec" aria-labelledby="u-salud"><h2 id="u-salud">Salud</h2>
+<p>El centro de salud público está a 150 metros de la puerta. Si tienes seguro privado, la Clínica San Agustín queda a unos 10 minutos y trabaja con
+Adeslas, Sanitas, Caser o Mapfre, entre otras.</p></section>
+
+<section class="sp-sec" aria-labelledby="u-coche"><h2 id="u-coche">Si traes coche</h2>
+<p>Hay un aparcamiento público a 3 minutos de la casa, con abono de 40 € al mes.</p>
+<p><a class="btn line dark" href="https://maps.app.goo.gl/VNDkkathCcGhzhDj8" target="_blank" rel="noopener">Ver la casa en Google Maps ↗</a></p>
+''' + cta('¿Te viene bien la zona?', 'Mira qué habitaciones quedan libres y escríbenos si tienes cualquier duda sobre cómo llegar.') + '</section>'
+    ld = [ld_migas('ubicacion', 'Ubicación'), ld_negocio(d, 'og-ubicacion.jpg', {
+        'hasMap': 'https://maps.app.goo.gl/VNDkkathCcGhzhDj8',
+        'description': 'En la calle Canónigo, centro de Dos Hermanas: bus directo a la Universidad Loyola en 6 min y estación de Cercanías en la misma calle.'})]
+    return pagina(p, 'ubicacion', 'Ubicación cerca de la Universidad Loyola, en Dos Hermanas · BSL',
+                  'BSL está en la calle Canónigo, centro de Dos Hermanas: bus directo a la Universidad Loyola en 6 min, Cercanías a Sevilla en la misma calle y biblioteca 24 h a 50 m.',
+                  'Ubicación: centro de Dos Hermanas, a 6 minutos de la Universidad Loyola', cuerpo, ld, 'og-ubicacion.jpg', 'Ubicación')
+
+
+# ---------------------------------------------------------------- /precios-y-condiciones
+def pag_precios(p, d):
+    rooms = sorted([r for r in d['rooms'] if r.get('activa')], key=lambda r: r['num'])
+    allp = [x for r in rooms for x in precios(r)]
+    pmin, pmax = (min(allp), max(allp)) if allp else ('', '')
+    g = rooms[0].get('gastos', 0) if rooms else 0
+
+    cursos = (d.get('ajustes') or {}).get('cursos') or []
+    yc = min(cursos) if cursos else (date.today().year if date.today().month >= 9 else date.today().year - 1) + 1
+
+    def fila(r):  # precio del próximo curso completo (el de ese curso si lo tiene, si no el general)
+        pr = (r.get('preciosCurso') or {}).get(str(yc)) or r.get('precio') or 0
+        return ('<tr data-room="%s" data-curso><td><a href="/habitaciones#%s">%s</a></td><td><span data-f="precio">%s</span> €</td><td><span data-f="gastos">%s</span> €</td>'
+                '<td><b><span data-f="total">%s</span> €</b></td><td><span data-f="curso">%s</span> €</td></tr>') % (
+            esc(r['id']), esc(r['id']), esc(r['nombre']), pr, esc(r.get('gastos', '')), pr + (r.get('gastos') or 0), (pr + (r.get('gastos') or 0)) * 11)
+    cuerpo = LEAD % ('Qué se paga cada mes, qué cubre, cuánto supone un curso entero y qué pasos hay hasta tener la plaza. Las cantidades de esta página '
+                     'salen del sistema con el que se gestiona la casa, así que coinciden siempre con las de cada habitación.') + f'''
+
+<section class="sp-sec" aria-labelledby="p-mes"><h2 id="p-mes">Qué pagas cada mes</h2>
+<p>Son dos cantidades y nada más. La primera es el alquiler de la habitación, que cambia según cuál elijas: ahora mismo va de
+<span class="js-pmin">{pmin}</span> a <span class="js-pmax">{pmax}</span> € al mes. La segunda es una cuota fija de gastos de <span class="js-gastos">{g}</span> €,
+igual para todas. Sumadas, son el precio final.</p>
+<div class="sp-tablewrap"><table class="sp-table sp-pr"><thead><tr><th>Habitación</th><th>Alquiler</th><th>Gastos</th><th>Total al mes</th><th>Curso <span class="js-curso">{yc}/{str(yc + 1)[2:]}</span> (11 meses)</th></tr></thead>
+<tbody>{''.join(fila(r) for r in rooms)}</tbody></table></div></section>
+
+<section class="sp-sec" aria-labelledby="p-gastos"><h2 id="p-gastos">Qué cubre la cuota de gastos</h2>
+<ul>
+<li><b>Suministros:</b> agua y electricidad de toda la vivienda.</li>
+<li><b>Conexión:</b> internet por fibra, con wifi en toda la casa.</li>
+<li><b>Limpieza:</b> una vez por semana se limpian los baños, las cocinas, el salón y los pasillos.</li>
+<li><b>Mantenimiento:</b> las reparaciones y el cuidado de la casa.</li>
+</ul>
+<p>Como todo eso va incluido, no tienes que dar de alta suministros ni contratar internet por tu cuenta.</p></section>
+
+<section class="sp-sec" aria-labelledby="p-per"><h2 id="p-per">Periodos de alquiler</h2>
+<p><b>Curso completo:</b> del 1 de septiembre al 31 de julio, once meses. Es la opción principal.</p>
+<p><b>Lo que queda de curso:</b> cuando una habitación se libera con el curso ya empezado, se puede alquilar desde ese día hasta el 31 de julio.
+La disponibilidad de cada una se ve en su ficha.</p></section>
+
+<section class="sp-sec" aria-labelledby="p-fianza"><h2 id="p-fianza">Fianza y contrato</h2>
+<p>Para cerrar la plaza se firma un contrato de arrendamiento de habitación y se entrega una fianza del importe de una mensualidad de alquiler,
+que puedes pagar con tarjeta o por transferencia. Es un alquiler de temporada en vivienda compartida, regulado por la Ley de Arrendamientos
+Urbanos: BSL no es una residencia ni un establecimiento de hospedaje.</p></section>
+
+<section class="sp-sec" aria-labelledby="p-quien"><h2 id="p-quien">Para quién es</h2>
+<p>La casa es solo para chicas mayores de edad, en su mayoría universitarias de la Loyola o de la Pablo de Olavide, de máster o de intercambio.
+Cada habitación la ocupa una única persona, no se aceptan parejas y el propietario no vive allí.</p></section>
+
+<section class="sp-sec" aria-labelledby="p-pasos"><h2 id="p-pasos">De la solicitud a la llave</h2>
+<p>Primero eliges habitación y periodo y envías la solicitud desde la web, sin pagar nada ni comprometerte. Revisamos cada caso según la
+disponibilidad y la convivencia de la casa, y te respondemos por WhatsApp o por teléfono. Si la respuesta es sí, recibes el contrato y las
+indicaciones de la fianza; firmar y abonarla es lo que reserva la habitación a tu nombre. Mientras eso no ocurre, otra interesada podría ocuparla.
+Todos los detalles están en las <a href="/condiciones-solicitud">condiciones de la reserva</a>.</p></section>
+
+<section class="sp-sec" aria-labelledby="p-res"><h2 id="p-res">Comparado con una residencia</h2>
+<p>En Sevilla y su área metropolitana, una plaza en residencia de estudiantes ronda los 800 € al mes como punto de partida, según el centro (es un
+precio orientativo). En BSL, la habitación más económica con sus gastos sale hoy por <b><span class="js-totmin">{pmin + g if pmin != '' else ''}</span> €</b> al mes,
+con una cocina en cada planta en lugar de un comedor con horarios.</p>
+''' + cta('¿Hacemos números con tu habitación?', 'Escríbenos con las fechas que necesitas y te decimos qué está libre y cuánto sería.') + '</section>'
+    ld = [ld_migas('precios-y-condiciones', 'Precios y condiciones'), ld_negocio(d, 'og-precios.jpg')]
+    return pagina(p, 'precios-y-condiciones', 'Precio y condiciones del alquiler de habitación · BSL Dos Hermanas',
+                  'Cuánto cuesta vivir en BSL: habitaciones desde %s €/mes más %s € de gastos fijos con agua, luz, wifi y limpieza. Fianza, periodos y cómo se reserva.' % (pmin, g),
+                  'Precio y condiciones del alquiler', cuerpo, ld, 'og-precios.jpg', 'Precios y condiciones')
+
+
 def pag_404(p):
     cuerpo = '''<p style="font:500 1.08rem/1.6 var(--sans);max-width:60ch">La dirección que has abierto no existe o ha cambiado. Puedes volver a la portada
 o ir directamente a cualquiera de las secciones de la web desde los enlaces de abajo.</p>
@@ -436,8 +658,9 @@ def main():
     p = piezas(nuevo_idx)
     (ROOT / 'css').mkdir(exist_ok=True)
     escribir(ROOT / 'css' / 'bsl.css', '/* GENERADO desde el <style> de index.html por tools/generar_paginas.py — no editar */\n' + p['css'])
-    if escribir(ROOT / 'habitaciones.html', pag_habitaciones(p, d)):
-        cambiadas.add('/habitaciones')
+    for slug, fn in [('habitaciones', pag_habitaciones), ('la-casa', pag_casa), ('ubicacion', pag_ubicacion), ('precios-y-condiciones', pag_precios)]:
+        if escribir(ROOT / (slug + '.html'), fn(p, d)):
+            cambiadas.add('/' + slug)
     escribir(ROOT / '404.html', pag_404(p))
     paginas = [s['pagina'] for s in SECCIONES if s['pagina']]
     sm = ROOT / 'sitemap.xml'

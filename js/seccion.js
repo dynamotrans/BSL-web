@@ -40,9 +40,10 @@
     d.rooms.forEach(function (r) {
       document.querySelectorAll('[data-room="' + r.id + '"]').forEach(function (box) {
         if (!r.activa) { if (box.tagName === 'ARTICLE') box.hidden = true; return; }
-        var st = estado(r, aj), yr = st ? st.y : B.visibleCourses(aj, now)[0];
+        var st = estado(r, aj), yc = B.visibleCourses(aj, now)[0], yr = box.hasAttribute('data-curso') ? yc : (st ? st.y : yc);
         var p = B.priceFor(r, yr); if (p > 0) ps.push(p);
         set(box, 'm2', B.m2(r.m2)); set(box, 'cama', r.cama); set(box, 'precio', p); set(box, 'gastos', r.gastos);
+        var tot = p + (+r.gastos || 0); set(box, 'total', tot); set(box, 'curso', (tot * 11).toLocaleString('es-ES'));
         set(box, 'equip', (r.equipamiento || []).join(', '));
         var f0 = r.fotos && r.fotos[0] ? (/^(\/|http)/.test(r.fotos[0]) ? r.fotos[0] : '/' + r.fotos[0]) : '';
         var img = box.querySelector('[data-f="foto"]'); if (img && f0 && img.getAttribute('src') !== f0) img.src = f0;
@@ -51,6 +52,7 @@
         if (badge && st) { badge.className = 'sp-st ' + st.kind; badge.lastChild.textContent = st.text; }
       });
     });
+    var yc0 = B.visibleCourses(aj, now)[0]; document.querySelectorAll('.js-curso').forEach(function (el) { el.textContent = yc0 + '/' + String(yc0 + 1).slice(2); });
     if (ps.length) {
       var mn = Math.min.apply(null, ps), mx = Math.max.apply(null, ps);
       document.querySelectorAll('.js-pmin').forEach(function (el) { el.textContent = mn; });
@@ -59,5 +61,6 @@
     }
     var g = d.rooms.filter(function (r) { return r.activa; })[0];
     if (g) document.querySelectorAll('.js-gastos').forEach(function (el) { el.textContent = g.gastos; });
+    if (g && ps.length) document.querySelectorAll('.js-totmin').forEach(function (el) { el.textContent = Math.min.apply(null, ps) + (+g.gastos || 0); });
   });
 })();
