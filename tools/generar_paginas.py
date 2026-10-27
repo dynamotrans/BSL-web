@@ -441,27 +441,30 @@ nuevos. El pasillo que lleva al salón, por ejemplo, estrena suelo de madera.</p
 <p>Abajo se concentra la vida en común. Además de cuatro de las ocho habitaciones (Azahar, Jazmín, Dalia y Azucena) y dos baños, aquí está el
 salón comedor: un espacio con un ventanal grande, sofá, una mesa en la que se sientan todas a la vez y una Smart TV de 50 pulgadas. Desde el
 salón se sale directamente al patio, que tiene mesa para comer fuera cuando acompaña el tiempo.</p>
-<p>La cocina de esta planta es la más equipada de la casa: dos frigoríficos, placa de inducción, horno, microondas, lavavajillas y lavadora.</p>
+<p>La cocina de esta planta es la más equipada de la casa: dos frigoríficos, placa de inducción, horno, microondas y lavavajillas. Aquí está
+también la lavadora de la casa.</p>
 ''' + fotos([('salon-patio.jpg', 'Salón comedor con salida al patio', 'Salón comedor, con la puerta al patio'),
              ('salon-sofa.jpg', 'Salón con sofá y mesa', 'Sofá y mesa grande para todas'),
              ('comedor-patio.jpg', 'Comedor con vistas al patio', 'El comedor mira al patio'),
-             ('cocina-planta-baja.jpg', 'Cocina de la planta baja', 'Cocina de abajo: horno, lavavajillas y lavadora'),
+             ('cocina-planta-baja.jpg', 'Cocina de la planta baja', 'Cocina de abajo, con horno, lavavajillas y la lavadora'),
              ('cocina-planta-baja-2.jpg', 'Cocina de la planta baja con dos frigoríficos', 'Los dos frigoríficos de la cocina de abajo')]) + '''</section>
 
 <section class="sp-sec" aria-labelledby="c-alta"><h2 id="c-alta">La primera planta: segunda cocina y azotea</h2>
-<p>Subiendo están Tulipán, Malva, Girasol y Margarita, los otros dos baños y una segunda cocina con placa de inducción, fregadero, frigorífico y
-lavadora propia. Gracias a ella, quien vive arriba puede cocinar y poner la ropa sin bajar. En esta misma planta está una de las azoteas: es a la
-que da la ventana de Malva.</p>
-''' + fotos([('cocina-planta-alta.jpg', 'Cocina de la primera planta', 'La cocina de arriba, con lavadora propia')]) + '''</section>
+<p>Subiendo están Tulipán, Malva, Girasol y Margarita, los otros dos baños y una segunda cocina con placa de inducción, fregadero y
+frigorífico. Gracias a ella, quien vive arriba puede cocinar sin bajar. En esta misma planta está una de las azoteas: es a la que da la
+ventana de Malva.</p>
+''' + fotos([('cocina-planta-alta.jpg', 'Cocina de la primera planta', 'La cocina de arriba')]) + '''</section>
 
 <section class="sp-sec" aria-labelledby="c-ext"><h2 id="c-ext">Patio y dos azoteas</h2>
 <p>No es lo habitual en una casa del centro: además del patio, la vivienda cuenta con dos azoteas, una de 70 m² y otra de 80 m².
-Entre interior y exterior, cada inquilina dispone de mucho más sitio que el de su habitación.</p></section>
+Tienen mesa y sillas y se usan para tender la ropa, tomar el sol o simplemente salir a desconectar un rato. Entre interior y exterior, cada
+inquilina dispone de mucho más sitio que el de su habitación.</p></section>
 
 <section class="sp-sec" aria-labelledby="c-eq"><h2 id="c-eq">Baños y electrodomésticos</h2>
 <p>Los cuatro baños están a estrenar, dos por planta, con ducha de mampara y espejo iluminado: sale a un baño por cada dos chicas. Sumando las
-dos cocinas, la casa tiene tres neveras, dos placas de inducción, horno, microondas, lavavajillas, dos lavadoras, secadora, freidora de aire y
-cafetera de cápsulas, con menaje, vajilla y cubiertos para todas.</p>
+dos cocinas, la casa tiene tres neveras, dos placas de inducción, horno, microondas, lavavajillas, freidora de aire y cafetera de cápsulas,
+con menaje, vajilla y cubiertos para todas. Para la ropa hay una lavadora y una secadora compartidas.</p>
+<p><b>Internet:</b> fibra de 1 Gb con Digi y wifi en toda la casa, de sobra para clases en línea, videollamadas o series a la vez.</p>
 ''' + fotos([('bano.jpg', 'Baño de la casa', 'Uno de los cuatro baños'),
              ('bano-2.jpg', 'Baño con ducha de mampara', 'Ducha de mampara y espejo con luz')]) + '''</section>
 
@@ -469,10 +472,20 @@ cafetera de cápsulas, con menaje, vajilla y cubiertos para todas.</p>
 <ul>
 <li><b>Todo lo común se comparte.</b> Ningún baño ni ninguna cocina pertenece a una habitación concreta. Las chicas deciden entre ellas cómo
 repartírselos; la propiedad solo entra a fijarlo cuando no hay acuerdo.</li>
-<li><b>Limpieza cada semana.</b> Una vez por semana se limpian baños, cocinas, salón y pasillos, y está incluido en los gastos.</li>
+<li><b>Limpieza cada jueves.</b> Todas las semanas, el jueves, se limpian baños, cocinas, salón y pasillos. Está incluido en los gastos.</li>
 <li><b>Averías sin líos.</b> El mantenimiento y las reparaciones también van en la cuota mensual: si algo falla, se avisa y se arregla.</li>
 <li><b>Solo para las inquilinas.</b> El propietario no vive en la vivienda, que es de uso exclusivo de las chicas que la alquilan. Cada habitación
 es de una sola persona y no se admiten parejas.</li>
+</ul></section>
+
+<section class="sp-sec" aria-labelledby="c-normas"><h2 id="c-normas">Normas de convivencia</h2>
+<p>Son pocas y de sentido común, pensadas para que ocho chicas que estudian vivan a gusto:</p>
+<ul>
+<li><b>Sin humo dentro.</b> No se fuma en el interior de la casa; solo en el patio o en las azoteas.</li>
+<li><b>Sin mascotas.</b> No se admiten animales.</li>
+<li><b>Visitas, de día.</b> Puedes recibir a amigas o familia durante el día, avisando a tus compañeras. Las personas que no viven en la casa no se quedan a dormir.</li>
+<li><b>Descanso.</b> De 23:00 a 8:00 se baja el volumen en zonas comunes para que quien estudia o duerme pueda hacerlo.</li>
+<li><b>Lo común, recogido.</b> Cocina y salón se dejan limpios después de usarlos; la limpieza semanal no sustituye a recoger lo propio.</li>
 </ul>
 ''' + cta('¿Quieres ver qué habitación queda libre?', 'Cada una tiene su ficha con planta, medidas, precio y disponibilidad al día.') + '</section>'
     ld = [ld_migas('la-casa', 'La casa'), ld_negocio(d, 'og-la-casa.jpg', {
@@ -498,8 +511,11 @@ def pag_ubicacion(p, d):
                      'minutos a la universidad, a Sevilla y a casi todo lo que se necesita en el día a día. Aquí tienes los trayectos y las distancias reales.') + '''
 
 <section class="sp-sec" aria-labelledby="u-clase"><h2 id="u-clase">Ir a clase</h2>
-<p><b>Universidad Loyola Andalucía.</b> El autobús de la línea 5 va directo y tarda unos 6 minutos. Es la universidad de la mayoría de las chicas
-de la casa, junto con la Pablo de Olavide.</p>
+<p><b>Universidad Loyola Andalucía.</b> El autobús urbano de la línea 5 va directo y tarda unos 6 minutos. Es la universidad de la mayoría de
+las chicas de la casa, junto con la Pablo de Olavide.</p>
+<p><b>Universidad Pablo de Olavide.</b> La misma línea 5 sale de la plaza del Arenal, junto a la estación, pasa por la Loyola y continúa hasta el
+campus de la Olavide, así que las dos universidades quedan en un solo autobús. Horarios y paso en tiempo real, en la aplicación «Autobuses
+Urbanos Dos Hermanas».</p>
 <p><b>Si estudias en Sevilla.</b> El Cercanías te deja en Bellavista en 6 minutos y en Viapol–San Bernardo en 14. La estación de Santa Justa queda a 17.</p></section>
 
 <section class="sp-sec" aria-labelledby="u-est"><h2 id="u-est">La estación, en tu misma calle</h2>
@@ -574,10 +590,15 @@ igual para todas. Sumadas, son el precio final.</p>
 <li><b>Limpieza:</b> una vez por semana se limpian los baños, las cocinas, el salón y los pasillos.</li>
 <li><b>Mantenimiento:</b> las reparaciones y el cuidado de la casa.</li>
 </ul>
-<p>Como todo eso va incluido, no tienes que dar de alta suministros ni contratar internet por tu cuenta.</p></section>
+<p>La cuota es fija: no sube ni baja con las facturas. Y como todo va incluido, no tienes que dar de alta suministros ni contratar internet
+por tu cuenta. La fibra es de 1 Gb.</p></section>
+
+<section class="sp-sec" aria-labelledby="p-pago"><h2 id="p-pago">Cuándo se paga</h2>
+<p>El alquiler y la cuota de gastos se pagan cada mes, entre el día 1 y el día 5.</p></section>
 
 <section class="sp-sec" aria-labelledby="p-per"><h2 id="p-per">Periodos de alquiler</h2>
 <p><b>Curso completo:</b> del 1 de septiembre al 31 de julio, once meses. Es la opción principal.</p>
+<p><b>Estancia mínima:</b> por lo general, un semestre. Depende de la habitación y de las fechas, así que pregúntanos por la que te interese.</p>
 <p><b>Lo que queda de curso:</b> cuando una habitación se libera con el curso ya empezado, se puede alquilar desde ese día hasta el 31 de julio.
 La disponibilidad de cada una se ve en su ficha.</p></section>
 
@@ -588,7 +609,9 @@ Urbanos: BSL no es una residencia ni un establecimiento de hospedaje.</p></secti
 
 <section class="sp-sec" aria-labelledby="p-quien"><h2 id="p-quien">Para quién es</h2>
 <p>La casa es solo para chicas mayores de edad, en su mayoría universitarias de la Loyola o de la Pablo de Olavide, de máster o de intercambio.
-Cada habitación la ocupa una única persona, no se aceptan parejas y el propietario no vive allí.</p></section>
+Cada habitación la ocupa una única persona, no se aceptan parejas y el propietario no vive allí.</p>
+<p><b>Documentación:</b> pedimos el justificante de acceso o de matrícula de tu centro de estudios (Loyola, Pablo de Olavide u otro).</p>
+<p><b>Antes de decidir:</b> puedes venir a ver la casa o, si estás lejos, te enviamos vídeos y fotos de la habitación que te interese.</p></section>
 
 <section class="sp-sec" aria-labelledby="p-pasos"><h2 id="p-pasos">De la solicitud a la llave</h2>
 <p>Primero eliges habitación y periodo y envías la solicitud desde la web, sin pagar nada ni comprometerte. Revisamos cada caso según la
