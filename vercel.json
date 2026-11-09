@@ -18,7 +18,12 @@
       "permanent": true
     },
     {
-      "source": "/:lang(es|en|fr|de|it|pt|nl|ar|ja)/:path*",
+      "source": "/:lang(es|en|fr|de|it|pt|nl|ar|ja)/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/:lang(es|en|fr|de|it|pt|nl|ar|ja)/:path+",
       "destination": "/",
       "permanent": true
     }
