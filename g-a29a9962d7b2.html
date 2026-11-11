@@ -592,9 +592,9 @@ dialog.gdlg::backdrop{background:rgba(9,28,30,.55)}
   function renderList() {
     var y = B.defaultCourse(), rg = B.periodRange('curso', y);
     $('list').innerHTML = data.rooms.slice().sort(function (a, b) { return a.num - b.num; }).map(function (r) {
-      var st = B.status(r, rg.from, rg.to);
+      var st = B.nowStatus(r); // a fecha de hoy, no desde el inicio del curso
       return '<button type="button" class="item' + (r.activa ? '' : ' off') + '" data-id="' + r.id + '" aria-current="' + (r.id === sel) + '">' +
-        '<span class="n">' + r.num + '</span><span><b>' + esc(r.nombre) + (B.priceFor(r, y) ? ' <em class="pr">' + esc(B.priceFor(r, y)) + ' €/mes</em>' : '') + '</b><small>' + (r.activa ? esc(st.text) + ' · ' + B.courseLabel(y) : 'Oculta en la web') + '</small></span>' +
+        '<span class="n">' + r.num + '</span><span><b>' + esc(r.nombre) + (B.priceFor(r, y) ? ' <em class="pr">' + esc(B.priceFor(r, y)) + ' €/mes</em>' : '') + '</b><small>' + (r.activa ? esc(st.text) : 'Oculta en la web') + '</small></span>' +
         '<span class="dot st-' + st.kind + '"></span></button>';
     }).join('') + totalHtml();
   }

@@ -66,6 +66,23 @@
     return { kind: 'ocupada', text: 'Ocupada' };
   }
 
+  /* Estado a fecha de hoy (lista del panel): «Ocupada hasta el X · libre desde el Y» o «Libre ya / Libre hasta el X».
+   * Agosto no cuenta como hueco libre (no se alquila), así que una habitación ocupada en dos cursos seguidos
+   * sale ocupada hasta el final del segundo. Mira como mucho 4 años hacia delante. */
+  function nowStatus(room, iso) {
+    iso = iso || today();
+    var lim = addDays(iso, 4 * 366), d = iso, isAug = function (x) { return x.slice(5, 7) === '08'; };
+    if (dayState(room, iso) === 'ocupada') {
+      var last = iso;
+      while (d <= lim && (dayState(room, d) === 'ocupada' || isAug(d))) { if (!isAug(d)) last = d; d = addDays(d, 1); }
+      if (d > lim) return { kind: 'ocupada', text: 'Ocupada' };
+      return { kind: 'ocupada', text: 'Ocupada hasta el ' + fmt(last, true) + ' · libre desde el ' + fmt(d, true), from: d };
+    }
+    while (d <= lim && dayState(room, d) !== 'ocupada') d = addDays(d, 1);
+    if (d > lim) return { kind: 'libre', text: 'Libre ya' };
+    return { kind: 'parcial', text: 'Libre ya, hasta el ' + fmt(addDays(d, -1), true), to: addDays(d, -1) };
+  }
+
   /* ---------- Opciones de reserva ----------
    * 1) Resto del curso en marcha: solo si la habitación queda libre desde hoy (o desde una fecha)
    *    hasta el 31 de julio.
@@ -316,6 +333,6 @@
   window.BSL = {
     config: CONFIG, store: BSLStore, waLink: waLink,
     PERIODS: PERIODS, periodRange: periodRange, defaultCourse: defaultCourse, courseLabel: courseLabel,
-    dayState: dayState, status: status, options: options, visibleCourses: visibleCourses, FICHAS: FICHAS, applyFichas: applyFichas, needsFichas: needsFichas, m2: m2, periodRange: periodRange, courseOf: courseOf, nextFullCourse: nextFullCourse, priceFor: priceFor, courseYear: courseYear, addDays: addDays, toDate: toDate, today: today, fmt: fmt, MESES: MESES
+    dayState: dayState, status: status, nowStatus: nowStatus, options: options, visibleCourses: visibleCourses, FICHAS: FICHAS, applyFichas: applyFichas, needsFichas: needsFichas, m2: m2, periodRange: periodRange, courseOf: courseOf, nextFullCourse: nextFullCourse, priceFor: priceFor, courseYear: courseYear, addDays: addDays, toDate: toDate, today: today, fmt: fmt, MESES: MESES
   };
 })();
