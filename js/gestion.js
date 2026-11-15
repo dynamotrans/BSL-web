@@ -912,7 +912,11 @@
       '<section class="card"><div class="ch"><h3>Contratos</h3><button class="btn" type="button" id="new-c">+ Nuevo contrato</button></div>' +
       (cs.length ? cs.map(function (c) {
         var now = today(), st = c.hasta < now ? ['fin', 'Terminado'] : c.desde > now ? ['pendiente', 'Próximo'] : ['pagado', 'En curso'];
-        return '<button type="button" class="crow" data-c="' + c.id + '"><span><b>' + esc(roomName(c.habitacionId)) + '</b><small>' + fmt(c.desde) + ' → ' + fmt(c.hasta) + ' · ' + money(c.precio) + ' + ' + money(c.gastos) + ' gastos · día ' + (c.diaPago || 5) + ((c.docs || []).length ? ' · 📎 ' + c.docs.length + ' doc.' : '') + '</small>' +
+        return '<button type="button" class="crow" data-c="' + c.id + '"><span><b>' + esc(roomName(c.habitacionId)) + '</b><small>' + fmt(c.desde) + ' → ' + fmt(c.hasta) + ' · ' + money(c.precio) + ' + ' + money(c.gastos) + ' gastos · día ' + (c.diaPago || 5) + '</small>' +
+          // Documentos subidos al contrato: cada uno con su nombre; al pulsarlo se abre
+          ((c.docs || []).length ? '<small class="cdocs">' + c.docs.map(function (d, i) {
+            return '<span class="cdoc" role="link" tabindex="0" data-od="' + c.id + '|' + i + '" title="Abrir">' + (d.tipo === 'pdf' ? '📄 ' : '🖼️ ') + esc(d.nombre || 'Documento') + '</span>';
+          }).join('') + '</small>' : '<small class="cdocs none">Sin documentos subidos</small>') +
           '<small>Fianza ' + money(c.fianza) + ' · ' + esc({ pendiente: 'pendiente', cobrada: 'cobrada', devuelta: 'devuelta' }[c.fianzaEstado || 'pendiente']) + '</small>' +
           (c.creadoEn || c.editadoEn ? '<small class="stamp">' + (c.creadoEn ? 'Creado el ' + fmtDT(c.creadoEn) : '') + (c.editadoEn ? (c.creadoEn ? ' · ' : '') + 'Modificado el ' + fmtDT(c.editadoEn) : '') + '</small>' : '') + '</span>' + chip(st[0], st[1]) + '</button>';
       }).join('') : '<p class="empty">Sin contratos. Crea uno para asignarle habitación: la web la marcará ocupada y se generarán los cobros.</p>') + '</section>' +
@@ -930,6 +934,11 @@
     $('new-c').onclick = function () { contractForm(id, null); };
     $('pay-t').onclick = function () { payDialog(id, []); };
     box.querySelectorAll('[data-c]').forEach(function (b) { b.onclick = function () { contractForm(id, contract(b.getAttribute('data-c'))); }; });
+    box.querySelectorAll('[data-od]').forEach(function (el) {
+      function go(e) { e.stopPropagation(); e.preventDefault(); var k = el.getAttribute('data-od').split('|'), c = contract(k[0]); if (c && c.docs && c.docs[+k[1]]) openDoc(c.docs[+k[1]]); }
+      el.addEventListener('click', go);
+      el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') go(e); });
+    });
     $('new-i').onclick = function () { incForm(null, { inquilinaId: id, habitacionId: (activeContract(id) || {}).habitacionId }); };
     bindInc(box); bindCobros(box);
     $('del-t').onclick = function () {
