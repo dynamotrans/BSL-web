@@ -790,7 +790,7 @@
         { k: 'pay', type: 'html', html: isNew ? '' : '<div class="payc edit-only"><button type="button" class="btn plain sm" id="c-pay">💳 Solicitar pago (fianza, mensualidades…)</button></div>' },
         { k: 'docs', type: 'html', html: '<div class="docs"><h4 class="subh">Documentos del contrato</h4><div id="c-docs"></div>' +
           '<label class="btn plain sm doc-add edit-only">+ Adjuntar PDF o fotos<input type="file" id="c-doc-in" accept="application/pdf,image/*" multiple hidden></label>' +
-          '<p class="hint edit-only" id="c-doc-st">PDF o fotos, hasta 3 MB cada uno. Puedes adjuntar varios.</p></div>' }
+          '<p class="hint edit-only" id="c-doc-st">PDF o fotos, hasta 15 MB cada uno. Puedes adjuntar varios.</p></div>' }
       ],
       values: {
         habitacionId: c.habitacionId || (r0 && r0.id), desde: c.desde || preset.desde || '', hasta: c.hasta || preset.hasta || '',
@@ -865,7 +865,7 @@
         });
       }, Promise.resolve()).then(function () {
         keepDocs();
-        st.textContent = errs.length ? errs.join(' ') : 'Listo. PDF o fotos, hasta 3 MB cada uno.';
+        st.textContent = errs.length ? errs.join(' ') : 'Listo. PDF o fotos, hasta 15 MB cada uno.';
       });
     };
     dlg.querySelector('.quick').onclick = function (e) {
@@ -1029,7 +1029,7 @@
       fr.onerror = function () { rej(new Error('No se ha podido leer ' + file.name)); };
       fr.onload = function () {
         if (isPdf) {
-          if (file.size > 3 * 1024 * 1024) return rej(new Error(file.name + ' pesa más de 3 MB.'));
+          if (file.size > 15 * 1024 * 1024) return rej(new Error(file.name + ' pesa más de 15 MB.'));
           return res({ data: fr.result.replace(/^data:[^;]*;/, 'data:application/pdf;'), tipo: 'pdf' });
         }
         var img = new Image();

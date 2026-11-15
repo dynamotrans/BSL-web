@@ -259,15 +259,28 @@
     updateSolicitud: function (data) { return post('/api/solicitudes', data, true).then(function (j) { return j.solicitud; }); },
     crearPago: function (data) { return post('/api/pago', data, true).then(function (j) { return j.url; }); },
     // Documentos privados de los contratos (PDF o fotos)
+    // Hasta 15 MB: Vercel admite 4,5 MB por petición, así que lo que pase de ~2,5 MB va en trozos y el servidor los une
     uploadDoc: function (dataUrl) {
       if (!BSLStore.remote) return Promise.resolve(dataUrl);
-      return post('/api/doc', { data: dataUrl }, true).then(function (j) { return j.path; });
+      var m = /^data:([^;]+);base64,(.*)$/.exec(dataUrl), TROZO = 3400000; // caracteres base64 (≈ 2,5 MB), múltiplo de 4
+      if (!m || m[2].length <= TROZO) return post('/api/doc', { data: dataUrl }, true).then(function (j) { return j.path; });
+      var id = (Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)).slice(0, 24), n = Math.ceil(m[2].length / TROZO), chain = Promise.resolve();
+      for (var i = 0; i < n; i++) (function (i) {
+        chain = chain.then(function () { return post('/api/doc', { op: 'parte', id: id, i: i, data: m[2].slice(i * TROZO, (i + 1) * TROZO) }, true); });
+      })(i);
+      return chain.then(function () { return post('/api/doc', { op: 'unir', id: id, n: n, type: m[1] }, true); }).then(function (j) { return j.path; });
     },
     fetchDoc: function (path) {
       if (/^data:/.test(path)) return fetch(path).then(function (r) { return r.blob(); });
-      return fetch('/api/doc?p=' + encodeURIComponent(path), { headers: { Authorization: 'Bearer ' + getToken() }, cache: 'no-store' }).then(function (r) {
-        if (!r.ok) { var e = new Error(r.status === 401 ? 'Sesión caducada. Vuelve a entrar.' : 'No se ha podido abrir el documento.'); e.status = r.status; throw e; }
-        return r.blob();
+      var url = '/api/doc?p=' + encodeURIComponent(path), h = { headers: { Authorization: 'Bearer ' + getToken() }, cache: 'no-store' };
+      function ok(r) { if (!r.ok) { var e = new Error(r.status === 401 ? 'Sesión caducada. Vuelve a entrar.' : 'No se ha podido abrir el documento.'); e.status = r.status; throw e; } return r; }
+      return fetch(url + '&info=1', h).then(ok).then(function (r) { return r.json(); }).then(function (inf) {
+        if (!inf.size || inf.size <= inf.parte) return fetch(url, h).then(ok).then(function (r) { return r.blob(); });
+        var n = Math.ceil(inf.size / inf.parte), partes = [], chain = Promise.resolve();
+        for (var i = 0; i < n; i++) (function (i) {
+          chain = chain.then(function () { return fetch(url + '&parte=' + i, h).then(ok).then(function (r) { return r.arrayBuffer(); }).then(function (b) { partes[i] = b; }); });
+        })(i);
+        return chain.then(function () { return new Blob(partes, { type: inf.type }); });
       });
     },
     login: function (user, key) {
