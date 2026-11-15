@@ -31,7 +31,11 @@ async function dias() {
 async function hacerCopia(forzar) {
   const fecha = hoy(), dir = RAIZ + fecha + '/';
   if (!forzar && (await list({ prefix: dir, limit: 1 })).blobs.length) return { fecha, hecha: false, motivo: 'Ya había copia de hoy' };
-  const origen = (await todos('')).filter((b) => !b.pathname.startsWith(RAIZ));
+  const todo = await todos('');
+  // Trozos de subidas por partes (privado/tmp/) que se quedaron a medias: no se copian y se borran pasado un día
+  const huerfanos = todo.filter((b) => b.pathname.startsWith('privado/tmp/') && Date.now() - new Date(b.uploadedAt).getTime() > 864e5);
+  if (huerfanos.length) await del(huerfanos.map((b) => b.url)).catch(() => null);
+  const origen = todo.filter((b) => !b.pathname.startsWith(RAIZ) && !b.pathname.startsWith('privado/tmp/'));
   const yaArchivados = new Set((await todos(ARCH)).map((b) => b.pathname.slice(ARCH.length)));
   const jsons = origen.filter((b) => b.pathname.endsWith('.json'));
   const nuevos = origen.filter((b) => !b.pathname.endsWith('.json') && !yaArchivados.has(b.pathname));

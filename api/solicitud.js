@@ -6,7 +6,7 @@ import { avisar } from './_aviso.js';
 // Pre-reservas enviadas desde la web (sin sesión). Se guardan en privado, una por archivo,
 // y solo se leen desde el panel (api/solicitudes). Nada de esto se publica.
 const TYPES = { 'application/pdf': 'pdf', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
-const MAX_DOC = 3 * 1024 * 1024;
+const MAX_DOC = 15 * 1024 * 1024; // en la práctica, lo que quepa en una petición (4,5 MB); los grandes van por api/solicitud-doc
 const hits = new Map(); // envíos por IP (por instancia)
 
 export default async function handler(req, res) {
@@ -49,7 +49,7 @@ export default async function handler(req, res) {
   if (faltan.length) return send(res, 400, { error: 'Falta: ' + faltan.join(', ') + '.' });
   if (!docs.length && m && TYPES[m[1]]) {
     const buf = Buffer.from(m[2], 'base64');
-    if (buf.length > MAX_DOC) return send(res, 413, { error: 'El documento pesa demasiado (máximo 3 MB).' });
+    if (buf.length > MAX_DOC) return send(res, 413, { error: 'El documento pesa demasiado (máximo 15 MB).' });
     const up = await put('privado/docs/sol.' + TYPES[m[1]], buf, { access: 'private', addRandomSuffix: true, contentType: m[1] });
     docs.push({ path: up.pathname, tipo: TYPES[m[1]] === 'pdf' ? 'pdf' : 'img', nombre: str(b.docNombre, 120) || 'Documento' });
   }

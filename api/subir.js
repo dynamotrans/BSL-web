@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   const m = /^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/.exec((req.body && req.body.foto) || '');
   if (!m) return send(res, 400, { error: 'La foto debe ser JPG' });
   const buf = Buffer.from(m[1], 'base64');
-  if (buf.length > 3 * 1024 * 1024) return send(res, 413, { error: 'La foto pesa demasiado' });
+  if (buf.length > 15 * 1024 * 1024) return send(res, 413, { error: 'La foto pesa demasiado' }); // el panel las reduce a 1000 px antes
   const b = await put('fotos/habitacion.jpg', buf, {
     access: 'private', addRandomSuffix: true, contentType: 'image/jpeg', cacheControlMaxAge: 31536000
   });
